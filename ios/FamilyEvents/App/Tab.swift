@@ -1,13 +1,13 @@
 import Foundation
 
-public enum AppTab: String, CaseIterable, Identifiable, Hashable, Sendable {
+enum AppTab: String, CaseIterable, Identifiable, Hashable, Sendable {
     case plan
     case explore
     case saved
 
-    public var id: String { rawValue }
+    var id: String { rawValue }
 
-    public var title: String {
+    var title: String {
         switch self {
         case .plan: return "Plan"
         case .explore: return "Explore"
@@ -15,7 +15,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Hashable, Sendable {
         }
     }
 
-    public var systemImage: String {
+    var systemImage: String {
         switch self {
         case .plan: return "calendar.badge.clock"
         case .explore: return "sparkle.magnifyingglass"

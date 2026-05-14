@@ -3,18 +3,18 @@ import FEPlan
 import FEExplore
 import FESaved
 
-public struct RootView: View {
-    public static let shownTabs: [AppTab] = AppTab.allCases
-    public let initialTab: AppTab
+struct RootView: View {
+    static let shownTabs: [AppTab] = AppTab.allCases
+    let initialTab: AppTab
 
     @State private var selectedTab: AppTab
 
-    public init(initialTab: AppTab = .plan) {
+    init(initialTab: AppTab = .plan) {
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
     }
 
-    public var body: some View {
+    var body: some View {
         TabView(selection: $selectedTab) {
             PlanTab()
                 .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
