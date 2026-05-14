@@ -5,8 +5,8 @@ import test from "node:test"
 
 const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..")
 const projectYmlPath = path.join(repoRoot, "apps", "ios", "project.yml")
-const pathPolicyPath = path.join(repoRoot, "apps", "ios", "FamilyEvents", "Networking", "ConsumerAPIPath.swift")
-const scopeTestPath = path.join(repoRoot, "apps", "ios", "FamilyEventsTests", "ConsumerAPIPathTests.swift")
+const pathPolicyPath = path.join(repoRoot, "apps", "ios", "Packages", "FECore", "Sources", "FECore", "ConsumerAPIPath.swift")
+const scopeTestPath = path.join(repoRoot, "apps", "ios", "Packages", "FECore", "Tests", "FECoreTests", "ConsumerAPIPathTests.swift")
 
 test("iOS workspace includes XcodeGen project spec", () => {
   assert.equal(existsSync(projectYmlPath), true)
@@ -28,5 +28,5 @@ test("iOS endpoint policy is consumer-only and excludes admin", () => {
 test("iOS tests explicitly enforce admin out-of-scope policy", () => {
   assert.equal(existsSync(scopeTestPath), true)
   const testSource = readFileSync(scopeTestPath, "utf8")
-  assert.match(testSource, /testAdminPathIsOutOfScope/)
+  assert.match(testSource, /testNoAdminPathsExposed/)
 })

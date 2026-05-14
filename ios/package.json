@@ -4,6 +4,6 @@
   "version": "0.0.1",
   "scripts": {
     "generate": "xcodegen generate",
-    "test": "xcodegen generate && if xcode-select -p | grep -q '/Applications/Xcode'; then xcodebuild -project FamilyEvents.xcodeproj -scheme FamilyEvents -destination 'platform=iOS Simulator,name=iPhone 15' test; else echo 'xcodebuild skipped: full Xcode not selected'; fi"
+    "test": "xcodegen generate && if xcode-select -p | grep -q '/Applications/Xcode'; then xcodebuild -project FamilyEvents.xcodeproj -scheme FamilyEvents -destination 'platform=iOS Simulator,name=iPhone 17' test; else echo 'xcodebuild skipped: full Xcode not selected'; fi"
   }
 }

@@ -15,9 +15,11 @@
 		7AA19CB41083177A888B8FEF /* FEExplore in Frameworks */ = {isa = PBXBuildFile; productRef = 61544DEF43F22997E8487761 /* FEExplore */; };
 		9888A58B98D21EAF3186712A /* FESaved in Frameworks */ = {isa = PBXBuildFile; productRef = 5399C3FDB06EABBE86A2FD40 /* FESaved */; };
 		9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */; };
+		A034794A8267646650C4048E /* TabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0418216EB1C821D23D4966 /* TabTests.swift */; };
 		ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */; };
 		BB84468BCDB03E1E68D9015B /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 5D879C9222AF5C91392EA789 /* FEData */; };
 		C646F68702ADB3B478AAC45A /* FEDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 5546DB4D17A5E09EEF2150C9 /* FEDesignSystem */; };
+		D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F62AF66C36F29653368CAFE /* Tab.swift */; };
 		D5D60E440938F8A5A1EC2B3C /* FECore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EB57A5EFB39A746A0D2B024 /* FECore */; };
 		FB1C8D7370E2A38930935CC1 /* FEEventDetail in Frameworks */ = {isa = PBXBuildFile; productRef = F91888BF2832B1DAEFA47BCB /* FEEventDetail */; };
 		FFB8363FC63C6D248CBDDDE1 /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 1592D61B348B5F234F607CC6 /* FEData */; };
@@ -40,7 +42,9 @@
 		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsTests.swift; sourceTree = "<group>"; };
 		527B693EC7456B426B181EA1 /* FECore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FECore; path = Packages/FECore; sourceTree = SOURCE_ROOT; };
+		5A0418216EB1C821D23D4966 /* TabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabTests.swift; sourceTree = "<group>"; };
 		6BB7332AD1C515136B412F4E /* FEAuth */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAuth; path = Packages/FEAuth; sourceTree = SOURCE_ROOT; };
+		8F62AF66C36F29653368CAFE /* Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tab.swift; sourceTree = "<group>"; };
 		B60EBADC23A6A8EB851EF92E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsApp.swift; sourceTree = "<group>"; };
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
@@ -135,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */,
+				5A0418216EB1C821D23D4966 /* TabTests.swift */,
 			);
 			path = FamilyEventsTests;
 			sourceTree = "<group>";
@@ -153,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */,
+				8F62AF66C36F29653368CAFE /* Tab.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -256,6 +262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */,
+				A034794A8267646650C4048E /* TabTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +272,7 @@
 			files = (
 				9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */,
 				35572E28839A2243DC5CD4EA /* HomeView.swift in Sources */,
+				D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -389,6 +398,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

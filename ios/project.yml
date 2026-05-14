@@ -59,6 +59,9 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - FamilyEventsTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: FamilyEvents
       - package: FECore
