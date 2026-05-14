@@ -1,6 +1,7 @@
 import XCTest
 import FECore
 @testable import FEAuth
+import FEAuthTesting
 
 @MainActor
 final class ResetPasswordViewModelTests: XCTestCase {

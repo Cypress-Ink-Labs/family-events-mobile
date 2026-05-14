@@ -1,6 +1,7 @@
 import XCTest
 import FECore
 @testable import FEAuth
+import FEAuthTesting
 
 final class FakeAuthServiceTests: XCTestCase {
     func testFakeServiceReturnsCannedSession() async throws {

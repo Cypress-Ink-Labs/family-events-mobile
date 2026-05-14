@@ -22,10 +22,12 @@
 		A034794A8267646650C4048E /* TabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0418216EB1C821D23D4966 /* TabTests.swift */; };
 		A2AA8448CCB37D518CA39E2A /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141BE55DA40D69FD31C2BE54 /* AppRoute.swift */; };
 		ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */; };
+		B0C3E3403DA9C2E4552F4F8C /* FEAuthTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 65E2409342315B807311D9F6 /* FEAuthTesting */; };
 		BB84468BCDB03E1E68D9015B /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 5D879C9222AF5C91392EA789 /* FEData */; };
 		C646F68702ADB3B478AAC45A /* FEDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 5546DB4D17A5E09EEF2150C9 /* FEDesignSystem */; };
 		D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F62AF66C36F29653368CAFE /* Tab.swift */; };
 		D5D60E440938F8A5A1EC2B3C /* FECore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EB57A5EFB39A746A0D2B024 /* FECore */; };
+		EB5C374E92ABA31505BC4E94 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 140C842699DB3E60E17FD74C /* FEAuth */; };
 		FB1C8D7370E2A38930935CC1 /* FEEventDetail in Frameworks */ = {isa = PBXBuildFile; productRef = F91888BF2832B1DAEFA47BCB /* FEEventDetail */; };
 		FFB8363FC63C6D248CBDDDE1 /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 1592D61B348B5F234F607CC6 /* FEData */; };
 /* End PBXBuildFile section */
@@ -88,6 +90,8 @@
 			files = (
 				D5D60E440938F8A5A1EC2B3C /* FECore in Frameworks */,
 				BB84468BCDB03E1E68D9015B /* FEData in Frameworks */,
+				EB5C374E92ABA31505BC4E94 /* FEAuth in Frameworks */,
+				B0C3E3403DA9C2E4552F4F8C /* FEAuthTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +212,8 @@
 			packageProductDependencies = (
 				3EB57A5EFB39A746A0D2B024 /* FECore */,
 				5D879C9222AF5C91392EA789 /* FEData */,
+				140C842699DB3E60E17FD74C /* FEAuth */,
+				65E2409342315B807311D9F6 /* FEAuthTesting */,
 			);
 			productName = FamilyEventsTests;
 			productReference = 2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */;
@@ -550,6 +556,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		140C842699DB3E60E17FD74C /* FEAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FEAuth;
+		};
 		1592D61B348B5F234F607CC6 /* FEData */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FEData;
@@ -573,6 +583,10 @@
 		61544DEF43F22997E8487761 /* FEExplore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FEExplore;
+		};
+		65E2409342315B807311D9F6 /* FEAuthTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FEAuthTesting;
 		};
 		B05296E5CE38DEC7D1ABE5D2 /* FEPlan */ = {
 			isa = XCSwiftPackageProductDependency;

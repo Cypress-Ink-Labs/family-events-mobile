@@ -5,32 +5,61 @@ import FEAuth
 
 @main
 struct FamilyEventsApp: App {
-    private let env: EnvConfig
-    private let supabase: FamilyEventsSupabase
-    private let authService: any AuthService
-    @State private var sessionStore: SessionStore
+    private enum BootResult {
+        case ready(authService: any AuthService, sessionStore: SessionStore)
+        case configError(String)
+    }
+
+    private let boot: BootResult
 
     init() {
+        boot = Self.bootstrap()
+    }
+
+    private static func bootstrap() -> BootResult {
         do {
             let env = try EnvConfig.load()
-            self.env = env
             let supa = FamilyEventsSupabase(config: env)
-            self.supabase = supa
             let svc = SupabaseAuthService(supabase: supa)
-            self.authService = svc
-            _sessionStore = State(initialValue: SessionStore(
+            let store = SessionStore(
                 authService: svc,
                 storage: SecItemKeychainStorage(service: "com.familyevents.app.auth")
-            ))
+            )
+            return .ready(authService: svc, sessionStore: store)
+        } catch let error as AppError {
+            return .configError(error.userMessage)
         } catch {
-            fatalError("EnvConfig failed to load: \(error)")
+            return .configError("Configuration error: \(error.localizedDescription)")
         }
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView(authService: authService)
-                .environment(sessionStore)
+            switch boot {
+            case .ready(let authService, let sessionStore):
+                RootView(authService: authService)
+                    .environment(sessionStore)
+            case .configError(let message):
+                ConfigErrorView(message: message)
+            }
         }
+    }
+}
+
+private struct ConfigErrorView: View {
+    let message: String
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+            Text("Couldn't start the app")
+                .font(.title2.weight(.semibold))
+            Text(message)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
     }
 }

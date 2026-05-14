@@ -1,5 +1,6 @@
 import XCTest
 @testable import FEAuth
+import FEAuthTesting
 
 final class KeychainStorageProtocolTests: XCTestCase {
     func testInMemoryStorageRoundTripsString() async throws {
