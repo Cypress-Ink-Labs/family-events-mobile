@@ -12,6 +12,8 @@
 		35572E28839A2243DC5CD4EA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F8E48CB693540E209982A4 /* HomeView.swift */; };
 		4C0CC51E675DBB8A6C4468E9 /* FEAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = C0E28472D5FA232F6ED3A73E /* FEAppIntents */; };
 		50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */; };
+		64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67236F4FFFB580DD258FF /* RootView.swift */; };
+		701B15B0A6A5DB477A72D534 /* RootViewSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */; };
 		77E20F16D3924C03FC7FBB14 /* FECore in Frameworks */ = {isa = PBXBuildFile; productRef = DC90DE2BDE57D2CE9AD0B4B4 /* FECore */; };
 		7AA19CB41083177A888B8FEF /* FEExplore in Frameworks */ = {isa = PBXBuildFile; productRef = 61544DEF43F22997E8487761 /* FEExplore */; };
 		81C5AD39915BC5D6F53C7326 /* DeepLinkRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3019C083099A4C42082B682 /* DeepLinkRouterTests.swift */; };
@@ -39,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0AA67236F4FFFB580DD258FF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		0ED7E52CA65CBCCB4FA2D33F /* FEAppIntents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAppIntents; path = Packages/FEAppIntents; sourceTree = SOURCE_ROOT; };
 		141BE55DA40D69FD31C2BE54 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		26F8E48CB693540E209982A4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -55,6 +58,7 @@
 		BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsApp.swift; sourceTree = "<group>"; };
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
 		D890C8D7C4B176D36D48B555 /* FESaved */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FESaved; path = Packages/FESaved; sourceTree = SOURCE_ROOT; };
+		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
 		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F30DD56DC40DC5C679F79DC8 /* FEExplore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEExplore; path = Packages/FEExplore; sourceTree = SOURCE_ROOT; };
 		F6288D8480EB0B4748EB77C8 /* FEDesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEDesignSystem; path = Packages/FEDesignSystem; sourceTree = SOURCE_ROOT; };
@@ -146,6 +150,7 @@
 			children = (
 				B3019C083099A4C42082B682 /* DeepLinkRouterTests.swift */,
 				431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */,
+				DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */,
 				5A0418216EB1C821D23D4966 /* TabTests.swift */,
 			);
 			path = FamilyEventsTests;
@@ -167,6 +172,7 @@
 				141BE55DA40D69FD31C2BE54 /* AppRoute.swift */,
 				BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */,
 				BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */,
+				0AA67236F4FFFB580DD258FF /* RootView.swift */,
 				8F62AF66C36F29653368CAFE /* Tab.swift */,
 			);
 			path = App;
@@ -272,6 +278,7 @@
 			files = (
 				81C5AD39915BC5D6F53C7326 /* DeepLinkRouterTests.swift in Sources */,
 				ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */,
+				701B15B0A6A5DB477A72D534 /* RootViewSmokeTests.swift in Sources */,
 				A034794A8267646650C4048E /* TabTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,6 +291,7 @@
 				50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */,
 				9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */,
 				35572E28839A2243DC5CD4EA /* HomeView.swift in Sources */,
+				64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */,
 				D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
