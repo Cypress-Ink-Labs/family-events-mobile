@@ -22,15 +22,17 @@ public final class SessionStore {
                 let access = try await storage.string(for: .accessToken),
                 let refresh = try await storage.string(for: .refreshToken)
             else {
-                state = .signedOut
+                if case .hydrating = state { state = .signedOut }
                 return
             }
             let session = try await authService.restoreSession(accessToken: access, refreshToken: refresh)
             try await persist(session)
-            state = .signedIn(userID: session.userID)
+            if case .hydrating = state {
+                state = .signedIn(userID: session.userID)
+            }
         } catch {
             try? await storage.removeAll()
-            state = .signedOut
+            if case .hydrating = state { state = .signedOut }
         }
     }
 
