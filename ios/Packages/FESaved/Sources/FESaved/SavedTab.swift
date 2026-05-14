@@ -15,7 +15,7 @@ public struct SavedTab: View {
                 .navigationTitle(tabTitle)
                 .toolbar {
                     if let onOpenProfile {
-                        ToolbarItem(placement: .topBarTrailing) {
+                        ToolbarItem(placement: .primaryAction) {
                             Button { onOpenProfile() } label: {
                                 Image(systemName: "person.crop.circle")
                             }
