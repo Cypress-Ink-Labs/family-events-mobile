@@ -5,6 +5,25 @@ settings:
   base:
     SWIFT_VERSION: 5.10
     PRODUCT_BUNDLE_IDENTIFIER: com.familyevents.app
+packages:
+  FECore:
+    path: Packages/FECore
+  FEData:
+    path: Packages/FEData
+  FEDesignSystem:
+    path: Packages/FEDesignSystem
+  FEAuth:
+    path: Packages/FEAuth
+  FEPlan:
+    path: Packages/FEPlan
+  FEExplore:
+    path: Packages/FEExplore
+  FESaved:
+    path: Packages/FESaved
+  FEEventDetail:
+    path: Packages/FEEventDetail
+  FEAppIntents:
+    path: Packages/FEAppIntents
 targets:
   FamilyEvents:
     type: application
@@ -16,9 +35,21 @@ targets:
       path: FamilyEvents/Info.plist
       properties:
         UILaunchScreen: {}
+        SupabaseURL: $(SUPABASE_URL)
+        SupabaseAnonKey: $(SUPABASE_ANON_KEY)
     settings:
       base:
         PRODUCT_NAME: FamilyEvents
+    dependencies:
+      - package: FECore
+      - package: FEData
+      - package: FEDesignSystem
+      - package: FEAuth
+      - package: FEPlan
+      - package: FEExplore
+      - package: FESaved
+      - package: FEEventDetail
+      - package: FEAppIntents
     scheme:
       testTargets:
         - FamilyEventsTests
@@ -30,3 +61,5 @@ targets:
       - FamilyEventsTests
     dependencies:
       - target: FamilyEvents
+      - package: FECore
+      - package: FEData
