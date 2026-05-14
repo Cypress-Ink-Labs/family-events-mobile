@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		19BCE47C6893926E53962577 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F71FCF3E0F318AFA91B50660 /* FEAuth */; };
 		2EBC682AD7466335DA1634D8 /* FEPlan in Frameworks */ = {isa = PBXBuildFile; productRef = B05296E5CE38DEC7D1ABE5D2 /* FEPlan */; };
-		35572E28839A2243DC5CD4EA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F8E48CB693540E209982A4 /* HomeView.swift */; };
 		4C0CC51E675DBB8A6C4468E9 /* FEAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = C0E28472D5FA232F6ED3A73E /* FEAppIntents */; };
 		50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */; };
 		64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67236F4FFFB580DD258FF /* RootView.swift */; };
@@ -44,7 +43,6 @@
 		0AA67236F4FFFB580DD258FF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		0ED7E52CA65CBCCB4FA2D33F /* FEAppIntents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAppIntents; path = Packages/FEAppIntents; sourceTree = SOURCE_ROOT; };
 		141BE55DA40D69FD31C2BE54 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
-		26F8E48CB693540E209982A4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		2970B6037618A85B61BB7ADC /* FEEventDetail */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEEventDetail; path = Packages/FEEventDetail; sourceTree = SOURCE_ROOT; };
 		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsTests.swift; sourceTree = "<group>"; };
@@ -103,14 +101,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		64A217278765D9DA9C63438F /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				26F8E48CB693540E209982A4 /* HomeView.swift */,
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
 		875B4E0F14EA57A0E06EF544 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,14 +115,6 @@
 				D890C8D7C4B176D36D48B555 /* FESaved */,
 			);
 			path = Packages;
-			sourceTree = "<group>";
-		};
-		90CEAB516E8E13AC2C5739FB /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				64A217278765D9DA9C63438F /* Home */,
-			);
-			path = Features;
 			sourceTree = "<group>";
 		};
 		A85685A0EC7E9C61413EDA64 = {
@@ -161,7 +143,6 @@
 			children = (
 				B60EBADC23A6A8EB851EF92E /* Info.plist */,
 				B6E2E75BB5FC8B9FA445BE95 /* App */,
-				90CEAB516E8E13AC2C5739FB /* Features */,
 			);
 			path = FamilyEvents;
 			sourceTree = "<group>";
@@ -290,7 +271,6 @@
 				A2AA8448CCB37D518CA39E2A /* AppRoute.swift in Sources */,
 				50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */,
 				9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */,
-				35572E28839A2243DC5CD4EA /* HomeView.swift in Sources */,
 				64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */,
 				D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */,
 			);
