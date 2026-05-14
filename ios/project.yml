@@ -1,0 +1,32 @@
+name: FamilyEvents
+options:
+  minimumXcodeGenVersion: 2.38.0
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+    PRODUCT_BUNDLE_IDENTIFIER: com.familyevents.app
+targets:
+  FamilyEvents:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - FamilyEvents
+    info:
+      path: FamilyEvents/Info.plist
+      properties:
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_NAME: FamilyEvents
+    scheme:
+      testTargets:
+        - FamilyEventsTests
+  FamilyEventsTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - FamilyEventsTests
+    dependencies:
+      - target: FamilyEvents
