@@ -398,6 +398,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = "";
+				SUPABASE_URL = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.1;
@@ -478,6 +480,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH;
+				SUPABASE_URL = "http://127.0.0.1:55321";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.1;

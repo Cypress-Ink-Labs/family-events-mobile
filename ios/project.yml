@@ -5,6 +5,13 @@ settings:
   base:
     SWIFT_VERSION: 5.10
     PRODUCT_BUNDLE_IDENTIFIER: com.familyevents.app
+  configs:
+    Debug:
+      SUPABASE_URL: http://127.0.0.1:55321
+      SUPABASE_ANON_KEY: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+    Release:
+      SUPABASE_URL: ""
+      SUPABASE_ANON_KEY: ""
 packages:
   FECore:
     path: Packages/FECore

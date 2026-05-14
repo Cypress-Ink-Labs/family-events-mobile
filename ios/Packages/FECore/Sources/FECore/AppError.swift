@@ -1,5 +1,9 @@
 import Foundation
 
+#if !canImport(Security)
+public typealias OSStatus = Int32
+#endif
+
 public enum AppError: Error, Sendable {
     case network(Error)
     case unauthorized
