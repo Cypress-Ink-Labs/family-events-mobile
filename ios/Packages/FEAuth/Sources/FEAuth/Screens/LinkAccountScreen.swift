@@ -13,8 +13,8 @@ public struct LinkAccountScreen: View {
 
     public var body: some View {
         VStack(spacing: 24) {
-            Text("Connect your accounts").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
-            Text("An account already exists for **\(viewModel.email)**. Enter your password to sign in to that account and link Apple sign-in.")
+            Text("Sign in to your account").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
+            Text("An account already exists for **\(viewModel.email)**. Sign in with your password to continue. You can connect Apple sign-in later in Profile settings.")
                 .appTypography(.body)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -31,7 +31,7 @@ public struct LinkAccountScreen: View {
                 Task { await viewModel.submit() }
             } label: {
                 if viewModel.isSubmitting { ProgressView() }
-                else { Text("Sign in and link").frame(maxWidth: .infinity) }
+                else { Text("Sign in").frame(maxWidth: .infinity) }
             }
             .buttonStyle(.borderedProminent).controlSize(.large)
             .disabled(viewModel.isSubmitting)
@@ -40,6 +40,6 @@ public struct LinkAccountScreen: View {
             Spacer()
         }
         .padding()
-        .navigationTitle("Link accounts")
+        .navigationTitle("Sign in to your account")
     }
 }
