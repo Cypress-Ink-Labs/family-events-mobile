@@ -11,9 +11,20 @@ let package = Package(
         .package(path: "../FECore"),
         .package(path: "../FEData"),
         .package(path: "../FEDesignSystem"),
+        .package(url: "https://github.com/supabase/supabase-swift", exact: "2.20.0"),
     ],
     targets: [
-        .target(name: "FEAuth", dependencies: ["FECore", "FEData", "FEDesignSystem"], path: "Sources/FEAuth"),
+        .target(
+            name: "FEAuth",
+            dependencies: [
+                "FECore",
+                "FEData",
+                "FEDesignSystem",
+                .product(name: "Auth", package: "supabase-swift"),
+                .product(name: "Supabase", package: "supabase-swift"),
+            ],
+            path: "Sources/FEAuth"
+        ),
         .testTarget(name: "FEAuthTests", dependencies: ["FEAuth"], path: "Tests/FEAuthTests"),
     ]
 )
