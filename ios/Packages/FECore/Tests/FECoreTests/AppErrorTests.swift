@@ -20,4 +20,24 @@ final class AppErrorTests: XCTestCase {
         let err = AppError.unknown(NSError(domain: "x", code: 0))
         XCTAssertTrue(err.userMessage.contains("Something went wrong"))
     }
+
+    func testInvalidCredentialsHasFriendlyMessage() {
+        XCTAssertEqual(AppError.invalidCredentials.userMessage, "Email or password is incorrect.")
+    }
+
+    func testEmailAlreadyInUseHasFriendlyMessage() {
+        XCTAssertEqual(AppError.emailAlreadyInUse.userMessage, "An account with that email already exists.")
+    }
+
+    func testEmailNotConfirmedHasFriendlyMessage() {
+        XCTAssertEqual(AppError.emailNotConfirmed.userMessage, "Please confirm your email before signing in.")
+    }
+
+    func testAppleSignInCancelledIsTreatedAsNoOp() {
+        XCTAssertEqual(AppError.appleSignInCancelled.userMessage, "")
+    }
+
+    func testPasswordResetEmailSentIsInformational() {
+        XCTAssertEqual(AppError.passwordResetEmailSent.userMessage, "Check your email for a reset link.")
+    }
 }
