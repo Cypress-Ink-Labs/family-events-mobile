@@ -1,17 +1,17 @@
 import Foundation
 
-enum ConsumerAPIPath: Equatable {
+public enum ConsumerAPIPath: Equatable, Sendable {
     case events
-    case eventDetail(id: String)
+    case eventDetail(id: EventID)
     case favorites
     case profile
 
-    var value: String {
+    public var value: String {
         switch self {
         case .events:
             return "/api/v1/events"
         case .eventDetail(let id):
-            return "/api/v1/events/\(id)"
+            return "/api/v1/events/\(id.rawValue)"
         case .favorites:
             return "/api/v1/favorites"
         case .profile:
