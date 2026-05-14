@@ -12,10 +12,15 @@ final class IdentifiersTests: XCTestCase {
         XCTAssertEqual(set.count, 2)
     }
 
-    func testCityIDAndEventIDAreDistinctTypes() {
-        let evt = EventID("x")
-        let city = CityID("x")
-        XCTAssertEqual(evt.rawValue, city.rawValue)
+    func testTypedIdsWithSameRawValueAreSeparateAnyHashableEntries() {
+        // `EventID("x")` and `CityID("x")` share a raw value but are different
+        // nominal types. As AnyHashable, they must produce distinct hash
+        // identities so they don't collide in heterogeneous containers.
+        let bag: Set<AnyHashable> = [
+            AnyHashable(EventID("x")),
+            AnyHashable(CityID("x")),
+        ]
+        XCTAssertEqual(bag.count, 2)
     }
 
     func testPlanIDEncodesAsString() throws {
