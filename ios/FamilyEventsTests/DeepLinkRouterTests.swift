@@ -26,4 +26,19 @@ final class DeepLinkRouterTests: XCTestCase {
         let url = URL(string: "familyevents://nope/x")!
         XCTAssertNil(DeepLinkRouter.route(from: url))
     }
+
+    func testReturnsNilWhenEventURLHasTrailingSegment() {
+        let url = URL(string: "familyevents://event/evt_42/extra")!
+        XCTAssertNil(DeepLinkRouter.route(from: url))
+    }
+
+    func testReturnsNilWhenEventURLHasNoID() {
+        let url = URL(string: "familyevents://event")!
+        XCTAssertNil(DeepLinkRouter.route(from: url))
+    }
+
+    func testReturnsNilWhenSavedURLHasTrailingSegment() {
+        let url = URL(string: "familyevents://saved/extra")!
+        XCTAssertNil(DeepLinkRouter.route(from: url))
+    }
 }

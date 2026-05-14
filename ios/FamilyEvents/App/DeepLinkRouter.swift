@@ -1,21 +1,23 @@
 import Foundation
 import FECore
 
-public enum DeepLinkRouter {
-    public struct Result: Equatable {
-        public let tab: AppTab
-        public let routes: [AppRoute]
+enum DeepLinkRouter {
+    struct Result: Equatable {
+        let tab: AppTab
+        let routes: [AppRoute]
     }
 
-    public static func route(from url: URL) -> Result? {
+    static func route(from url: URL) -> Result? {
         guard url.scheme == "familyevents" else { return nil }
         let host = url.host ?? ""
+        let segments = url.pathComponents.filter { $0 != "/" }
+
         switch host {
         case "event":
-            let id = url.lastPathComponent
-            guard !id.isEmpty, id != "event" else { return nil }
-            return Result(tab: .plan, routes: [.event(EventID(id))])
+            guard segments.count == 1, !segments[0].isEmpty else { return nil }
+            return Result(tab: .plan, routes: [.event(EventID(segments[0]))])
         case "saved":
+            guard segments.isEmpty else { return nil }
             return Result(tab: .saved, routes: [])
         default:
             return nil
