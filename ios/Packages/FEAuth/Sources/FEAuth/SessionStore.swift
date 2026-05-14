@@ -55,3 +55,18 @@ public final class SessionStore {
         try await storage.setString(session.userID.rawValue, for: .userID)
     }
 }
+
+extension SessionStore {
+    public func completeAppleSignIn(idToken: String, nonce: String, email: String?) async throws {
+        do {
+            let session = try await authService.signInWithApple(idToken: idToken, nonce: nonce)
+            try await adopt(session)
+        } catch AppError.emailAlreadyInUse {
+            state = .linkRequired(email: email ?? "", appleIdToken: idToken, nonce: nonce)
+        } catch AppError.appleSignInCancelled {
+            return
+        } catch {
+            throw error
+        }
+    }
+}

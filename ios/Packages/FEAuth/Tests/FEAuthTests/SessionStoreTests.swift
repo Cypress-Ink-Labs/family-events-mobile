@@ -70,4 +70,29 @@ final class SessionStoreTests: XCTestCase {
             XCTFail("expected .linkRequired")
         }
     }
+
+    func testSignInWithAppleSucceeds() async throws {
+        let fake = FakeAuthService()
+        let session = AuthSession(userID: UserID("u_apple"), accessToken: "a", refreshToken: "r", email: "x@y.z", identityProvider: .apple)
+        fake.signInWithAppleResult = .success(session)
+        let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
+        try await store.completeAppleSignIn(idToken: "tok", nonce: "n", email: "x@y.z")
+        if case .signedIn(let uid) = store.state {
+            XCTAssertEqual(uid, UserID("u_apple"))
+        } else {
+            XCTFail("expected .signedIn")
+        }
+    }
+
+    func testSignInWithAppleEmailCollisionTransitionsToLinkRequired() async throws {
+        let fake = FakeAuthService()
+        fake.signInWithAppleResult = .failure(AppError.emailAlreadyInUse)
+        let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
+        try await store.completeAppleSignIn(idToken: "tok", nonce: "n", email: "x@y.z")
+        if case .linkRequired(let email, _, _) = store.state {
+            XCTAssertEqual(email, "x@y.z")
+        } else {
+            XCTFail("expected .linkRequired")
+        }
+    }
 }
