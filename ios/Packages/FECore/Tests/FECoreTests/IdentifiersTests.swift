@@ -29,4 +29,16 @@ final class IdentifiersTests: XCTestCase {
         let decoded = try JSONDecoder().decode(PlanID.self, from: data)
         XCTAssertEqual(decoded, id)
     }
+
+    func testUserIDWrapsString() {
+        let id = UserID("550e8400-e29b-41d4-a716-446655440000")
+        XCTAssertEqual(id.rawValue, "550e8400-e29b-41d4-a716-446655440000")
+    }
+
+    func testUserIDRoundTripsThroughJSON() throws {
+        let id = UserID("user_42")
+        let data = try JSONEncoder().encode(id)
+        let decoded = try JSONDecoder().decode(UserID.self, from: data)
+        XCTAssertEqual(decoded, id)
+    }
 }

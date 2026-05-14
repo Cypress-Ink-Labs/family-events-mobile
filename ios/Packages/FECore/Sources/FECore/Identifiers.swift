@@ -33,3 +33,8 @@ public struct PlanID: TypedIdentifier {
     public let rawValue: String
     public init(_ rawValue: String) { self.rawValue = rawValue }
 }
+
+public struct UserID: TypedIdentifier {
+    public let rawValue: String
+    public init(_ rawValue: String) { self.rawValue = rawValue }
+}
