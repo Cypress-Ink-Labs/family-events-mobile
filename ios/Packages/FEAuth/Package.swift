@@ -10,9 +10,10 @@ let package = Package(
     dependencies: [
         .package(path: "../FECore"),
         .package(path: "../FEData"),
+        .package(path: "../FEDesignSystem"),
     ],
     targets: [
-        .target(name: "FEAuth", dependencies: ["FECore", "FEData"], path: "Sources/FEAuth"),
+        .target(name: "FEAuth", dependencies: ["FECore", "FEData", "FEDesignSystem"], path: "Sources/FEAuth"),
         .testTarget(name: "FEAuthTests", dependencies: ["FEAuth"], path: "Tests/FEAuthTests"),
     ]
 )
