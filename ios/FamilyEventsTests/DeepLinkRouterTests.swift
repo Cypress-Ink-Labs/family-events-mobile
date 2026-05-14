@@ -1,0 +1,29 @@
+import XCTest
+import FECore
+@testable import FamilyEvents
+
+final class DeepLinkRouterTests: XCTestCase {
+    func testParsesEventURL() throws {
+        let url = URL(string: "familyevents://event/evt_42")!
+        let result = DeepLinkRouter.route(from: url)
+        XCTAssertEqual(result?.tab, .plan)
+        XCTAssertEqual(result?.routes, [.event(EventID("evt_42"))])
+    }
+
+    func testParsesSavedTabURL() throws {
+        let url = URL(string: "familyevents://saved")!
+        let result = DeepLinkRouter.route(from: url)
+        XCTAssertEqual(result?.tab, .saved)
+        XCTAssertEqual(result?.routes, [])
+    }
+
+    func testReturnsNilForUnknownScheme() {
+        let url = URL(string: "https://example.com/event/x")!
+        XCTAssertNil(DeepLinkRouter.route(from: url))
+    }
+
+    func testReturnsNilForUnknownHost() {
+        let url = URL(string: "familyevents://nope/x")!
+        XCTAssertNil(DeepLinkRouter.route(from: url))
+    }
+}
