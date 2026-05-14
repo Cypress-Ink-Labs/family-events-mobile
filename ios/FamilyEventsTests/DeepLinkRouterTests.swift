@@ -41,4 +41,16 @@ final class DeepLinkRouterTests: XCTestCase {
         let url = URL(string: "familyevents://saved/extra")!
         XCTAssertNil(DeepLinkRouter.route(from: url))
     }
+
+    func testParsesPasswordResetURL() throws {
+        let url = URL(string: "familyevents://reset-password?token=tok_xyz")!
+        let result = DeepLinkRouter.route(from: url)
+        XCTAssertEqual(result?.tab, .saved)
+        XCTAssertEqual(result?.routes.count, 1)
+        if case .resetPassword(let token) = result?.routes.first {
+            XCTAssertEqual(token, "tok_xyz")
+        } else {
+            XCTFail("expected .resetPassword route")
+        }
+    }
 }
