@@ -12,10 +12,12 @@ public final class ResetPasswordViewModel {
     public private(set) var errorMessage: String?
 
     private let authService: any AuthService
+    private let sessionStore: SessionStore
 
-    public init(token: String, authService: any AuthService) {
+    public init(token: String, authService: any AuthService, sessionStore: SessionStore) {
         self.token = token
         self.authService = authService
+        self.sessionStore = sessionStore
     }
 
     public func submit() async {
@@ -24,7 +26,8 @@ public final class ResetPasswordViewModel {
         isSubmitting = true
         defer { isSubmitting = false }
         do {
-            try await authService.resetPassword(accessToken: token, newPassword: newPassword)
+            let session = try await authService.resetPassword(accessToken: token, newPassword: newPassword)
+            try await sessionStore.adopt(session)
             didReset = true
         } catch let app as AppError {
             errorMessage = app.userMessage

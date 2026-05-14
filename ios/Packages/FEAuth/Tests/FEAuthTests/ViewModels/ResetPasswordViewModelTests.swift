@@ -7,7 +7,10 @@ import FEAuthTesting
 final class ResetPasswordViewModelTests: XCTestCase {
     func testSuccessfulReset() async {
         let fake = FakeAuthService()
-        let vm = ResetPasswordViewModel(token: "tok_xyz", authService: fake)
+        let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
+        let session = AuthSession(userID: UserID("u_1"), accessToken: "a", refreshToken: "r", email: nil, identityProvider: .password)
+        fake.resetPasswordResult = .success(session)
+        let vm = ResetPasswordViewModel(token: "tok_xyz", authService: fake, sessionStore: store)
         vm.newPassword = "longenough"
         await vm.submit()
         XCTAssertTrue(vm.didReset)
@@ -15,7 +18,8 @@ final class ResetPasswordViewModelTests: XCTestCase {
     }
     func testShortPasswordRejected() async {
         let fake = FakeAuthService()
-        let vm = ResetPasswordViewModel(token: "tok_xyz", authService: fake)
+        let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
+        let vm = ResetPasswordViewModel(token: "tok_xyz", authService: fake, sessionStore: store)
         vm.newPassword = "short"
         await vm.submit()
         XCTAssertFalse(vm.didReset)

@@ -51,8 +51,12 @@ public final class SupabaseAuthService: AuthService, Sendable {
         try await supabase.client.auth.resetPasswordForEmail(email)
     }
 
-    public func resetPassword(accessToken: String, newPassword: String) async throws {
+    public func resetPassword(accessToken: String, newPassword: String) async throws -> AuthSession {
+        // Exchange the recovery token hash for a session, then update the password
+        let response = try await supabase.client.auth.verifyOTP(tokenHash: accessToken, type: .recovery)
+        guard let session = response.session else { throw AppError.unauthorized }
         _ = try await supabase.client.auth.update(user: UserAttributes(password: newPassword))
+        return Self.session(from: session, provider: .password)
     }
 
     public func deleteAccount() async throws {

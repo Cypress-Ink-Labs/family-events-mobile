@@ -18,6 +18,7 @@ struct RootView: View {
     @Environment(SessionStore.self) private var sessionStore
     @State private var selectedTab: AppTab
     @State private var pendingResetToken: PendingResetToken?
+    @State private var showProfile = false
 
     init(authService: any AuthService, initialTab: AppTab = .plan) {
         self.authService = authService
@@ -36,7 +37,7 @@ struct RootView: View {
                 TabView(selection: $selectedTab) {
                     PlanTab().tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }.tag(AppTab.plan)
                     ExploreTab().tabItem { Label(AppTab.explore.title, systemImage: AppTab.explore.systemImage) }.tag(AppTab.explore)
-                    SavedTab().tabItem { Label(AppTab.saved.title, systemImage: AppTab.saved.systemImage) }.tag(AppTab.saved)
+                    SavedTab(onOpenProfile: { showProfile = true }).tabItem { Label(AppTab.saved.title, systemImage: AppTab.saved.systemImage) }.tag(AppTab.saved)
                 }
             }
         }
@@ -49,10 +50,13 @@ struct RootView: View {
                 }
             }
         }
+        .sheet(isPresented: $showProfile) {
+            ProfileSheet(authService: authService)
+        }
         .sheet(item: $pendingResetToken) { pending in
             NavigationStack {
                 ResetPasswordScreen(
-                    viewModel: ResetPasswordViewModel(token: pending.token, authService: authService),
+                    viewModel: ResetPasswordViewModel(token: pending.token, authService: authService, sessionStore: sessionStore),
                     onDone: { pendingResetToken = nil }
                 )
             }
