@@ -34,3 +34,22 @@ final class KeychainStorageProtocolTests: XCTestCase {
         XCTAssertNil(b)
     }
 }
+
+final class SecItemKeychainStorageTests: XCTestCase {
+    /// Round-trip against the real keychain. Skipped when running under
+    /// `swift test` from the command line (no keychain access there).
+    func testSecItemRoundTrip() async throws {
+        #if !canImport(UIKit)
+        throw XCTSkip("SecItem keychain not available on this test toolchain.")
+        #else
+        let storage = SecItemKeychainStorage(service: "test.familyevents.auth")
+        try? await storage.removeAll()
+        try await storage.setString("token_xyz", for: .accessToken)
+        let got = try await storage.string(for: .accessToken)
+        XCTAssertEqual(got, "token_xyz")
+        try await storage.removeAll()
+        let cleared = try await storage.string(for: .accessToken)
+        XCTAssertNil(cleared)
+        #endif
+    }
+}
