@@ -19,7 +19,11 @@ final class PlanTabTests: XCTestCase {
     }
 
     func testTabTitle() throws {
-        let tab = PlanTab(composer: try makeComposer(), context: PlanContext(userID: UserID("u")))
+        let tab = PlanTab(
+            composer: try makeComposer(),
+            eventRepo: FakeEventRepository(),
+            context: PlanContext(userID: UserID("u"))
+        )
         XCTAssertEqual(tab.tabTitle, "Plan")
     }
 }

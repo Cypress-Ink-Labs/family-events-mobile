@@ -16,6 +16,11 @@ private struct FallbackCityRepository: CityRepository {
     func cityName(id: CityID) async throws -> String? { nil }
 }
 
+/// No-op fallback for EventRepository (previews, tests).
+private struct FallbackEventRepository: EventRepository {
+    func fetch(ids: [EventID], for userID: UserID) async throws -> [EventDTO] { [] }
+}
+
 struct RootView: View {
     static let shownTabs: [AppTab] = AppTab.allCases
     let initialTab: AppTab
@@ -23,6 +28,7 @@ struct RootView: View {
     private let planComposer: PlanComposer
     private let profileRepo: any ProfileRepo
     private let cityRepo: any CityRepository
+    private let eventRepo: any EventRepository
 
     @Environment(SessionStore.self) private var sessionStore
     @State private var selectedTab: AppTab
@@ -37,12 +43,14 @@ struct RootView: View {
         planComposer: PlanComposer,
         profileRepo: any ProfileRepo,
         cityRepo: any CityRepository = FallbackCityRepository(),
+        eventRepo: any EventRepository = FallbackEventRepository(),
         initialTab: AppTab = .plan
     ) {
         self.authService = authService
         self.planComposer = planComposer
         self.profileRepo = profileRepo
         self.cityRepo = cityRepo
+        self.eventRepo = eventRepo
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
     }
@@ -87,7 +95,13 @@ struct RootView: View {
     private func signedInContent(userID: UserID) -> some View {
         if let ctx = planContext {
             TabView(selection: $selectedTab) {
-                PlanTab(composer: planComposer, context: ctx, cityName: cityName, onSetCity: { showCityPicker = true })
+                PlanTab(
+                    composer: planComposer,
+                    eventRepo: eventRepo,
+                    context: ctx,
+                    cityName: cityName,
+                    onSetCity: { showCityPicker = true }
+                )
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
                 ExploreTab()

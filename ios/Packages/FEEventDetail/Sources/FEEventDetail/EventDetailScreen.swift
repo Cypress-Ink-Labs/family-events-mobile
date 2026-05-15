@@ -109,7 +109,7 @@ public struct EventDetailScreen: View {
             }
             Spacer()
             FavoriteButton(
-                isFavorited: Binding(get: { viewModel.isFavorited }, set: { _ in }),
+                isFavorited: .constant(viewModel.isFavorited),
                 onToggle: { viewModel.toggleFavorite() }
             )
         }

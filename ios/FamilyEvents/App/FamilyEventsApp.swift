@@ -14,6 +14,7 @@ struct FamilyEventsApp: App {
             composer: PlanComposer,
             profileRepo: any ProfileRepo,
             cityRepo: any CityRepository,
+            eventRepo: any EventRepository,
             modelContainer: ModelContainer
         )
         case configError(String)
@@ -35,12 +36,14 @@ struct FamilyEventsApp: App {
             let composer = PlanModule.makeComposer(supabase: supa, modelContainer: container)
             let profileRepo = SupabaseProfileRepo(supabase: supa)
             let cityRepo = SupabaseCityRepository(supabase: supa)
+            let eventRepo = SupabaseEventRepository(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
                 composer: composer,
                 profileRepo: profileRepo,
                 cityRepo: cityRepo,
+                eventRepo: eventRepo,
                 modelContainer: container
             )
         } catch let error as AppError {
@@ -53,10 +56,16 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let modelContainer):
-                RootView(authService: authService, planComposer: composer, profileRepo: profileRepo, cityRepo: cityRepo)
-                    .environment(sessionStore)
-                    .modelContainer(modelContainer)   // D14b: same instance the composer holds
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let modelContainer):
+                RootView(
+                    authService: authService,
+                    planComposer: composer,
+                    profileRepo: profileRepo,
+                    cityRepo: cityRepo,
+                    eventRepo: eventRepo
+                )
+                .environment(sessionStore)
+                .modelContainer(modelContainer)   // D14b: same instance the composer holds
             case .configError(let message):
                 ConfigErrorView(message: message)
             }
