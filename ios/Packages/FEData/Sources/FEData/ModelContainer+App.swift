@@ -1,16 +1,23 @@
 import Foundation
 import SwiftData
 
-/// Centralised SwiftData container construction. M1 has no @Model types yet —
-/// later milestones extend `allModelTypes` as CachedEvent, CachedFavorite,
-/// etc. are added.
 public enum AppModelContainer {
-    /// Types registered with SwiftData. Empty in M1; extended in M3+.
-    public static var allModelTypes: [any PersistentModel.Type] { [] }
+    public static var allModelTypes: [any PersistentModel.Type] {
+        [CachedEvent.self, CachedPlannedEvent.self]
+    }
 
     public static func makePersistent() throws -> ModelContainer {
         let schema = Schema(allModelTypes)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        return try ModelContainer(for: schema, configurations: config)
+    }
+
+    /// Overload for tests / explicit storage location. Used by the iron-rule regression test
+    /// to simulate an "existing store from a previous milestone" without touching the host's
+    /// default Application Support directory.
+    public static func makePersistent(at url: URL) throws -> ModelContainer {
+        let schema = Schema(allModelTypes)
+        let config = ModelConfiguration(schema: schema, url: url)
         return try ModelContainer(for: schema, configurations: config)
     }
 
