@@ -9,15 +9,17 @@ public struct SaturdayPlanScreen: View {
     public let context: PlanContext
     public let cityName: String?
     public let onSelectEvent: (EventID) -> Void
+    public let onSetCity: () -> Void
 
     @Query(sort: \CachedPlannedEvent.rank) private var cachedPlan: [CachedPlannedEvent]
     @Query private var cachedEvents: [CachedEvent]
 
-    public init(viewModel: PlanViewModel, context: PlanContext, cityName: String?, onSelectEvent: @escaping (EventID) -> Void) {
+    public init(viewModel: PlanViewModel, context: PlanContext, cityName: String?, onSelectEvent: @escaping (EventID) -> Void, onSetCity: @escaping () -> Void = {}) {
         self.viewModel = viewModel
         self.context = context
         self.cityName = cityName
         self.onSelectEvent = onSelectEvent
+        self.onSetCity = onSetCity
     }
 
     private var eventsByID: [String: CachedEvent] {
@@ -114,16 +116,34 @@ public struct SaturdayPlanScreen: View {
 
     @ViewBuilder
     private var emptyView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text("No family plans found nearby in the next 7 days.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-                .appTypography(.body)
+        if context.cityID == nil && viewModel.lastEmptyRefresh {
+            VStack(spacing: 16) {
+                Image(systemName: "mappin.slash")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.secondary)
+                Text("No location set")
+                    .appTypography(.titleMedium)
+                Text("Pick a city to see family events nearby.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .appTypography(.body)
+                Button("Set your city") { onSetCity() }
+                    .buttonStyle(.borderedProminent)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 48)
+        } else {
+            VStack(spacing: 12) {
+                Image(systemName: "calendar.badge.exclamationmark")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.secondary)
+                Text("No family plans found nearby in the next 7 days.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .appTypography(.body)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 48)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 48)
     }
 }
