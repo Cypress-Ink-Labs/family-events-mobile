@@ -25,14 +25,23 @@ public struct EventDetailScreen: View {
         .task { await viewModel.load() }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { viewModel.toggleFavorite() }) {
+                    Image(systemName: viewModel.isFavorited ? "heart.fill" : "heart")
+                        .foregroundStyle(viewModel.isFavorited ? Color.pink : Color.primary)
+                }
+                .accessibilityLabel(viewModel.isFavorited ? "Unfavorite" : "Favorite")
+            }
+        }
     }
 
     @ViewBuilder
     private var loadingState: some View {
         ProgressView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding()
     }
 
     @ViewBuilder
@@ -42,37 +51,41 @@ public struct EventDetailScreen: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.orange)
             Text("Couldn't load this event")
-                .appTypography(.titleMedium)
+                .font(.title3.weight(.semibold))
             Text(message)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
             Button("Retry") { Task { await viewModel.load() } }
                 .buttonStyle(.borderedProminent)
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
     private func content(for event: EventDTO) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 0) {
                 heroImage(event: event)
-                titleBlock(event: event)
-                if !event.tags.isEmpty { tagRow(event: event) }
-                infoGrid(event: event)
-                if let description = event.description, !description.isEmpty {
-                    aboutSection(description: description)
+
+                VStack(alignment: .leading, spacing: 24) {
+                    titleBlock(event: event)
+                    if !event.tags.isEmpty { tagRow(event: event) }
+                    infoGrid(event: event)
+                    if let description = event.description, !description.isEmpty {
+                        aboutSection(description: description)
+                    }
+                    locationSection(event: event)
+                    if let source = event.sourceURL, let url = URL(string: source) {
+                        sourceLink(url: url, name: event.sourceName)
+                    }
                 }
-                locationSection(event: event)
-                if let source = event.sourceURL, let url = URL(string: source) {
-                    sourceLink(url: url, name: event.sourceName)
-                }
-                Spacer(minLength: 24)
+                .padding(.horizontal, 16)
+                .padding(.top, 20)
+                .padding(.bottom, 32)
             }
-            .padding(.horizontal)
-            .padding(.bottom, 24)
         }
+        .ignoresSafeArea(edges: .top)
     }
 
     @ViewBuilder
@@ -83,36 +96,59 @@ public struct EventDetailScreen: View {
             } placeholder: {
                 Rectangle().fill(Color.appSecondaryBackground)
             }
+            .frame(height: 280)
             .frame(maxWidth: .infinity)
-            .frame(height: 240)
             .clipped()
-            .cornerRadius(12)
+            .overlay(alignment: .bottom) {
+                LinearGradient(
+                    colors: [.clear, Color.black.opacity(0.25)],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .frame(height: 64)
+            }
+        } else {
+            Rectangle()
+                .fill(Color.appSecondaryBackground)
+                .frame(height: 200)
+                .frame(maxWidth: .infinity)
+                .overlay {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.secondary)
+                }
         }
     }
 
     @ViewBuilder
     private func titleBlock(event: EventDTO) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(event.title).appTypography(.titleLarge)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(event.title)
+                .font(.title2.weight(.bold))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(4)
+
+            HStack(spacing: 8) {
                 if event.isFree {
-                    Text("Free").appTypography(.caption)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(Color.appAccent.opacity(0.15))
-                        .clipShape(Capsule())
+                    badge(text: "Free", tint: .green)
                 } else if let price = event.price, price > 0 {
-                    Text("$\(price, specifier: "%.2f")").appTypography(.caption)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(Color.appSecondaryBackground)
-                        .clipShape(Capsule())
+                    badge(text: String(format: "$%.2f", price), tint: .blue)
+                }
+                if let ageMin = event.ageMin, let ageMax = event.ageMax {
+                    badge(text: "Ages \(ageMin)–\(ageMax)", tint: .secondary)
                 }
             }
-            Spacer()
-            FavoriteButton(
-                isFavorited: .constant(viewModel.isFavorited),
-                onToggle: { viewModel.toggleFavorite() }
-            )
         }
+    }
+
+    @ViewBuilder
+    private func badge(text: String, tint: Color) -> some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(tint.opacity(0.12))
+            .clipShape(Capsule())
     }
 
     @ViewBuilder
@@ -121,49 +157,54 @@ public struct EventDetailScreen: View {
             HStack(spacing: 8) {
                 ForEach(event.tags, id: \.id) { tag in
                     Text(tag.name)
-                        .appTypography(.caption)
-                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .font(.footnote)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
                         .background(Color.appSecondaryBackground)
                         .clipShape(Capsule())
                 }
             }
         }
+        .scrollClipDisabled()
     }
 
     @ViewBuilder
     private func infoGrid(event: EventDTO) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
             infoCell(systemImage: "calendar", label: "Date", value: Self.dateFormatter.string(from: event.startDatetime))
             infoCell(systemImage: "clock", label: "Time", value: Self.timeFormatter.string(from: event.startDatetime))
-            if let ageMin = event.ageMin, let ageMax = event.ageMax {
-                infoCell(systemImage: "figure.2.and.child.holdinghands", label: "Ages", value: "\(ageMin)-\(ageMax)")
-            } else if let ageMin = event.ageMin {
-                infoCell(systemImage: "figure.2.and.child.holdinghands", label: "Ages", value: "\(ageMin)+")
-            } else {
-                infoCell(systemImage: "figure.2.and.child.holdinghands", label: "Ages", value: "All ages")
-            }
-            infoCell(
-                systemImage: event.isFree ? "checkmark.seal" : "dollarsign.circle",
-                label: "Price",
-                value: event.isFree ? "Free" : (event.price.map { String(format: "$%.2f", $0) } ?? "—")
-            )
+            infoCell(systemImage: "figure.2.and.child.holdinghands", label: "Ages", value: ageText(event: event))
+            infoCell(systemImage: event.isFree ? "checkmark.seal" : "dollarsign.circle", label: "Price",
+                     value: event.isFree ? "Free" : (event.price.map { String(format: "$%.2f", $0) } ?? "—"))
         }
+    }
+
+    private func ageText(event: EventDTO) -> String {
+        if let lo = event.ageMin, let hi = event.ageMax { return "\(lo)–\(hi)" }
+        if let lo = event.ageMin { return "\(lo)+" }
+        return "All ages"
     }
 
     @ViewBuilder
     private func infoCell(systemImage: String, label: String, value: String) -> some View {
         HStack(spacing: 10) {
             Image(systemName: systemImage)
-                .font(.title3)
+                .font(.body)
                 .foregroundStyle(.tint)
-                .frame(width: 28)
+                .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
-                Text(label).appTypography(.caption).foregroundStyle(.secondary)
-                Text(value).appTypography(.body)
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
             }
-            Spacer()
+            Spacer(minLength: 0)
         }
         .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.appSecondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -171,37 +212,45 @@ public struct EventDetailScreen: View {
     @ViewBuilder
     private func aboutSection(description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("About").appTypography(.titleMedium)
-            Text(description).appTypography(.body).foregroundStyle(.primary)
+            sectionHeader("About")
+            Text(description)
+                .font(.body)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     @ViewBuilder
     private func locationSection(event: EventDTO) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Location").appTypography(.titleMedium)
-            HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("Location")
+            HStack(alignment: .top, spacing: 12) {
                 Image(systemName: "mappin.and.ellipse")
-                    .font(.title3).foregroundStyle(.tint)
-                VStack(alignment: .leading, spacing: 4) {
+                    .font(.body)
+                    .foregroundStyle(.tint)
+                    .frame(width: 22)
+                VStack(alignment: .leading, spacing: 2) {
                     if let venue = event.venueName, !venue.isEmpty {
-                        Text(venue).appTypography(.body)
+                        Text(venue).font(.subheadline.weight(.medium))
                     }
                     if let address = event.address, !address.isEmpty {
-                        Text(address).appTypography(.caption).foregroundStyle(.secondary)
+                        Text(address).font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                Spacer()
+                Spacer(minLength: 0)
             }
             if let url = appleMapsURL(for: event) {
                 Link(destination: url) {
-                    HStack {
+                    HStack(spacing: 6) {
                         Image(systemName: "map")
                         Text("Open in Maps")
                     }
-                    .padding(.horizontal, 14).padding(.vertical, 10)
-                    .background(Color.appAccent.opacity(0.15))
-                    .clipShape(Capsule())
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(.plain)
             }
@@ -211,20 +260,31 @@ public struct EventDetailScreen: View {
     @ViewBuilder
     private func sourceLink(url: URL, name: String?) -> some View {
         Link(destination: url) {
-            HStack {
+            HStack(spacing: 6) {
                 Image(systemName: "link")
                 Text("View on \(name ?? "source")")
             }
-            .padding(.horizontal, 14).padding(.vertical, 10)
+            .font(.subheadline)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
             .background(Color.appSecondaryBackground)
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
     }
 
+    @ViewBuilder
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
     private func appleMapsURL(for event: EventDTO) -> URL? {
         if let lat = event.latitude, let lng = event.longitude {
-            return URL(string: "http://maps.apple.com/?ll=\(lat),\(lng)&q=\(event.venueName?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Event")")
+            let q = event.venueName?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Event"
+            return URL(string: "http://maps.apple.com/?ll=\(lat),\(lng)&q=\(q)")
         }
         if let address = event.address, !address.isEmpty,
            let encoded = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
@@ -235,7 +295,7 @@ public struct EventDetailScreen: View {
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "EEE, MMM d, yyyy"
+        f.dateFormat = "EEE, MMM d"
         return f
     }()
 
