@@ -3,12 +3,6 @@ import Observation
 import FECore
 import FEData
 
-/// Refresh state only (D1). Data flows from SwiftData @Query in SaturdayPlanScreen.
-/// PlanViewModel exposes:
-///   - isLoading (true while composer.refresh runs)
-///   - errorMessage (non-nil if last refresh failed)
-///   - lastEmptyRefresh (true if last completed refresh returned 0 rankings — used for
-///     the "no new plan today — showing yesterday's" banner)
 @Observable
 @MainActor
 public final class PlanViewModel {
@@ -17,14 +11,12 @@ public final class PlanViewModel {
     public private(set) var lastEmptyRefresh = false
 
     private let composer: PlanComposer
-    private let context: PlanContext
 
-    public init(composer: PlanComposer, context: PlanContext) {
+    public init(composer: PlanComposer) {
         self.composer = composer
-        self.context = context
     }
 
-    public func refresh() async {
+    public func refresh(context: PlanContext) async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
@@ -40,7 +32,7 @@ public final class PlanViewModel {
         } catch let app as AppError {
             errorMessage = app.userMessage
         } catch is CancellationError {
-            // user-initiated cancellation — don't surface as an error
+            // swallow cancellations
         } catch {
             errorMessage = AppError.unknown(error).userMessage
         }

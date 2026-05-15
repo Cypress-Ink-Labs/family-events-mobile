@@ -35,8 +35,8 @@ final class PlanViewModelTests: XCTestCase {
         ])
         events.fetchByIDsResult = .success([EventDTO.fixture(id: "evt_a", title: "Hero")])
         let (composer, _) = try makeComposer(plan: plan, events: events, location: location)
-        let vm = PlanViewModel(composer: composer, context: PlanContext(userID: UserID("u")))
-        await vm.refresh()
+        let vm = PlanViewModel(composer: composer)
+        await vm.refresh(context: PlanContext(userID: UserID("u")))
         XCTAssertNil(vm.errorMessage)
         XCTAssertFalse(vm.isLoading)
         XCTAssertFalse(vm.lastEmptyRefresh)
@@ -47,8 +47,8 @@ final class PlanViewModelTests: XCTestCase {
         struct Boom: Error {}
         plan.fetchPlanResult = .failure(Boom())
         let (composer, _) = try makeComposer(plan: plan)
-        let vm = PlanViewModel(composer: composer, context: PlanContext(userID: UserID("u")))
-        await vm.refresh()
+        let vm = PlanViewModel(composer: composer)
+        await vm.refresh(context: PlanContext(userID: UserID("u")))
         XCTAssertNotNil(vm.errorMessage)
         XCTAssertFalse(vm.isLoading)
     }
@@ -57,8 +57,8 @@ final class PlanViewModelTests: XCTestCase {
         let plan = FakePlanRepository()
         plan.fetchPlanResult = .success([])
         let (composer, _) = try makeComposer(plan: plan)
-        let vm = PlanViewModel(composer: composer, context: PlanContext(userID: UserID("u")))
-        await vm.refresh()
+        let vm = PlanViewModel(composer: composer)
+        await vm.refresh(context: PlanContext(userID: UserID("u")))
         XCTAssertNil(vm.errorMessage)
         XCTAssertTrue(vm.lastEmptyRefresh)
     }
