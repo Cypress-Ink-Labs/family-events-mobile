@@ -18,6 +18,15 @@ let package = Package(
             dependencies: ["FECore", "FEData", "FEDesignSystem"],
             path: "Sources/FEPlan"
         ),
-        .testTarget(name: "FEPlanTests", dependencies: ["FEPlan"], path: "Tests/FEPlanTests"),
+        .testTarget(
+            name: "FEPlanTests",
+            dependencies: [
+                "FEPlan",
+                "FECore",
+                "FEData",
+                .product(name: "FEDataTesting", package: "FEData"),
+            ],
+            path: "Tests/FEPlanTests"
+        ),
     ]
 )
