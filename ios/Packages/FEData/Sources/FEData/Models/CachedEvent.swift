@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import FECore
 
 @Model
 public final class CachedEvent {
@@ -47,6 +48,44 @@ public final class CachedEvent {
 }
 
 extension CachedEvent {
+    /// Lossy bridge for UI rendering. Fields not stored in cache (source, tags, etc.)
+    /// fall back to safe defaults. Used by SaturdayPlanScreen to render via PlanHeroCard /
+    /// PlanThumbCard which take EventDTO.
+    public func asEventDTO() -> EventDTO {
+        EventDTO(
+            id: EventID(id),
+            title: title,
+            description: eventDescription,
+            startDatetime: startDatetime,
+            endDatetime: endDatetime,
+            timezone: timezone,
+            venueName: venueName,
+            address: address,
+            cityID: cityID.map(CityID.init),
+            latitude: latitude,
+            longitude: longitude,
+            ageMin: ageMin,
+            ageMax: ageMax,
+            price: price,
+            isFree: isFree,
+            sourceURL: nil,
+            sourceName: nil,
+            sourceID: nil,
+            images: imageURLs,
+            status: "published",
+            aiConfidence: nil,
+            aiTagProvider: nil,
+            isFeatured: false,
+            viewCount: 0,
+            createdAt: lastSyncedAt,
+            updatedAt: lastSyncedAt,
+            tags: [],
+            avgRating: avgRating,
+            ratingCount: ratingCount,
+            isFavorited: isFavorited
+        )
+    }
+
     public static func upsert(_ dto: EventDTO, in context: ModelContext, at syncedAt: Date) {
         let id = dto.id.rawValue
         let descriptor = FetchDescriptor<CachedEvent>(predicate: #Predicate { $0.id == id })
