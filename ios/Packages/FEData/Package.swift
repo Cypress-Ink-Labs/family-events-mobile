@@ -6,6 +6,7 @@ let package = Package(
     platforms: [.iOS(.v17), .macOS(.v14)],
     products: [
         .library(name: "FEData", targets: ["FEData"]),
+        .library(name: "FEDataTesting", targets: ["FEDataTesting"]),
     ],
     dependencies: [
         .package(path: "../FECore"),
@@ -20,9 +21,14 @@ let package = Package(
             ],
             path: "Sources/FEData"
         ),
+        .target(
+            name: "FEDataTesting",
+            dependencies: ["FEData", "FECore"],
+            path: "Sources/FEDataTesting"
+        ),
         .testTarget(
             name: "FEDataTests",
-            dependencies: ["FEData", "FECore"],
+            dependencies: ["FEData", "FEDataTesting"],
             path: "Tests/FEDataTests"
         ),
     ]
