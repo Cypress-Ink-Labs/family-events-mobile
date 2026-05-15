@@ -6,6 +6,7 @@ public struct PlanResult: Sendable {
     public let date: String
     public let dayOffset: Int
     public let weatherFit: String
+    public let weatherSnapshot: WeatherSnapshot?
     public let events: [EventDTO]    // already in rank order (D14a)
     public let rankings: [PlanEventsRowDTO]
 }
@@ -49,9 +50,11 @@ public final class PlanComposer {
         // Weather is best-effort. Failure -> default "any" weatherFit (compatible with the
         // RPC's enum and equivalent to the D9 "neutral" intent: no opinion).
         var weatherFit = "any"
+        var weatherSnapshot: WeatherSnapshot?
         if let coord = coordinate {
             if let snapshot = try? await weather.currentWeather(at: coord) {
                 weatherFit = snapshot.weatherFit
+                weatherSnapshot = snapshot
             }
         }
 
@@ -79,7 +82,7 @@ public final class PlanComposer {
         try upsert(events: events, rankings: rankings, today: today)
 
         let dayOffset = rankings.first?.dayOffset ?? 0
-        return PlanResult(date: today, dayOffset: dayOffset, weatherFit: weatherFit, events: events, rankings: rankings)
+        return PlanResult(date: today, dayOffset: dayOffset, weatherFit: weatherFit, weatherSnapshot: weatherSnapshot, events: events, rankings: rankings)
     }
 
     private func upsert(events: [EventDTO], rankings: [PlanEventsRowDTO], today: String) throws {

@@ -41,6 +41,10 @@ public struct SaturdayPlanScreen: View {
                 header
                 PlanContextBar(cityName: cityName, kidAge: context.kidAge)
 
+                if let weather = viewModel.lastWeatherSnapshot {
+                    WeatherStrip(snapshot: weather)
+                }
+
                 if viewModel.lastEmptyRefresh && !cachedPlan.isEmpty {
                     staleBanner
                 }

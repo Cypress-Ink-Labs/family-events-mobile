@@ -35,6 +35,7 @@ final class PlanComposerTests: XCTestCase {
         )
         let result = try await composer.refresh(userID: UserID("u_1"), cityID: nil, kidAge: 5, today: "2026-05-15")
         XCTAssertEqual(result.events.map(\.title), ["Hero", "Thumb"], "D14a: events must be re-sorted to rank order")
+        XCTAssertEqual(result.weatherSnapshot?.temperatureCelsius, 24)
         let ctx = container.mainContext
         XCTAssertEqual(try ctx.fetch(FetchDescriptor<CachedEvent>()).count, 2)
         XCTAssertEqual(try ctx.fetch(FetchDescriptor<CachedPlannedEvent>()).count, 2)

@@ -62,4 +62,18 @@ final class PlanViewModelTests: XCTestCase {
         XCTAssertNil(vm.errorMessage)
         XCTAssertTrue(vm.lastEmptyRefresh)
     }
+
+    func testRefreshExposesWeatherSnapshot() async throws {
+        let plan = FakePlanRepository()
+        plan.fetchPlanResult = .success([])
+        let location = FakeLocationService()
+        location.authorizationStub = .authorized
+        location.locationStub = GeoCoordinate(latitude: 30, longitude: -97)
+        let weather = FakeWeatherProviding()
+        weather.snapshotStub = WeatherSnapshot(temperatureCelsius: 22, precipitationChance: 0.1, conditionCode: "clear")
+        let (composer, _) = try makeComposer(plan: plan, location: location, weather: weather)
+        let vm = PlanViewModel(composer: composer)
+        await vm.refresh(context: PlanContext(userID: UserID("u")))
+        XCTAssertNotNil(vm.lastWeatherSnapshot)
+    }
 }

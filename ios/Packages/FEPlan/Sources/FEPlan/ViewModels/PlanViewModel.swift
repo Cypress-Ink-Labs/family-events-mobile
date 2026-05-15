@@ -9,6 +9,7 @@ public final class PlanViewModel {
     public private(set) var isLoading = false
     public private(set) var errorMessage: String?
     public private(set) var lastEmptyRefresh = false
+    public private(set) var lastWeatherSnapshot: WeatherSnapshot?
 
     private let composer: PlanComposer
 
@@ -29,6 +30,7 @@ public final class PlanViewModel {
                 today: today
             )
             lastEmptyRefresh = result.rankings.isEmpty
+            lastWeatherSnapshot = result.weatherSnapshot
         } catch let app as AppError {
             errorMessage = app.userMessage
         } catch is CancellationError {
