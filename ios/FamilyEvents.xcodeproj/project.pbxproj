@@ -64,7 +64,7 @@
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
 		D890C8D7C4B176D36D48B555 /* FESaved */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FESaved; path = Packages/FESaved; sourceTree = SOURCE_ROOT; };
 		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
-		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F30DD56DC40DC5C679F79DC8 /* FEExplore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEExplore; path = Packages/FEExplore; sourceTree = SOURCE_ROOT; };
 		F6288D8480EB0B4748EB77C8 /* FEDesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEDesignSystem; path = Packages/FEDesignSystem; sourceTree = SOURCE_ROOT; };
 		FF1DA06D83C22E5936FD06AE /* FEPlan */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEPlan; path = Packages/FEPlan; sourceTree = SOURCE_ROOT; };
@@ -232,8 +232,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = FCC7E55DDA9D7FA440B4C754 /* Build configuration list for PBXProject "FamilyEvents" */;
 			developmentRegion = en;
@@ -309,6 +307,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -344,6 +343,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
