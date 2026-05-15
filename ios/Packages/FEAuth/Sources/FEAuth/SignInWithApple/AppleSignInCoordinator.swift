@@ -54,11 +54,13 @@ public enum AppleSignInCoordinator {
         request.nonce = sha256(nonce)
         let controller = ASAuthorizationController(authorizationRequests: [request])
         let delegate = Delegate(rawNonce: nonce)
+        let contextProvider = ContextProvider(anchor: anchor)
         controller.delegate = delegate
-        controller.presentationContextProvider = ContextProvider(anchor: anchor)
+        controller.presentationContextProvider = contextProvider
         return try await withCheckedThrowingContinuation { continuation in
             delegate.continuation = continuation
             controller.performRequests()
+            _ = contextProvider
         }
     }
 
