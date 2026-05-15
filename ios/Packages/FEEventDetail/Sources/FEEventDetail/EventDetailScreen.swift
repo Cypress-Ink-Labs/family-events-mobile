@@ -83,7 +83,9 @@ public struct EventDetailScreen: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 20)
                 .padding(.bottom, 32)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .ignoresSafeArea(edges: .top)
     }
