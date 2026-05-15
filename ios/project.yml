@@ -44,9 +44,11 @@ targets:
         UILaunchScreen: {}
         SupabaseURL: $(SUPABASE_URL)
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
+        NSLocationWhenInUseUsageDescription: "We use your location to surface family events near you."
     settings:
       base:
         PRODUCT_NAME: FamilyEvents
+        CODE_SIGN_ENTITLEMENTS: FamilyEvents/App/FamilyEvents.entitlements
     dependencies:
       - package: FECore
       - package: FEData
