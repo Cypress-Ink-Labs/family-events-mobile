@@ -13,6 +13,7 @@ struct FamilyEventsApp: App {
             sessionStore: SessionStore,
             composer: PlanComposer,
             profileRepo: any ProfileRepo,
+            cityRepo: any CityRepository,
             modelContainer: ModelContainer
         )
         case configError(String)
@@ -33,11 +34,13 @@ struct FamilyEventsApp: App {
             let container = try AppModelContainer.makePersistent()
             let composer = PlanModule.makeComposer(supabase: supa, modelContainer: container)
             let profileRepo = SupabaseProfileRepo(supabase: supa)
+            let cityRepo = SupabaseCityRepository(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
                 composer: composer,
                 profileRepo: profileRepo,
+                cityRepo: cityRepo,
                 modelContainer: container
             )
         } catch let error as AppError {
@@ -50,8 +53,8 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let modelContainer):
-                RootView(authService: authService, planComposer: composer, profileRepo: profileRepo)
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let modelContainer):
+                RootView(authService: authService, planComposer: composer, profileRepo: profileRepo, cityRepo: cityRepo)
                     .environment(sessionStore)
                     .modelContainer(modelContainer)   // D14b: same instance the composer holds
             case .configError(let message):

@@ -11,28 +11,38 @@ private struct PendingResetToken: Identifiable, Equatable {
     var token: String { id }
 }
 
+/// No-op fallback used when no real CityRepository is injected (e.g., previews, tests).
+private struct FallbackCityRepository: CityRepository {
+    func cityName(id: CityID) async throws -> String? { nil }
+}
+
 struct RootView: View {
     static let shownTabs: [AppTab] = AppTab.allCases
     let initialTab: AppTab
     private let authService: any AuthService
     private let planComposer: PlanComposer
     private let profileRepo: any ProfileRepo
+    private let cityRepo: any CityRepository
 
     @Environment(SessionStore.self) private var sessionStore
     @State private var selectedTab: AppTab
     @State private var pendingResetToken: PendingResetToken?
     @State private var showProfile = false
     @State private var planContext: PlanContext?
+    @State private var cityName: String?
+    @State private var showCityPicker = false
 
     init(
         authService: any AuthService,
         planComposer: PlanComposer,
         profileRepo: any ProfileRepo,
+        cityRepo: any CityRepository = FallbackCityRepository(),
         initialTab: AppTab = .plan
     ) {
         self.authService = authService
         self.planComposer = planComposer
         self.profileRepo = profileRepo
+        self.cityRepo = cityRepo
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
     }
@@ -60,6 +70,9 @@ struct RootView: View {
         .sheet(isPresented: $showProfile) {
             ProfileSheet(authService: authService)
         }
+        .sheet(isPresented: $showCityPicker) {
+            CityPickerStub(onDismiss: { showCityPicker = false })
+        }
         .sheet(item: $pendingResetToken) { pending in
             NavigationStack {
                 ResetPasswordScreen(
@@ -74,7 +87,7 @@ struct RootView: View {
     private func signedInContent(userID: UserID) -> some View {
         if let ctx = planContext {
             TabView(selection: $selectedTab) {
-                PlanTab(composer: planComposer, context: ctx, cityName: nil, onSelectEvent: { _ in })
+                PlanTab(composer: planComposer, context: ctx, cityName: cityName, onSetCity: { showCityPicker = true })
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
                 ExploreTab()
@@ -96,6 +109,9 @@ struct RootView: View {
     private func resolveContext(userID: UserID) async -> PlanContext {
         do {
             let (cityID, kidAge) = try await profileRepo.currentContext(userID: userID)
+            if let cityID {
+                cityName = try? await cityRepo.cityName(id: cityID)
+            }
             return PlanContext(userID: userID, cityID: cityID, kidAge: kidAge)
         } catch {
             return PlanContext(userID: userID, cityID: nil, kidAge: nil)
