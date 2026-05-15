@@ -75,6 +75,9 @@ targets:
       - target: FamilyEvents
       - package: FECore
       - package: FEData
+      - package: FEData
+        product: FEDataTesting
       - package: FEAuth
       - package: FEAuth
         product: FEAuthTesting
+      - package: FEPlan

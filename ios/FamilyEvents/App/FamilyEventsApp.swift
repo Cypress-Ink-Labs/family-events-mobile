@@ -1,20 +1,25 @@
 import SwiftUI
+import SwiftData
 import FECore
 import FEData
 import FEAuth
+import FEPlan
 
 @main
 struct FamilyEventsApp: App {
     private enum BootResult {
-        case ready(authService: any AuthService, sessionStore: SessionStore)
+        case ready(
+            authService: any AuthService,
+            sessionStore: SessionStore,
+            composer: PlanComposer,
+            profileRepo: any ProfileRepo,
+            modelContainer: ModelContainer
+        )
         case configError(String)
     }
-
     private let boot: BootResult
 
-    init() {
-        boot = Self.bootstrap()
-    }
+    init() { boot = Self.bootstrap() }
 
     private static func bootstrap() -> BootResult {
         do {
@@ -25,7 +30,16 @@ struct FamilyEventsApp: App {
                 authService: svc,
                 storage: SecItemKeychainStorage(service: "com.familyevents.app.auth")
             )
-            return .ready(authService: svc, sessionStore: store)
+            let container = try AppModelContainer.makePersistent()
+            let composer = PlanModule.makeComposer(supabase: supa, modelContainer: container)
+            let profileRepo = SupabaseProfileRepo(supabase: supa)
+            return .ready(
+                authService: svc,
+                sessionStore: store,
+                composer: composer,
+                profileRepo: profileRepo,
+                modelContainer: container
+            )
         } catch let error as AppError {
             return .configError(error.userMessage)
         } catch {
@@ -36,9 +50,10 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore):
-                RootView(authService: authService)
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let modelContainer):
+                RootView(authService: authService, planComposer: composer, profileRepo: profileRepo)
                     .environment(sessionStore)
+                    .modelContainer(modelContainer)   // D14b: same instance the composer holds
             case .configError(let message):
                 ConfigErrorView(message: message)
             }
@@ -51,15 +66,9 @@ private struct ConfigErrorView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
-            Text("Couldn't start the app")
-                .font(.title2.weight(.semibold))
-            Text(message)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding()
+                .font(.system(size: 48)).foregroundStyle(.orange)
+            Text("Couldn't start the app").font(.title2.weight(.semibold))
+            Text(message).font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        }.padding()
     }
 }
