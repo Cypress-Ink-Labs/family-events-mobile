@@ -3,7 +3,7 @@ import SwiftData
 
 public enum AppModelContainer {
     public static var allModelTypes: [any PersistentModel.Type] {
-        [CachedEvent.self, CachedPlannedEvent.self, CachedExploreEvent.self]
+        [CachedEvent.self, CachedPlannedEvent.self, CachedExploreEvent.self, CachedFavorite.self]
     }
 
     public static func makePersistent() throws -> ModelContainer {
