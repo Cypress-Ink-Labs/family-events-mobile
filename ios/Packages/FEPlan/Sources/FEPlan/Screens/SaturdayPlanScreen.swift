@@ -53,7 +53,9 @@ public struct SaturdayPlanScreen: View {
 
                 content
             }
-            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 20)
         }
         .refreshable { await viewModel.refresh(context: context) }
         .task { await viewModel.refresh(context: context) }
