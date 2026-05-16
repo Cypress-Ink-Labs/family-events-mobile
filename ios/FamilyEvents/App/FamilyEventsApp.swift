@@ -15,6 +15,7 @@ struct FamilyEventsApp: App {
             profileRepo: any ProfileRepo,
             cityRepo: any CityRepository,
             eventRepo: any EventRepository,
+            favoriteRepo: any FavoriteRepo,
             modelContainer: ModelContainer
         )
         case configError(String)
@@ -37,6 +38,7 @@ struct FamilyEventsApp: App {
             let profileRepo = SupabaseProfileRepo(supabase: supa)
             let cityRepo = SupabaseCityRepository(supabase: supa)
             let eventRepo = SupabaseEventRepository(supabase: supa)
+            let favoriteRepo = SupabaseFavoriteRepo(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
@@ -44,6 +46,7 @@ struct FamilyEventsApp: App {
                 profileRepo: profileRepo,
                 cityRepo: cityRepo,
                 eventRepo: eventRepo,
+                favoriteRepo: favoriteRepo,
                 modelContainer: container
             )
         } catch let error as AppError {
@@ -56,13 +59,15 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let modelContainer):
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let modelContainer):
                 RootView(
                     authService: authService,
                     planComposer: composer,
                     profileRepo: profileRepo,
                     cityRepo: cityRepo,
-                    eventRepo: eventRepo
+                    eventRepo: eventRepo,
+                    favoriteRepo: favoriteRepo,
+                    modelContainer: modelContainer
                 )
                 .environment(sessionStore)
                 .modelContainer(modelContainer)   // D14b: same instance the composer holds

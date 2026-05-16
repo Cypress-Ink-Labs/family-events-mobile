@@ -22,6 +22,7 @@ final class PlanTabTests: XCTestCase {
         let tab = PlanTab(
             composer: try makeComposer(),
             eventRepo: FakeEventRepository(),
+            favoriteRepo: FakeFavoriteRepo(),
             context: PlanContext(userID: UserID("u"))
         )
         XCTAssertEqual(tab.tabTitle, "Plan")

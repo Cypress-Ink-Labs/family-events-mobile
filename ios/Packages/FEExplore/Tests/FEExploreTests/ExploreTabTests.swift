@@ -7,7 +7,7 @@ import FEDataTesting
 @MainActor
 final class ExploreTabTests: XCTestCase {
     func testTabTitle() {
-        let tab = ExploreTab(eventRepo: FakeEventRepository(), userID: UserID("u"), cityID: nil)
+        let tab = ExploreTab(eventRepo: FakeEventRepository(), favoriteRepo: FakeFavoriteRepo(), userID: UserID("u"), cityID: nil)
         XCTAssertEqual(tab.tabTitle, "Explore")
     }
 }

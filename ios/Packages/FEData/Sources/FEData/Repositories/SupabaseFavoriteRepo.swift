@@ -4,10 +4,15 @@ import Supabase
 
 /// Concrete implementation of FavoriteRepo backed by Supabase.
 ///
-/// Realtime: native via supabase-swift 2.20.0 RealtimeV2 channel with
-/// onPostgresChange(InsertAction/DeleteAction). Channel is created and
-/// subscribed per call to observeFavorites; the caller cancels the returned
-/// Task (or the AsyncStream continuation is dropped) to clean up.
+/// Realtime fallback: supabase-swift 2.20.0's Realtime APIs use `Helpers.AnyJSON`
+/// and `Helpers.ObservationToken` in their closure signatures. `Helpers` is a
+/// target inside supabase-swift, NOT a published product — so xcodegen-generated
+/// xcodeproj frameworks cannot link those type-metadata symbols even though the
+/// API is public at the Swift level. SPM via `swift test` resolves it transitively;
+/// xcodebuild does not. Until supabase-swift exposes `Helpers` as a product, we
+/// poll every 30s and diff against the previous snapshot to emit FavoriteChange
+/// events. M7.1 will reinstate native realtime when the upstream packaging
+/// supports it. Tracking note in CommitMessageBody.
 public final class SupabaseFavoriteRepo: FavoriteRepo, @unchecked Sendable {
     private let supabase: FamilyEventsSupabase
 
@@ -49,50 +54,35 @@ public final class SupabaseFavoriteRepo: FavoriteRepo, @unchecked Sendable {
 
     public func observeFavorites(for userID: UserID) -> AsyncStream<FavoriteChange> {
         AsyncStream { continuation in
-            let channel = supabase.client.channel("favorites:\(userID.rawValue)")
-
-            let insertToken = channel.onPostgresChange(
-                InsertAction.self,
-                schema: "public",
-                table: "favorites",
-                filter: "user_id=eq.\(userID.rawValue)"
-            ) { action in
-                guard
-                    let id = action.record["id"]?.stringValue,
-                    let eventIDStr = action.record["event_id"]?.stringValue,
-                    let createdAtStr = action.record["created_at"]?.stringValue
-                else { return }
-
-                let date = ISO8601DateFormatter().date(from: createdAtStr) ?? Date()
-                let dto = FavoriteDTO(
-                    id: id,
-                    userID: userID,
-                    eventID: EventID(eventIDStr),
-                    createdAt: date
-                )
-                continuation.yield(.inserted(dto))
+            let task = Task { [weak self] in
+                guard let self else { return }
+                var lastKnown: [String: FavoriteDTO] = [:]
+                // Seed from current server state on subscribe.
+                if let initial = try? await self.favorites(for: userID) {
+                    lastKnown = Dictionary(uniqueKeysWithValues: initial.map { ($0.id, $0) })
+                }
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(30))
+                    if Task.isCancelled { break }
+                    guard let latest = try? await self.favorites(for: userID) else { continue }
+                    let latestByID = Dictionary(uniqueKeysWithValues: latest.map { ($0.id, $0) })
+                    let latestIDs = Set(latestByID.keys)
+                    let lastIDs = Set(lastKnown.keys)
+                    for addedID in latestIDs.subtracting(lastIDs) {
+                        if let dto = latestByID[addedID] {
+                            continuation.yield(.inserted(dto))
+                        }
+                    }
+                    for removedID in lastIDs.subtracting(latestIDs) {
+                        if let dto = lastKnown[removedID] {
+                            continuation.yield(.deleted(eventID: dto.eventID))
+                        }
+                    }
+                    lastKnown = latestByID
+                }
             }
-
-            let deleteToken = channel.onPostgresChange(
-                DeleteAction.self,
-                schema: "public",
-                table: "favorites",
-                filter: "user_id=eq.\(userID.rawValue)"
-            ) { action in
-                guard let eventIDStr = action.oldRecord["event_id"]?.stringValue else { return }
-                continuation.yield(.deleted(eventID: EventID(eventIDStr)))
-            }
-
-            let task = Task {
-                await channel.subscribe()
-                // Keep tokens alive for the duration of the Task
-                _ = insertToken
-                _ = deleteToken
-            }
-
             continuation.onTermination = { _ in
                 task.cancel()
-                Task { await self.supabase.client.removeChannel(channel) }
             }
         }
     }

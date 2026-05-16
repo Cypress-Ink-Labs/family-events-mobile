@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import FECore
 import FEData
 import FEAuth
@@ -22,6 +23,16 @@ private struct FallbackEventRepository: EventRepository {
     func fetchList(query: EventQuery, for userID: UserID) async throws -> [EventDTO] { [] }
 }
 
+/// No-op fallback for FavoriteRepo (previews, tests).
+private struct FallbackFavoriteRepo: FavoriteRepo {
+    func favorites(for userID: UserID) async throws -> [FavoriteDTO] { [] }
+    func favorite(eventID: EventID, for userID: UserID) async throws {}
+    func unfavorite(eventID: EventID, for userID: UserID) async throws {}
+    func observeFavorites(for userID: UserID) -> AsyncStream<FavoriteChange> {
+        AsyncStream { _ in }
+    }
+}
+
 struct RootView: View {
     static let shownTabs: [AppTab] = AppTab.allCases
     let initialTab: AppTab
@@ -30,6 +41,8 @@ struct RootView: View {
     private let profileRepo: any ProfileRepo
     private let cityRepo: any CityRepository
     private let eventRepo: any EventRepository
+    private let favoriteRepo: any FavoriteRepo
+    private let modelContainer: ModelContainer?
 
     @Environment(SessionStore.self) private var sessionStore
     @State private var selectedTab: AppTab
@@ -45,6 +58,8 @@ struct RootView: View {
         profileRepo: any ProfileRepo,
         cityRepo: any CityRepository = FallbackCityRepository(),
         eventRepo: any EventRepository = FallbackEventRepository(),
+        favoriteRepo: any FavoriteRepo = FallbackFavoriteRepo(),
+        modelContainer: ModelContainer? = nil,
         initialTab: AppTab = .plan
     ) {
         self.authService = authService
@@ -52,6 +67,8 @@ struct RootView: View {
         self.profileRepo = profileRepo
         self.cityRepo = cityRepo
         self.eventRepo = eventRepo
+        self.favoriteRepo = favoriteRepo
+        self.modelContainer = modelContainer
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
     }
@@ -99,18 +116,27 @@ struct RootView: View {
                 PlanTab(
                     composer: planComposer,
                     eventRepo: eventRepo,
+                    favoriteRepo: favoriteRepo,
                     context: ctx,
                     cityName: cityName,
                     onSetCity: { showCityPicker = true }
                 )
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
-                ExploreTab(eventRepo: eventRepo, userID: userID, cityID: ctx.cityID)
+                ExploreTab(eventRepo: eventRepo, favoriteRepo: favoriteRepo, userID: userID, cityID: ctx.cityID)
                     .tabItem { Label(AppTab.explore.title, systemImage: AppTab.explore.systemImage) }
                     .tag(AppTab.explore)
-                SavedTab(onOpenProfile: { showProfile = true })
-                    .tabItem { Label(AppTab.saved.title, systemImage: AppTab.saved.systemImage) }
-                    .tag(AppTab.saved)
+                if let container = modelContainer {
+                    SavedTab(
+                        favoriteRepo: favoriteRepo,
+                        eventRepo: eventRepo,
+                        modelContainer: container,
+                        userID: userID,
+                        onOpenProfile: { showProfile = true }
+                    )
+                        .tabItem { Label(AppTab.saved.title, systemImage: AppTab.saved.systemImage) }
+                        .tag(AppTab.saved)
+                }
             }
         } else {
             ProgressView()

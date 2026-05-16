@@ -25,7 +25,7 @@ final class RootViewSmokeTests: XCTestCase {
         let fake = FakeAuthService()
         let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
         try await store.adopt(.init(userID: UserID("u_1"), accessToken: "a", refreshToken: "r", email: nil, identityProvider: .password))
-        _ = RootView(authService: fake, planComposer: try makeComposer(), profileRepo: FakeProfileRepo(), cityRepo: FakeCityRepository(), eventRepo: FakeEventRepository())
+        _ = RootView(authService: fake, planComposer: try makeComposer(), profileRepo: FakeProfileRepo(), cityRepo: FakeCityRepository(), eventRepo: FakeEventRepository(), favoriteRepo: FakeFavoriteRepo())
             .environment(store)
         XCTAssertEqual(store.state, .signedIn(userID: UserID("u_1")))
     }
@@ -35,7 +35,7 @@ final class RootViewSmokeTests: XCTestCase {
         let store = SessionStore(authService: fake, storage: InMemoryKeychainStorage())
         try? await Task.sleep(nanoseconds: 50_000_000)
         await store.signOut()
-        _ = RootView(authService: fake, planComposer: try! makeComposer(), profileRepo: FakeProfileRepo(), cityRepo: FakeCityRepository(), eventRepo: FakeEventRepository())
+        _ = RootView(authService: fake, planComposer: try! makeComposer(), profileRepo: FakeProfileRepo(), cityRepo: FakeCityRepository(), eventRepo: FakeEventRepository(), favoriteRepo: FakeFavoriteRepo())
             .environment(store)
         XCTAssertEqual(store.state, .signedOut)
     }

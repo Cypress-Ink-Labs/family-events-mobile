@@ -9,10 +9,12 @@ public struct ExploreTab: View {
     @State private var viewModel: ExploreViewModel
     @State private var path: [EventID] = []
     private let eventRepo: any EventRepository
+    private let favoriteRepo: any FavoriteRepo
     private let userID: UserID
 
-    public init(eventRepo: any EventRepository, userID: UserID, cityID: CityID?) {
+    public init(eventRepo: any EventRepository, favoriteRepo: any FavoriteRepo, userID: UserID, cityID: CityID?) {
         self.eventRepo = eventRepo
+        self.favoriteRepo = favoriteRepo
         self.userID = userID
         _viewModel = State(initialValue: ExploreViewModel(eventRepo: eventRepo, userID: userID, cityID: cityID))
     }
@@ -21,7 +23,7 @@ public struct ExploreTab: View {
         NavigationStack(path: $path) {
             ExploreScreen(viewModel: viewModel, onSelectEvent: { id in path.append(id) })
                 .navigationDestination(for: EventID.self) { id in
-                    EventDetailScreen(eventID: id, eventRepo: eventRepo, userID: userID)
+                    EventDetailScreen(eventID: id, eventRepo: eventRepo, favoriteRepo: favoriteRepo, userID: userID)
                 }
         }
     }
