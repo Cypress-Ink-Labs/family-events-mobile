@@ -80,45 +80,38 @@ public struct EventDetailScreen: View {
                         sourceLink(url: url, name: event.sourceName)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
                 .padding(.top, 20)
                 .padding(.bottom, 32)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .ignoresSafeArea(edges: .top)
     }
 
     @ViewBuilder
     private func heroImage(event: EventDTO) -> some View {
-        if let urlString = event.images.first, let url = URL(string: urlString) {
-            AsyncImage(url: url) { image in
-                image.resizable().aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(Color.appSecondaryBackground)
-            }
-            .frame(height: 280)
+        // Fixed-frame Rectangle + overlay pattern: the Rectangle owns the size
+        // (260pt tall, full width). AsyncImage renders into the overlay and is
+        // clipped by the Rectangle's frame, so post-load layout cannot resize
+        // the container — fixes the iOS 26 "snap to broken layout" symptom.
+        Rectangle()
+            .fill(Color.appSecondaryBackground)
             .frame(maxWidth: .infinity)
-            .clipped()
-            .overlay(alignment: .bottom) {
-                LinearGradient(
-                    colors: [.clear, Color.black.opacity(0.25)],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: 64)
-            }
-        } else {
-            Rectangle()
-                .fill(Color.appSecondaryBackground)
-                .frame(height: 200)
-                .frame(maxWidth: .infinity)
-                .overlay {
+            .frame(height: 260)
+            .overlay {
+                if let urlString = event.images.first, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { image in
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.clear
+                    }
+                } else {
                     Image(systemName: "calendar")
                         .font(.system(size: 48))
                         .foregroundStyle(.secondary)
                 }
-        }
+            }
+            .clipped()
     }
 
     @ViewBuilder
@@ -167,7 +160,6 @@ public struct EventDetailScreen: View {
                 }
             }
         }
-        .scrollClipDisabled()
     }
 
     @ViewBuilder
