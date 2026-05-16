@@ -7,6 +7,7 @@ public struct ExploreScreen: View {
     @Bindable var viewModel: ExploreViewModel
     public let onSelectEvent: (EventID) -> Void
     @State private var showFilters = false
+    @State private var viewMode: ExploreViewMode = .list
 
     public init(viewModel: ExploreViewModel, onSelectEvent: @escaping (EventID) -> Void) {
         self.viewModel = viewModel
@@ -14,15 +15,32 @@ public struct ExploreScreen: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                ExploreSearchBar(text: $viewModel.filters.keyword)
-                    .padding(.horizontal, 16)
+        VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                HStack {
+                    ExploreSearchBar(text: $viewModel.filters.keyword)
+                    Spacer()
+                    ExploreViewModeToggle(mode: $viewMode)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+
                 ExploreActiveFiltersBar(filters: $viewModel.filters)
-                content
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 12)
+
+            if viewMode == .list {
+                ScrollView {
+                    listContent
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 12)
+                }
+                .refreshable {
+                    await viewModel.reload()
+                }
+            } else {
+                ExploreMapView(events: viewModel.events, onSelectEvent: onSelectEvent)
+                    .ignoresSafeArea(edges: .bottom)
+            }
         }
         .navigationTitle("Explore")
         .toolbar {
@@ -38,13 +56,10 @@ public struct ExploreScreen: View {
                 await viewModel.reload()
             }
         }
-        .refreshable {
-            await viewModel.reload()
-        }
     }
 
     @ViewBuilder
-    private var content: some View {
+    private var listContent: some View {
         if viewModel.isLoading && viewModel.events.isEmpty {
             loadingState
         } else if let error = viewModel.errorMessage, viewModel.events.isEmpty {
