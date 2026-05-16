@@ -7,7 +7,11 @@ import FEDataTesting
 @MainActor
 final class EventDetailScreenTests: XCTestCase {
     func testConstructsWithoutCrash() {
-        let repo = FakeEventRepository()
-        _ = EventDetailScreen(eventID: EventID("evt_1"), eventRepo: repo, userID: UserID("u"))
+        _ = EventDetailScreen(
+            eventID: EventID("evt_1"),
+            eventRepo: FakeEventRepository(),
+            favoriteRepo: FakeFavoriteRepo(),
+            userID: UserID("u")
+        )
     }
 }

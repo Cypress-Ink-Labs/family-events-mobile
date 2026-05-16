@@ -7,9 +7,19 @@ public struct EventDetailScreen: View {
     @State private var viewModel: EventDetailViewModel
     private let eventID: EventID
 
-    public init(eventID: EventID, eventRepo: any EventRepository, userID: UserID) {
+    public init(
+        eventID: EventID,
+        eventRepo: any EventRepository,
+        favoriteRepo: any FavoriteRepo,
+        userID: UserID
+    ) {
         self.eventID = eventID
-        _viewModel = State(initialValue: EventDetailViewModel(eventRepo: eventRepo, userID: userID, eventID: eventID))
+        _viewModel = State(initialValue: EventDetailViewModel(
+            eventRepo: eventRepo,
+            favoriteRepo: favoriteRepo,
+            userID: userID,
+            eventID: eventID
+        ))
     }
 
     public var body: some View {
