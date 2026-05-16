@@ -19,6 +19,7 @@ private struct FallbackCityRepository: CityRepository {
 /// No-op fallback for EventRepository (previews, tests).
 private struct FallbackEventRepository: EventRepository {
     func fetch(ids: [EventID], for userID: UserID) async throws -> [EventDTO] { [] }
+    func fetchList(query: EventQuery, for userID: UserID) async throws -> [EventDTO] { [] }
 }
 
 struct RootView: View {

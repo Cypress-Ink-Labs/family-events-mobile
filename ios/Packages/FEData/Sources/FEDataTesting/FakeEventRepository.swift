@@ -4,13 +4,28 @@ import FEData
 
 public final class FakeEventRepository: EventRepository, @unchecked Sendable {
     public var fetchByIDsResult: Result<[EventDTO], Error> = .success([])
+    public var fetchListResult: Result<[EventDTO], Error> = .success([])
+    public var artificialDelay: Duration?
     private(set) public var lastIDs: [EventID]?
+    private(set) public var lastListQuery: EventQuery?
     private(set) public var lastUserID: UserID?
+    private(set) public var fetchListCallCount = 0
+
     public init() {}
+
     public func fetch(ids: [EventID], for userID: UserID) async throws -> [EventDTO] {
         lastIDs = ids
         lastUserID = userID
+        if let delay = artificialDelay { try await Task.sleep(for: delay) }
         return try fetchByIDsResult.get()
+    }
+
+    public func fetchList(query: EventQuery, for userID: UserID) async throws -> [EventDTO] {
+        fetchListCallCount += 1
+        lastListQuery = query
+        lastUserID = userID
+        if let delay = artificialDelay { try await Task.sleep(for: delay) }
+        return try fetchListResult.get()
     }
 }
 
