@@ -1,7 +1,7 @@
 import Foundation
 import FECore
 
-public struct EventDTO: Equatable, Sendable, Codable {
+public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
     public let id: EventID
     public let title: String
     public let description: String?
