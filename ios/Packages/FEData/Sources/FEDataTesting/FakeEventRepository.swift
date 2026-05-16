@@ -30,15 +30,22 @@ public final class FakeEventRepository: EventRepository, @unchecked Sendable {
 }
 
 extension EventDTO {
-    /// Test fixture used by FEData + FEPlan tests.
-    public static func fixture(id: String, title: String) -> EventDTO {
+    /// Test fixture used by FEData + FEPlan + FEExplore tests.
+    public static func fixture(
+        id: String,
+        title: String,
+        isFree: Bool = true,
+        price: Double? = nil,
+        venueName: String? = nil,
+        description: String? = nil
+    ) -> EventDTO {
         EventDTO(
-            id: EventID(id), title: title, description: nil,
+            id: EventID(id), title: title, description: description,
             startDatetime: Date(timeIntervalSince1970: 1_700_000_000),
             endDatetime: nil, timezone: "UTC",
-            venueName: nil, address: nil, cityID: nil,
+            venueName: venueName, address: nil, cityID: nil,
             latitude: nil, longitude: nil, ageMin: nil, ageMax: nil,
-            price: nil, isFree: true, sourceURL: nil, sourceName: nil,
+            price: price, isFree: isFree, sourceURL: nil, sourceName: nil,
             sourceID: nil, images: [], status: "published",
             aiConfidence: nil, aiTagProvider: nil, isFeatured: false,
             viewCount: 0,

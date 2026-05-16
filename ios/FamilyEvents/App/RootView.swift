@@ -105,7 +105,7 @@ struct RootView: View {
                 )
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
-                ExploreTab()
+                ExploreTab(eventRepo: eventRepo, userID: userID, cityID: ctx.cityID)
                     .tabItem { Label(AppTab.explore.title, systemImage: AppTab.explore.systemImage) }
                     .tag(AppTab.explore)
                 SavedTab(onOpenProfile: { showProfile = true })

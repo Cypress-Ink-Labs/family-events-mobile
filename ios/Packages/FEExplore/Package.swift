@@ -11,13 +11,22 @@ let package = Package(
         .package(path: "../FECore"),
         .package(path: "../FEData"),
         .package(path: "../FEDesignSystem"),
+        .package(path: "../FEEventDetail"),
     ],
     targets: [
         .target(
             name: "FEExplore",
-            dependencies: ["FECore", "FEData", "FEDesignSystem"],
+            dependencies: ["FECore", "FEData", "FEDesignSystem", "FEEventDetail"],
             path: "Sources/FEExplore"
         ),
-        .testTarget(name: "FEExploreTests", dependencies: ["FEExplore"], path: "Tests/FEExploreTests"),
+        .testTarget(
+            name: "FEExploreTests",
+            dependencies: [
+                "FEExplore",
+                "FECore",
+                .product(name: "FEDataTesting", package: "FEData"),
+            ],
+            path: "Tests/FEExploreTests"
+        ),
     ]
 )

@@ -1,0 +1,52 @@
+import SwiftUI
+
+public struct ExploreActiveFiltersBar: View {
+    @Binding public var filters: ExploreFilters
+
+    public init(filters: Binding<ExploreFilters>) {
+        _filters = filters
+    }
+
+    public var body: some View {
+        if filters.activeCount > 0 {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if !filters.keyword.isEmpty {
+                        chip(label: "\"\(filters.keyword)\"") {
+                            filters.keyword = ""
+                        }
+                    }
+                    if filters.dateFilter != .anytime {
+                        chip(label: filters.dateFilter.rawValue) {
+                            filters.dateFilter = .anytime
+                        }
+                    }
+                    if filters.onlyFree {
+                        chip(label: "Free") {
+                            filters.onlyFree = false
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func chip(label: String, onRemove: @escaping () -> Void) -> some View {
+        HStack(spacing: 4) {
+            Text(label)
+                .font(.subheadline)
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.semibold))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.accentColor.opacity(0.12))
+        .clipShape(Capsule())
+    }
+}
