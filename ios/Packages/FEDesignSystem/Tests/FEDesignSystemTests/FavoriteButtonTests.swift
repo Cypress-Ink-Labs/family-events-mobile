@@ -13,3 +13,26 @@ final class FavoriteButtonTests: XCTestCase {
         XCTAssertTrue(tapped)
     }
 }
+
+#if os(iOS) && canImport(UIKit)
+import SnapshotTesting
+
+@MainActor
+final class FavoriteButtonSnapshotTests: XCTestCase {
+    func testFavoriteButtonUnfavoritedState() {
+        let button = FavoriteButton(
+            isFavorited: .constant(false),
+            onToggle: {}
+        )
+        assertSnapshotVariants(of: button.padding(20), layout: .fixed(width: 120, height: 120))
+    }
+
+    func testFavoriteButtonFavoritedState() {
+        let button = FavoriteButton(
+            isFavorited: .constant(true),
+            onToggle: {}
+        )
+        assertSnapshotVariants(of: button.padding(20), layout: .fixed(width: 120, height: 120))
+    }
+}
+#endif

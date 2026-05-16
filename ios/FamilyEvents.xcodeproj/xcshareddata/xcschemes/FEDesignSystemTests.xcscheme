@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "083B3FC98884AFDEAC48F615"
-               BuildableName = "FamilyEvents.app"
-               BlueprintName = "FamilyEvents"
+               BlueprintIdentifier = "A1487D12FC1012829E82D8AF"
+               BuildableName = "FEDesignSystemTests.xctest"
+               BlueprintName = "FEDesignSystemTests"
                ReferencedContainer = "container:FamilyEvents.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,24 +32,13 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "083B3FC98884AFDEAC48F615"
-            BuildableName = "FamilyEvents.app"
-            BlueprintName = "FamilyEvents"
+            BlueprintIdentifier = "A1487D12FC1012829E82D8AF"
+            BuildableName = "FEDesignSystemTests.xctest"
+            BlueprintName = "FEDesignSystemTests"
             ReferencedContainer = "container:FamilyEvents.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9BEC6E13FACB96F2663F665B"
-               BuildableName = "FamilyEventsTests.xctest"
-               BlueprintName = "FamilyEventsTests"
-               ReferencedContainer = "container:FamilyEvents.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
          <TestableReference
             skipped = "NO"
             parallelizable = "NO">
@@ -75,16 +64,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "083B3FC98884AFDEAC48F615"
-            BuildableName = "FamilyEvents.app"
-            BlueprintName = "FamilyEvents"
+            BlueprintIdentifier = "A1487D12FC1012829E82D8AF"
+            BuildableName = "FEDesignSystemTests.xctest"
+            BlueprintName = "FEDesignSystemTests"
             ReferencedContainer = "container:FamilyEvents.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <CommandLineArguments>
       </CommandLineArguments>
    </LaunchAction>
@@ -94,18 +82,17 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "083B3FC98884AFDEAC48F615"
-            BuildableName = "FamilyEvents.app"
-            BlueprintName = "FamilyEvents"
-            ReferencedContainer = "container:FamilyEvents.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
       <CommandLineArguments>
       </CommandLineArguments>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A1487D12FC1012829E82D8AF"
+            BuildableName = "FEDesignSystemTests.xctest"
+            BlueprintName = "FEDesignSystemTests"
+            ReferencedContainer = "container:FamilyEvents.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

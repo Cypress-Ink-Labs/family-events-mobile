@@ -7,30 +7,52 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		112083AC13F0C1F856EDCAC8 /* PlaceholderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */; };
+		1989763382F59581D1E20C8C /* testEventCardWithImageAndBadge.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E25E003D87FAA2DF4668D2D /* testEventCardWithImageAndBadge.dark.png */; };
 		19BCE47C6893926E53962577 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F71FCF3E0F318AFA91B50660 /* FEAuth */; };
 		1A7123A8480347823FF4A737 /* EndpointPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59E23778BBA9A8B215CC79D0 /* EndpointPolicyTests.swift */; };
+		1E7EE2C7260AB2D3F9AF2A7B /* testFavoriteButtonUnfavoritedState.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */; };
 		21B9B24A491F16DAAC02486A /* FEAuthTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 65E2409342315B807311D9F6 /* FEAuthTesting */; };
+		22D37D3A3B20CBC64E57751E /* testEventCardWithImageAndBadge.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */; };
+		2DD3FAA5E40A57EBF574655E /* testEventCardWithImageAndBadge.light.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E83F7CD0362922CE0BEA9E0 /* testEventCardWithImageAndBadge.light.png */; };
 		2EBC682AD7466335DA1634D8 /* FEPlan in Frameworks */ = {isa = PBXBuildFile; productRef = B05296E5CE38DEC7D1ABE5D2 /* FEPlan */; };
 		36F545100AE2F8B43C5FD77B /* FEPlan in Frameworks */ = {isa = PBXBuildFile; productRef = 2BF22334E21591ABBE4D10FA /* FEPlan */; };
+		3B3D2272937549E740332DA6 /* FavoriteButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */; };
+		49A9E128562DF3D5208C35F6 /* testFavoriteButtonUnfavoritedState.light.png in Resources */ = {isa = PBXBuildFile; fileRef = F956075831CCA7450ADD1D45 /* testFavoriteButtonUnfavoritedState.light.png */; };
 		4C0CC51E675DBB8A6C4468E9 /* FEAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = C0E28472D5FA232F6ED3A73E /* FEAppIntents */; };
 		50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */; };
+		561352891FE48CE6A48E4738 /* testEventCardLongTitleWraps.light.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B26CBDC6A802FA9178A3F6B /* testEventCardLongTitleWraps.light.png */; };
 		64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67236F4FFFB580DD258FF /* RootView.swift */; };
+		6B861E4E2339BB939D313E2F /* testFavoriteButtonFavoritedState.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7CD8A5FA9FE6DEAE9CF2630D /* testFavoriteButtonFavoritedState.dark.png */; };
 		701B15B0A6A5DB477A72D534 /* RootViewSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */; };
 		77E20F16D3924C03FC7FBB14 /* FECore in Frameworks */ = {isa = PBXBuildFile; productRef = DC90DE2BDE57D2CE9AD0B4B4 /* FECore */; };
 		7AA19CB41083177A888B8FEF /* FEExplore in Frameworks */ = {isa = PBXBuildFile; productRef = 61544DEF43F22997E8487761 /* FEExplore */; };
 		7AC820BD3894603B6BB0B3DB /* AppModelContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842E1F96AA2DBCA6FF8DD3A0 /* AppModelContainerTests.swift */; };
+		7B0A9FAFE60E6D7992148176 /* testFavoriteButtonFavoritedState.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 2730E4B6201A36BB8AE2AB51 /* testFavoriteButtonFavoritedState.xxl-type.png */; };
 		81C5AD39915BC5D6F53C7326 /* DeepLinkRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3019C083099A4C42082B682 /* DeepLinkRouterTests.swift */; };
 		9888A58B98D21EAF3186712A /* FESaved in Frameworks */ = {isa = PBXBuildFile; productRef = 5399C3FDB06EABBE86A2FD40 /* FESaved */; };
 		9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */; };
+		9B82EB7C0291AB28498B9E97 /* testEventCardLongTitleWraps.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FF1491768A8289E29A94147 /* testEventCardLongTitleWraps.dark.png */; };
+		9DE3773B83343A4B07ED8FD2 /* testFavoriteButtonFavoritedState.light.png in Resources */ = {isa = PBXBuildFile; fileRef = DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */; };
 		A034794A8267646650C4048E /* TabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0418216EB1C821D23D4966 /* TabTests.swift */; };
+		A28526807EACBF5EA0B88544 /* testEventCardWithoutBadge.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BF6FBC26FDA39DF5BCEC4F2 /* testEventCardWithoutBadge.xxl-type.png */; };
 		A2AA8448CCB37D518CA39E2A /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141BE55DA40D69FD31C2BE54 /* AppRoute.swift */; };
+		AB632FC4CA1F2C9471378860 /* EventCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E36C996074657288512C6 /* EventCardTests.swift */; };
+		ABC3BD78E511A887AD5FA0ED /* testEventCardWithoutBadge.light.png in Resources */ = {isa = PBXBuildFile; fileRef = FFC98CCA96F6CA9A0617A550 /* testEventCardWithoutBadge.light.png */; };
 		ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */; };
+		B0AEB6A1FCB34BC5092B49B6 /* SnapshotHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A734A1FB591A0D98D3C24791 /* SnapshotHelpers.swift */; };
 		B0C3E3403DA9C2E4552F4F8C /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 140C842699DB3E60E17FD74C /* FEAuth */; };
+		B2E8045991D797041A9722A9 /* SNAPSHOTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */; };
 		BB84468BCDB03E1E68D9015B /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 5D879C9222AF5C91392EA789 /* FEData */; };
+		BE9BDCFC108080E243D8944E /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 1EC20FDA7B82A197BF8DEB55 /* SnapshotTesting */; };
+		C396CFFD1C3111B998332BE7 /* testFavoriteButtonUnfavoritedState.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = D20C5A97FCDCB5CB6935294A /* testFavoriteButtonUnfavoritedState.dark.png */; };
+		C4EC2D16D352148F1635666D /* FEDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0F276B6F6FCC2C40656628D2 /* FEDesignSystem */; };
 		C646F68702ADB3B478AAC45A /* FEDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 5546DB4D17A5E09EEF2150C9 /* FEDesignSystem */; };
 		D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F62AF66C36F29653368CAFE /* Tab.swift */; };
 		D5D60E440938F8A5A1EC2B3C /* FECore in Frameworks */ = {isa = PBXBuildFile; productRef = 3EB57A5EFB39A746A0D2B024 /* FECore */; };
+		E043656D53C0D8C83717B693 /* testEventCardLongTitleWraps.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = C0E94BE15112B1D067E3C791 /* testEventCardLongTitleWraps.xxl-type.png */; };
 		EB5C374E92ABA31505BC4E94 /* FEDataTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 7D78F3FF96508BBA65DF1EDE /* FEDataTesting */; };
+		F665916E305E9F64E0377B0A /* testEventCardWithoutBadge.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AC6F7CB2255EBD042AC3A6 /* testEventCardWithoutBadge.dark.png */; };
 		FB1C8D7370E2A38930935CC1 /* FEEventDetail in Frameworks */ = {isa = PBXBuildFile; productRef = F91888BF2832B1DAEFA47BCB /* FEEventDetail */; };
 		FFB8363FC63C6D248CBDDDE1 /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 1592D61B348B5F234F607CC6 /* FEData */; };
 /* End PBXBuildFile section */
@@ -47,29 +69,50 @@
 
 /* Begin PBXFileReference section */
 		0AA67236F4FFFB580DD258FF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		0B26CBDC6A802FA9178A3F6B /* testEventCardLongTitleWraps.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardLongTitleWraps.light.png; sourceTree = "<group>"; };
+		0BB6A6A083B4A46D1DB47612 /* FEDesignSystemTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FEDesignSystemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0ED7E52CA65CBCCB4FA2D33F /* FEAppIntents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAppIntents; path = Packages/FEAppIntents; sourceTree = SOURCE_ROOT; };
 		141BE55DA40D69FD31C2BE54 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		188C8EDD19850302A039CA4F /* FamilyEvents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FamilyEvents.entitlements; sourceTree = "<group>"; };
+		1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SNAPSHOTS.md; sourceTree = "<group>"; };
+		2730E4B6201A36BB8AE2AB51 /* testFavoriteButtonFavoritedState.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testFavoriteButtonFavoritedState.xxl-type.png"; sourceTree = "<group>"; };
 		2970B6037618A85B61BB7ADC /* FEEventDetail */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEEventDetail; path = Packages/FEEventDetail; sourceTree = SOURCE_ROOT; };
 		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViewTests.swift; sourceTree = "<group>"; };
+		3BF6FBC26FDA39DF5BCEC4F2 /* testEventCardWithoutBadge.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardWithoutBadge.xxl-type.png"; sourceTree = "<group>"; };
+		3FF1491768A8289E29A94147 /* testEventCardLongTitleWraps.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardLongTitleWraps.dark.png; sourceTree = "<group>"; };
 		431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsTests.swift; sourceTree = "<group>"; };
 		527B693EC7456B426B181EA1 /* FECore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FECore; path = Packages/FECore; sourceTree = SOURCE_ROOT; };
 		59E23778BBA9A8B215CC79D0 /* EndpointPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointPolicyTests.swift; sourceTree = "<group>"; };
 		5A0418216EB1C821D23D4966 /* TabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabTests.swift; sourceTree = "<group>"; };
+		67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardWithImageAndBadge.xxl-type.png"; sourceTree = "<group>"; };
 		6BB7332AD1C515136B412F4E /* FEAuth */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAuth; path = Packages/FEAuth; sourceTree = SOURCE_ROOT; };
+		7CD8A5FA9FE6DEAE9CF2630D /* testFavoriteButtonFavoritedState.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.dark.png; sourceTree = "<group>"; };
+		81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testFavoriteButtonUnfavoritedState.xxl-type.png"; sourceTree = "<group>"; };
 		842E1F96AA2DBCA6FF8DD3A0 /* AppModelContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelContainerTests.swift; sourceTree = "<group>"; };
 		8F62AF66C36F29653368CAFE /* Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tab.swift; sourceTree = "<group>"; };
+		9E25E003D87FAA2DF4668D2D /* testEventCardWithImageAndBadge.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardWithImageAndBadge.dark.png; sourceTree = "<group>"; };
+		9E83F7CD0362922CE0BEA9E0 /* testEventCardWithImageAndBadge.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardWithImageAndBadge.light.png; sourceTree = "<group>"; };
+		A734A1FB591A0D98D3C24791 /* SnapshotHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHelpers.swift; sourceTree = "<group>"; };
 		B3019C083099A4C42082B682 /* DeepLinkRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkRouterTests.swift; sourceTree = "<group>"; };
+		B5AC6F7CB2255EBD042AC3A6 /* testEventCardWithoutBadge.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardWithoutBadge.dark.png; sourceTree = "<group>"; };
 		B60EBADC23A6A8EB851EF92E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkRouter.swift; sourceTree = "<group>"; };
 		BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsApp.swift; sourceTree = "<group>"; };
+		C0E94BE15112B1D067E3C791 /* testEventCardLongTitleWraps.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardLongTitleWraps.xxl-type.png"; sourceTree = "<group>"; };
+		C22E36C996074657288512C6 /* EventCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardTests.swift; sourceTree = "<group>"; };
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
+		D20C5A97FCDCB5CB6935294A /* testFavoriteButtonUnfavoritedState.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonUnfavoritedState.dark.png; sourceTree = "<group>"; };
 		D890C8D7C4B176D36D48B555 /* FESaved */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FESaved; path = Packages/FESaved; sourceTree = SOURCE_ROOT; };
+		DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButtonTests.swift; sourceTree = "<group>"; };
+		DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.light.png; sourceTree = "<group>"; };
 		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
 		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F30DD56DC40DC5C679F79DC8 /* FEExplore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEExplore; path = Packages/FEExplore; sourceTree = SOURCE_ROOT; };
 		F6288D8480EB0B4748EB77C8 /* FEDesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEDesignSystem; path = Packages/FEDesignSystem; sourceTree = SOURCE_ROOT; };
+		F956075831CCA7450ADD1D45 /* testFavoriteButtonUnfavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonUnfavoritedState.light.png; sourceTree = "<group>"; };
 		FF1DA06D83C22E5936FD06AE /* FEPlan */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEPlan; path = Packages/FEPlan; sourceTree = SOURCE_ROOT; };
+		FFC98CCA96F6CA9A0617A550 /* testEventCardWithoutBadge.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardWithoutBadge.light.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,14 +145,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D42D873635BE1751674B6A2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4EC2D16D352148F1635666D /* FEDesignSystem in Frameworks */,
+				BE9BDCFC108080E243D8944E /* SnapshotTesting in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		20FD0AD36DB841A13975943A /* __Snapshots__ */ = {
+			isa = PBXGroup;
+			children = (
+				FA6035DB1DF63546F6A08B23 /* EventCardTests */,
+				B98442D6A9025F8382CF8E8F /* FavoriteButtonTests */,
+			);
+			path = __Snapshots__;
+			sourceTree = "<group>";
+		};
 		35B3025E43387FD7FA5E77BE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				E464D298BFB56808512883BC /* FamilyEvents.app */,
 				2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */,
+				0BB6A6A083B4A46D1DB47612 /* FEDesignSystemTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,6 +197,7 @@
 			children = (
 				AEEBCB3A48E672316FCD3A17 /* FamilyEvents */,
 				A94EC6CC8A538C4B7DE81EDE /* FamilyEventsTests */,
+				E7785AE9D3045755E47DA115 /* FEDesignSystemTests */,
 				875B4E0F14EA57A0E06EF544 /* Packages */,
 				35B3025E43387FD7FA5E77BE /* Products */,
 			);
@@ -173,6 +236,49 @@
 				8F62AF66C36F29653368CAFE /* Tab.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		B98442D6A9025F8382CF8E8F /* FavoriteButtonTests */ = {
+			isa = PBXGroup;
+			children = (
+				7CD8A5FA9FE6DEAE9CF2630D /* testFavoriteButtonFavoritedState.dark.png */,
+				DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */,
+				2730E4B6201A36BB8AE2AB51 /* testFavoriteButtonFavoritedState.xxl-type.png */,
+				D20C5A97FCDCB5CB6935294A /* testFavoriteButtonUnfavoritedState.dark.png */,
+				F956075831CCA7450ADD1D45 /* testFavoriteButtonUnfavoritedState.light.png */,
+				81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */,
+			);
+			path = FavoriteButtonTests;
+			sourceTree = "<group>";
+		};
+		E7785AE9D3045755E47DA115 /* FEDesignSystemTests */ = {
+			isa = PBXGroup;
+			children = (
+				C22E36C996074657288512C6 /* EventCardTests.swift */,
+				DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */,
+				385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */,
+				A734A1FB591A0D98D3C24791 /* SnapshotHelpers.swift */,
+				1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */,
+				20FD0AD36DB841A13975943A /* __Snapshots__ */,
+			);
+			name = FEDesignSystemTests;
+			path = Packages/FEDesignSystem/Tests/FEDesignSystemTests;
+			sourceTree = "<group>";
+		};
+		FA6035DB1DF63546F6A08B23 /* EventCardTests */ = {
+			isa = PBXGroup;
+			children = (
+				3FF1491768A8289E29A94147 /* testEventCardLongTitleWraps.dark.png */,
+				0B26CBDC6A802FA9178A3F6B /* testEventCardLongTitleWraps.light.png */,
+				C0E94BE15112B1D067E3C791 /* testEventCardLongTitleWraps.xxl-type.png */,
+				9E25E003D87FAA2DF4668D2D /* testEventCardWithImageAndBadge.dark.png */,
+				9E83F7CD0362922CE0BEA9E0 /* testEventCardWithImageAndBadge.light.png */,
+				67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */,
+				B5AC6F7CB2255EBD042AC3A6 /* testEventCardWithoutBadge.dark.png */,
+				FFC98CCA96F6CA9A0617A550 /* testEventCardWithoutBadge.light.png */,
+				3BF6FBC26FDA39DF5BCEC4F2 /* testEventCardWithoutBadge.xxl-type.png */,
+			);
+			path = EventCardTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -230,6 +336,27 @@
 			productReference = 2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A1487D12FC1012829E82D8AF /* FEDesignSystemTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B8BC1152C43B914C19C0F69 /* Build configuration list for PBXNativeTarget "FEDesignSystemTests" */;
+			buildPhases = (
+				18D0564F8E4D8224C5FEE069 /* Sources */,
+				60B777BE26204C6C5FAB88DA /* Resources */,
+				D42D873635BE1751674B6A2C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FEDesignSystemTests;
+			packageProductDependencies = (
+				0F276B6F6FCC2C40656628D2 /* FEDesignSystem */,
+				1EC20FDA7B82A197BF8DEB55 /* SnapshotTesting */,
+			);
+			productName = FEDesignSystemTests;
+			productReference = 0BB6A6A083B4A46D1DB47612 /* FEDesignSystemTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -251,6 +378,7 @@
 			mainGroup = A85685A0EC7E9C61413EDA64;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				2ECC8A66B244B047363B47BE /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				6C67EDF93C267962D9BF2BFE /* XCLocalSwiftPackageReference "Packages/FEAppIntents" */,
 				5B4603095B987C37D8E3A051 /* XCLocalSwiftPackageReference "Packages/FEAuth" */,
 				3F9231D0C366C3F4FF7FF08C /* XCLocalSwiftPackageReference "Packages/FECore" */,
@@ -266,11 +394,38 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				A1487D12FC1012829E82D8AF /* FEDesignSystemTests */,
 				083B3FC98884AFDEAC48F615 /* FamilyEvents */,
 				9BEC6E13FACB96F2663F665B /* FamilyEventsTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		60B777BE26204C6C5FAB88DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2E8045991D797041A9722A9 /* SNAPSHOTS.md in Resources */,
+				9B82EB7C0291AB28498B9E97 /* testEventCardLongTitleWraps.dark.png in Resources */,
+				561352891FE48CE6A48E4738 /* testEventCardLongTitleWraps.light.png in Resources */,
+				E043656D53C0D8C83717B693 /* testEventCardLongTitleWraps.xxl-type.png in Resources */,
+				1989763382F59581D1E20C8C /* testEventCardWithImageAndBadge.dark.png in Resources */,
+				2DD3FAA5E40A57EBF574655E /* testEventCardWithImageAndBadge.light.png in Resources */,
+				22D37D3A3B20CBC64E57751E /* testEventCardWithImageAndBadge.xxl-type.png in Resources */,
+				F665916E305E9F64E0377B0A /* testEventCardWithoutBadge.dark.png in Resources */,
+				ABC3BD78E511A887AD5FA0ED /* testEventCardWithoutBadge.light.png in Resources */,
+				A28526807EACBF5EA0B88544 /* testEventCardWithoutBadge.xxl-type.png in Resources */,
+				6B861E4E2339BB939D313E2F /* testFavoriteButtonFavoritedState.dark.png in Resources */,
+				9DE3773B83343A4B07ED8FD2 /* testFavoriteButtonFavoritedState.light.png in Resources */,
+				7B0A9FAFE60E6D7992148176 /* testFavoriteButtonFavoritedState.xxl-type.png in Resources */,
+				C396CFFD1C3111B998332BE7 /* testFavoriteButtonUnfavoritedState.dark.png in Resources */,
+				49A9E128562DF3D5208C35F6 /* testFavoriteButtonUnfavoritedState.light.png in Resources */,
+				1E7EE2C7260AB2D3F9AF2A7B /* testFavoriteButtonUnfavoritedState.xxl-type.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		07515A9880561E2A48A1304C /* Sources */ = {
@@ -283,6 +438,17 @@
 				ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */,
 				701B15B0A6A5DB477A72D534 /* RootViewSmokeTests.swift in Sources */,
 				A034794A8267646650C4048E /* TabTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18D0564F8E4D8224C5FEE069 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB632FC4CA1F2C9471378860 /* EventCardTests.swift in Sources */,
+				3B3D2272937549E740332DA6 /* FavoriteButtonTests.swift in Sources */,
+				112083AC13F0C1F856EDCAC8 /* PlaceholderViewTests.swift in Sources */,
+				B0AEB6A1FCB34BC5092B49B6 /* SnapshotHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,6 +509,22 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FamilyEvents.app/FamilyEvents";
 			};
 			name = Debug;
+		};
+		92D34D4555AF66C8E1F5A5E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
 		};
 		A26DEE075EF096362E332560 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -419,6 +601,22 @@
 				SWIFT_VERSION = 5.1;
 			};
 			name = Release;
+		};
+		BFB24A803FFE6F3BE8EE0FAD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		EB9DD2406DBD82E1CFE54C89 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -505,6 +703,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0B8BC1152C43B914C19C0F69 /* Build configuration list for PBXNativeTarget "FEDesignSystemTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BFB24A803FFE6F3BE8EE0FAD /* Debug */,
+				92D34D4555AF66C8E1F5A5E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		81D60576F7AC46745CAF6CA8 /* Build configuration list for PBXNativeTarget "FamilyEventsTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -573,7 +780,22 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		2ECC8A66B244B047363B47BE /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		0F276B6F6FCC2C40656628D2 /* FEDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FEDesignSystem;
+		};
 		140C842699DB3E60E17FD74C /* FEAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FEAuth;
@@ -581,6 +803,11 @@
 		1592D61B348B5F234F607CC6 /* FEData */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FEData;
+		};
+		1EC20FDA7B82A197BF8DEB55 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2ECC8A66B244B047363B47BE /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
 		};
 		2BF22334E21591ABBE4D10FA /* FEPlan */ = {
 			isa = XCSwiftPackageProductDependency;

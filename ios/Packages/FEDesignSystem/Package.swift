@@ -9,9 +9,17 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../FECore"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.0"),
     ],
     targets: [
         .target(name: "FEDesignSystem", dependencies: ["FECore"], path: "Sources/FEDesignSystem"),
-        .testTarget(name: "FEDesignSystemTests", dependencies: ["FEDesignSystem"], path: "Tests/FEDesignSystemTests"),
+        .testTarget(
+            name: "FEDesignSystemTests",
+            dependencies: [
+                "FEDesignSystem",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+            ],
+            path: "Tests/FEDesignSystemTests"
+        ),
     ]
 )
