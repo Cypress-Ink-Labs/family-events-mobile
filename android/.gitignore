@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+build/
+**/build/
+local.properties
+
+# Kotlin
+.kotlin/
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.cxx/
+captures/
+
+# Keystores
+*.jks
+*.keystore
+
+# Generated R / BuildConfig (re-emitted on every build)
+**/build/generated/
+**/build/intermediates/
+**/build/outputs/
+**/build/tmp/
+**/build/reports/
