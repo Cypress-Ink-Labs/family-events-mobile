@@ -69,6 +69,9 @@ interface FavoriteDao {
     @Query("SELECT * FROM favorites WHERE userId = :userId ORDER BY createdAt DESC")
     fun observeFavorites(userId: String): Flow<List<CachedFavoriteEntity>>
 
+    @Query("SELECT * FROM favorites WHERE userId = :userId AND eventId = :eventId LIMIT 1")
+    suspend fun favorite(userId: String, eventId: String): CachedFavoriteEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(favorite: CachedFavoriteEntity)
 
@@ -92,6 +95,9 @@ interface PlanDao {
 interface ProfileDao {
     @Query("SELECT * FROM profiles WHERE userId = :userId")
     fun observeProfile(userId: String): Flow<CachedProfileEntity?>
+
+    @Query("SELECT * FROM profiles WHERE userId = :userId")
+    suspend fun profile(userId: String): CachedProfileEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(profile: CachedProfileEntity)

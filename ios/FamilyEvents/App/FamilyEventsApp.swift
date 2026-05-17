@@ -17,6 +17,8 @@ struct FamilyEventsApp: App {
             cityRepo: any CityRepository,
             eventRepo: any EventRepository,
             favoriteRepo: any FavoriteRepo,
+            ratingRepo: any RatingRepo,
+            commentRepo: any CommentRepo,
             modelContainer: ModelContainer
         )
         case configError(String)
@@ -49,6 +51,8 @@ struct FamilyEventsApp: App {
             let cityRepo = SupabaseCityRepository(supabase: supa)
             let eventRepo = SupabaseEventRepository(supabase: supa)
             let favoriteRepo = SupabaseFavoriteRepo(supabase: supa)
+            let ratingRepo = SupabaseRatingRepo(supabase: supa)
+            let commentRepo = SupabaseCommentRepo(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
@@ -57,6 +61,8 @@ struct FamilyEventsApp: App {
                 cityRepo: cityRepo,
                 eventRepo: eventRepo,
                 favoriteRepo: favoriteRepo,
+                ratingRepo: ratingRepo,
+                commentRepo: commentRepo,
                 modelContainer: container
             )
         } catch let error as AppError {
@@ -69,7 +75,7 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let modelContainer):
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let modelContainer):
                 RootView(
                     authService: authService,
                     planComposer: composer,
@@ -77,6 +83,8 @@ struct FamilyEventsApp: App {
                     cityRepo: cityRepo,
                     eventRepo: eventRepo,
                     favoriteRepo: favoriteRepo,
+                    ratingRepo: ratingRepo,
+                    commentRepo: commentRepo,
                     modelContainer: modelContainer
                 )
                 .environment(sessionStore)

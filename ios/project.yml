@@ -9,9 +9,11 @@ settings:
     Debug:
       SUPABASE_URL: http://127.0.0.1:55321
       SUPABASE_ANON_KEY: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+      APP_WEB_URL: http://localhost:5173
     Release:
       SUPABASE_URL: ""
       SUPABASE_ANON_KEY: ""
+      APP_WEB_URL: https://family-events.app
 packages:
   FECore:
     path: Packages/FECore
@@ -47,7 +49,9 @@ targets:
         UILaunchScreen: {}
         SupabaseURL: $(SUPABASE_URL)
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
+        AppWebURL: $(APP_WEB_URL)
         NSLocationWhenInUseUsageDescription: "We use your location to surface family events near you."
+        NSCalendarsWriteOnlyAccessUsageDescription: "We add events you save to your calendar so you don't miss them."
     settings:
       base:
         PRODUCT_NAME: FamilyEvents

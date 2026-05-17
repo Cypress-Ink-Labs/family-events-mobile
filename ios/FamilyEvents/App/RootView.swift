@@ -42,6 +42,8 @@ struct RootView: View {
     private let cityRepo: any CityRepository
     private let eventRepo: any EventRepository
     private let favoriteRepo: any FavoriteRepo
+    private let ratingRepo: (any RatingRepo)?
+    private let commentRepo: (any CommentRepo)?
     private let modelContainer: ModelContainer?
 
     @Environment(SessionStore.self) private var sessionStore
@@ -59,6 +61,8 @@ struct RootView: View {
         cityRepo: any CityRepository = FallbackCityRepository(),
         eventRepo: any EventRepository = FallbackEventRepository(),
         favoriteRepo: any FavoriteRepo = FallbackFavoriteRepo(),
+        ratingRepo: (any RatingRepo)? = nil,
+        commentRepo: (any CommentRepo)? = nil,
         modelContainer: ModelContainer? = nil,
         initialTab: AppTab = .plan
     ) {
@@ -68,6 +72,8 @@ struct RootView: View {
         self.cityRepo = cityRepo
         self.eventRepo = eventRepo
         self.favoriteRepo = favoriteRepo
+        self.ratingRepo = ratingRepo
+        self.commentRepo = commentRepo
         self.modelContainer = modelContainer
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
@@ -117,19 +123,30 @@ struct RootView: View {
                     composer: planComposer,
                     eventRepo: eventRepo,
                     favoriteRepo: favoriteRepo,
+                    ratingRepo: ratingRepo,
+                    commentRepo: commentRepo,
                     context: ctx,
                     cityName: cityName,
                     onSetCity: { showCityPicker = true }
                 )
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
-                ExploreTab(eventRepo: eventRepo, favoriteRepo: favoriteRepo, userID: userID, cityID: ctx.cityID)
+                ExploreTab(
+                    eventRepo: eventRepo,
+                    favoriteRepo: favoriteRepo,
+                    ratingRepo: ratingRepo,
+                    commentRepo: commentRepo,
+                    userID: userID,
+                    cityID: ctx.cityID
+                )
                     .tabItem { Label(AppTab.explore.title, systemImage: AppTab.explore.systemImage) }
                     .tag(AppTab.explore)
                 if let container = modelContainer {
                     SavedTab(
                         favoriteRepo: favoriteRepo,
                         eventRepo: eventRepo,
+                        ratingRepo: ratingRepo,
+                        commentRepo: commentRepo,
                         modelContainer: container,
                         userID: userID,
                         onOpenProfile: { showProfile = true }

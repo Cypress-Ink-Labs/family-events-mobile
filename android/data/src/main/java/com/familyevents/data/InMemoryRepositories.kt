@@ -156,13 +156,14 @@ class RepositoryGraph(
             sessionStore: SessionStore = MemorySessionStore(),
         ): RepositoryGraph {
             SupabaseClientFactory.create(config)
-            val eventRepository = RoomBackedEventRepository(database.eventDao(), database.planDao())
+            val api = KtorSupabaseConsumerApi(config, sessionStore)
+            val eventRepository = RoomBackedEventRepository(database.eventDao(), database.planDao(), api)
             return RepositoryGraph(
-                authRepository = LocalAuthRepository(sessionStore),
+                authRepository = LocalAuthRepository(sessionStore, api),
                 eventRepository = eventRepository,
-                favoriteRepository = RoomBackedFavoriteRepository(database.favoriteDao()),
-                profileRepository = RoomBackedProfileRepository(database.profileDao()),
-                cityRepository = RoomBackedCityRepository(database.cityDao()),
+                favoriteRepository = RoomBackedFavoriteRepository(database.favoriteDao(), api),
+                profileRepository = RoomBackedProfileRepository(database.profileDao(), api),
+                cityRepository = RoomBackedCityRepository(database.cityDao(), api),
                 weatherRepository = RoomBackedWeatherRepository(database.weatherDao()),
             )
         }

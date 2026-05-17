@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.legacy.kapt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -21,6 +22,7 @@ dependencies {
     implementation(libs.supabase.realtime)
     implementation(libs.supabase.functions)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.json)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)

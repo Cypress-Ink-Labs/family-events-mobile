@@ -5,18 +5,32 @@ import FEDesignSystem
 
 public struct EventDetailScreen: View {
     @State private var viewModel: EventDetailViewModel
+    @State private var calendarToast: CalendarToast?
+    @State private var draftComment: String = ""
+    @State private var draftRating: Int = 0
     private let eventID: EventID
+
+    private struct CalendarToast: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String
+        let isError: Bool
+    }
 
     public init(
         eventID: EventID,
         eventRepo: any EventRepository,
         favoriteRepo: any FavoriteRepo,
+        ratingRepo: (any RatingRepo)? = nil,
+        commentRepo: (any CommentRepo)? = nil,
         userID: UserID
     ) {
         self.eventID = eventID
         _viewModel = State(initialValue: EventDetailViewModel(
             eventRepo: eventRepo,
             favoriteRepo: favoriteRepo,
+            ratingRepo: ratingRepo,
+            commentRepo: commentRepo,
             userID: userID,
             eventID: eventID
         ))
@@ -38,6 +52,25 @@ public struct EventDetailScreen: View {
         .toolbar(.hidden, for: .tabBar)
         #endif
         .toolbar {
+            if let event = viewModel.event {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button {
+                            Task { await addToCalendar(event: event) }
+                        } label: {
+                            Label("Add to Calendar", systemImage: "calendar.badge.plus")
+                        }
+                        if let url = EventShareURL.build(eventID: event.id) {
+                            ShareLink(item: url, subject: Text(event.title), message: Text("Family plan: \(event.title)")) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("More actions")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { viewModel.toggleFavorite() }) {
                     Image(systemName: viewModel.isFavorited ? "heart.fill" : "heart")
@@ -46,7 +79,48 @@ public struct EventDetailScreen: View {
                 .accessibilityLabel(viewModel.isFavorited ? "Unfavorite" : "Favorite")
             }
         }
+        .alert(item: $calendarToast) { toast in
+            Alert(
+                title: Text(toast.title),
+                message: Text(toast.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
+
+    #if canImport(EventKit)
+    private func addToCalendar(event: EventDTO) async {
+        let writer = EventKitWriter()
+        do {
+            try await writer.addToCalendar(event: event)
+            calendarToast = CalendarToast(
+                title: "Added to Calendar",
+                message: "\(event.title) is on your calendar.",
+                isError: false
+            )
+        } catch EventKitWriter.WriteError.accessDenied {
+            calendarToast = CalendarToast(
+                title: "Calendar Access Denied",
+                message: "Allow Calendar access in Settings to add events.",
+                isError: true
+            )
+        } catch EventKitWriter.WriteError.noDefaultCalendar {
+            calendarToast = CalendarToast(
+                title: "No Calendar",
+                message: "Add a default calendar in the Calendar app, then try again.",
+                isError: true
+            )
+        } catch {
+            calendarToast = CalendarToast(
+                title: "Couldn't Add Event",
+                message: error.localizedDescription,
+                isError: true
+            )
+        }
+    }
+    #else
+    private func addToCalendar(event: EventDTO) async {}
+    #endif
 
     @ViewBuilder
     private var loadingState: some View {
@@ -82,13 +156,15 @@ public struct EventDetailScreen: View {
                     titleBlock(event: event)
                     if !event.tags.isEmpty { tagRow(event: event) }
                     infoGrid(event: event)
-                    if let description = event.description, !description.isEmpty {
+                    if let description = DescriptionSanitizer.clean(event.description) {
                         aboutSection(description: description)
                     }
                     locationSection(event: event)
                     if let source = event.sourceURL, let url = URL(string: source) {
                         sourceLink(url: url, name: event.sourceName)
                     }
+                    ratingSection(event: event)
+                    commentSection(event: event)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
@@ -277,6 +353,112 @@ public struct EventDetailScreen: View {
         }
         .buttonStyle(.plain)
     }
+
+    @ViewBuilder
+    private func ratingSection(event: EventDTO) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader("Your rating")
+            StarRatingView(
+                score: $draftRating,
+                isDisabled: viewModel.isRatingInFlight,
+                onChange: { score in
+                    Task { await viewModel.setRating(score) }
+                }
+            )
+            .onAppear { draftRating = viewModel.userRating?.score ?? 0 }
+            .onChange(of: viewModel.userRating?.score) { _, new in
+                draftRating = new ?? 0
+            }
+            if event.ratingCount > 0 {
+                Text(communityRatingText(event: event))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func communityRatingText(event: EventDTO) -> String {
+        let avg = String(format: "%.1f", event.avgRating)
+        return "Community average: \(avg) (\(event.ratingCount) rating\(event.ratingCount == 1 ? "" : "s"))"
+    }
+
+    @ViewBuilder
+    private func commentSection(event: EventDTO) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("Comments")
+            HStack(alignment: .top, spacing: 8) {
+                TextField("Share what you're hoping for…", text: $draftComment, axis: .vertical)
+                    .lineLimit(1...4)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color.appSecondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Button {
+                    Task {
+                        await viewModel.addComment(draftComment)
+                        if viewModel.commentError == nil { draftComment = "" }
+                    }
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .padding(10)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.isCommentInFlight || draftComment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel("Post comment")
+            }
+            if let err = viewModel.commentError {
+                Text(err)
+                    .font(.caption)
+                    .foregroundStyle(Color.red)
+            }
+            if viewModel.comments.isEmpty {
+                Text("No comments yet. Be the first.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(viewModel.comments) { comment in
+                        commentRow(comment)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func commentRow(_ comment: CommentDTO) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                Text(comment.authorDisplayName ?? "Anonymous")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(Self.commentDateFormatter.string(from: comment.createdAt))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Text(comment.body)
+                .font(.body)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.appSecondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private static let commentDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f
+    }()
 
     @ViewBuilder
     private func sectionHeader(_ title: String) -> some View {

@@ -3,7 +3,9 @@ package com.familyevents.core
 sealed class AppError(message: String, cause: Throwable? = null) : RuntimeException(message, cause) {
     data class Network(val source: Throwable) : AppError("Network problem. Please try again.", source)
     data object Unauthorized : AppError("You're signed out. Please sign in again.")
+    data object AuthRequired : AppError("Sign in to continue.")
     data object NotFound : AppError("We couldn't find that.")
+    data class Remote(val detail: String) : AppError(detail.ifBlank { "The server request failed." })
     data class Config(val key: String) : AppError("Configuration error: $key is missing.")
     data object InvalidCredentials : AppError("Email or password is incorrect.")
     data object EmailAlreadyInUse : AppError("An account with that email already exists.")

@@ -12,19 +12,34 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 interface SessionStore {
-    suspend fun readUserId(): UserId?
-    suspend fun writeUserId(userId: UserId?)
+    suspend fun readSession(): PersistedSession?
+    suspend fun writeSession(session: PersistedSession?)
+
+    suspend fun readUserId(): UserId? = readSession()?.userId
+    suspend fun writeUserId(userId: UserId?) {
+        writeSession(userId?.let { PersistedSession(it) })
+    }
+    suspend fun readAccessToken(): String? = readSession()?.accessToken
 }
 
+data class PersistedSession(
+    val userId: UserId,
+    val accessToken: String? = null,
+    val refreshToken: String? = null,
+)
+
 class MemorySessionStore : SessionStore {
-    private var userId: UserId? = null
-    override suspend fun readUserId(): UserId? = userId
-    override suspend fun writeUserId(userId: UserId?) {
-        this.userId = userId
+    private var session: PersistedSession? = null
+    override suspend fun readSession(): PersistedSession? = session
+    override suspend fun writeSession(session: PersistedSession?) {
+        this.session = session
     }
 }
 
-class LocalAuthRepository(private val sessionStore: SessionStore) : AuthRepository {
+class LocalAuthRepository(
+    private val sessionStore: SessionStore,
+    private val api: SupabaseConsumerApi? = null,
+) : AuthRepository {
     private val state = MutableStateFlow<SessionState>(SessionState.Restoring)
     override val sessionState: Flow<SessionState> = state
 
@@ -33,16 +48,26 @@ class LocalAuthRepository(private val sessionStore: SessionStore) : AuthReposito
     }
 
     override suspend fun signIn(email: String, password: String) {
-        val userId = UserId(email.trim().lowercase().ifBlank { "fixture-user" })
-        sessionStore.writeUserId(userId)
-        state.value = SessionState.SignedIn(userId)
+        val session = api?.signIn(email, password)
+            ?: PersistedSession(UserId(email.trim().lowercase().ifBlank { "fixture-user" }))
+        sessionStore.writeSession(session)
+        state.value = SessionState.SignedIn(session.userId)
     }
 
-    override suspend fun signUp(email: String, password: String) = signIn(email, password)
-    override suspend fun resetPassword(email: String) = Unit
+    override suspend fun signUp(email: String, password: String) {
+        val session = api?.signUp(email, password)
+            ?: PersistedSession(UserId(email.trim().lowercase().ifBlank { "fixture-user" }))
+        sessionStore.writeSession(session)
+        state.value = SessionState.SignedIn(session.userId)
+    }
+
+    override suspend fun resetPassword(email: String) {
+        api?.resetPassword(email)
+    }
 
     override suspend fun signOut() {
-        sessionStore.writeUserId(null)
+        runCatching { api?.signOut() }
+        sessionStore.writeSession(null)
         state.value = SessionState.SignedOut
     }
 }
@@ -50,6 +75,7 @@ class LocalAuthRepository(private val sessionStore: SessionStore) : AuthReposito
 class RoomBackedEventRepository(
     private val eventDao: EventDao,
     private val planDao: PlanDao,
+    private val api: SupabaseConsumerApi? = null,
 ) : EventRepository {
     override fun observePlanEvents(userId: UserId, cityId: CityId?): Flow<List<PlanEventRowDto>> =
         combine(
@@ -84,29 +110,40 @@ class RoomBackedEventRepository(
         eventDao.observeEvent(id.rawValue).map { row -> row?.toDto() ?: seedEvents().firstOrNull { it.id == id } }
 
     override suspend fun refreshPlan(userId: UserId, cityId: CityId?) {
-        val events = seedEvents().filterByCity(cityId)
+        val remotePlan = api?.planEvents(userId, cityId)
+        val events = remotePlan?.map { it.event }.takeUnless { it.isNullOrEmpty() }
+            ?: api?.events(EventQuery(cityId = cityId, limit = 50)).takeUnless { it.isNullOrEmpty() }
+            ?: seedEvents().filterByCity(cityId)
         eventDao.upsert(events.map { it.toEntity() })
         planDao.deleteForUser(userId.rawValue)
-        planDao.upsert(events.take(6).mapIndexed { index, event ->
-            CachedPlanEventEntity(
-                userId = userId.rawValue,
-                eventId = event.id.rawValue,
-                section = if (index == 0) "Hero" else "Saturday",
-                rank = index,
-            )
-        })
+        planDao.upsert(
+            (remotePlan ?: events.take(6).mapIndexed { index, event ->
+                PlanEventRowDto(event, section = if (index == 0) "Hero" else "Saturday", rank = index)
+            }).map { row ->
+                CachedPlanEventEntity(
+                    userId = userId.rawValue,
+                    eventId = row.event.id.rawValue,
+                    section = row.section,
+                    rank = row.rank,
+                )
+            },
+        )
     }
 
     override suspend fun refreshEventList(query: EventQuery) {
-        eventDao.upsert(seedEvents().filterByCity(query.cityId).map { it.toEntity() })
+        val events = api?.events(query).takeUnless { it.isNullOrEmpty() } ?: seedEvents().filterByCity(query.cityId)
+        eventDao.upsert(events.map { it.toEntity() })
     }
 
     override suspend fun refreshEventDetail(id: EventId) {
-        seedEvents().firstOrNull { it.id == id }?.let { eventDao.upsert(listOf(it.toEntity())) }
+        (api?.event(id) ?: seedEvents().firstOrNull { it.id == id })?.let { eventDao.upsert(listOf(it.toEntity())) }
     }
 }
 
-class RoomBackedFavoriteRepository(private val favoriteDao: FavoriteDao) : FavoriteRepository {
+class RoomBackedFavoriteRepository(
+    private val favoriteDao: FavoriteDao,
+    private val api: SupabaseConsumerApi? = null,
+) : FavoriteRepository {
     override fun observeFavorites(userId: UserId): Flow<List<FavoriteDto>> =
         favoriteDao.observeFavorites(userId.rawValue).map { rows -> rows.map { it.toDto() } }
 
@@ -114,43 +151,71 @@ class RoomBackedFavoriteRepository(private val favoriteDao: FavoriteDao) : Favor
         observeFavorites(userId).map { rows -> rows.mapTo(mutableSetOf()) { it.eventId } }
 
     override suspend fun favorite(userId: UserId, eventId: EventId) {
-        favoriteDao.upsert(CachedFavoriteEntity(userId.rawValue, eventId.rawValue, Instant.now().toString()))
+        val row = CachedFavoriteEntity(userId.rawValue, eventId.rawValue, Instant.now().toString())
+        favoriteDao.upsert(row)
+        try {
+            api?.favorite(userId, eventId)
+        } catch (error: Throwable) {
+            favoriteDao.delete(userId.rawValue, eventId.rawValue)
+            throw error
+        }
     }
 
     override suspend fun unfavorite(userId: UserId, eventId: EventId) {
+        val previous = favoriteDao.favorite(userId.rawValue, eventId.rawValue)
         favoriteDao.delete(userId.rawValue, eventId.rawValue)
+        try {
+            api?.unfavorite(userId, eventId)
+        } catch (error: Throwable) {
+            previous?.let { favoriteDao.upsert(it) }
+            throw error
+        }
     }
 }
 
-class RoomBackedProfileRepository(private val profileDao: ProfileDao) : ProfileRepository {
+class RoomBackedProfileRepository(
+    private val profileDao: ProfileDao,
+    private val api: SupabaseConsumerApi? = null,
+) : ProfileRepository {
     override fun observeProfile(userId: UserId): Flow<ProfileContext?> =
         profileDao.observeProfile(userId.rawValue).map { it?.toDto() }
 
     override suspend fun currentContext(userId: UserId): ProfileContext =
-        ProfileContext(userId, CityId("chicago"), kidAge = 7, notificationsEnabled = false)
+        api?.profile(userId)?.also { profileDao.upsert(it.toEntity()) }
+            ?: profileDao.profile(userId.rawValue)?.toDto()
+            ?: ProfileContext(userId, CityId("chicago"), kidAge = 7, notificationsEnabled = false)
 
     override suspend fun updateContext(userId: UserId, cityId: CityId?, kidAge: Int?) {
-        profileDao.upsert(CachedProfileEntity(userId.rawValue, cityId?.rawValue, kidAge, notificationsEnabled = false))
+        val current = currentContext(userId)
+        val updated = ProfileContext(userId, cityId, kidAge, current.notificationsEnabled)
+        profileDao.upsert(updated.toEntity())
+        api?.updateProfile(updated)
     }
 
     override suspend fun updateNotificationPreference(userId: UserId, enabled: Boolean) {
         val current = currentContext(userId)
-        profileDao.upsert(CachedProfileEntity(userId.rawValue, current.currentCityId?.rawValue, current.kidAge, enabled))
+        val updated = current.copy(notificationsEnabled = enabled)
+        profileDao.upsert(updated.toEntity())
+        api?.updateProfile(updated)
     }
 
     override suspend fun deleteAccount(userId: UserId) {
+        api?.deleteAccount()
         profileDao.upsert(CachedProfileEntity(userId.rawValue, null, null, notificationsEnabled = false))
     }
 }
 
-class RoomBackedCityRepository(private val cityDao: CityDao) : CityRepository {
+class RoomBackedCityRepository(
+    private val cityDao: CityDao,
+    private val api: SupabaseConsumerApi? = null,
+) : CityRepository {
     override fun observeCities(): Flow<List<CityDto>> =
         cityDao.observeCities().map { rows -> rows.map { it.toDto() }.ifEmpty { listOf(CityDto(CityId("chicago"), "Chicago", "IL")) } }
 
     override suspend fun cityName(id: CityId): String? = cityDao.cityName(id.rawValue) ?: if (id.rawValue == "chicago") "Chicago" else null
 
     override suspend fun refreshCities() {
-        cityDao.upsert(listOf(CachedCityEntity("chicago", "Chicago", "IL")))
+        cityDao.upsert(api?.cities()?.takeIf { it.isNotEmpty() }?.map { it.toEntity() } ?: listOf(CachedCityEntity("chicago", "Chicago", "IL")))
     }
 }
 
@@ -209,7 +274,12 @@ private fun CachedFavoriteEntity.toDto(): FavoriteDto =
 private fun CachedProfileEntity.toDto(): ProfileContext =
     ProfileContext(UserId(userId), currentCityId?.let(::CityId), kidAge, notificationsEnabled)
 
+private fun ProfileContext.toEntity(): CachedProfileEntity =
+    CachedProfileEntity(userId.rawValue, currentCityId?.rawValue, kidAge, notificationsEnabled)
+
 private fun CachedCityEntity.toDto(): CityDto = CityDto(CityId(id), name, region)
+
+private fun CityDto.toEntity(): CachedCityEntity = CachedCityEntity(id.rawValue, name, region)
 
 private fun CachedWeatherEntity.toDto(): WeatherSnapshotDto =
     WeatherSnapshotDto(dateKey, summary, temperatureHighF, precipitationChance)
