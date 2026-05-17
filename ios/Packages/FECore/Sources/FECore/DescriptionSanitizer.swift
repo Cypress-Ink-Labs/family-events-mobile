@@ -25,15 +25,38 @@ public enum DescriptionSanitizer {
     /// Match `[et_pb_*]` opening tags with arbitrary attributes and
     /// `[/et_pb_*]` closing tags. Divi shortcodes have unbounded attribute
     /// strings and may span multiple lines after rich text editing.
+    ///
+    /// Second pass catches the truncated trailing case: historic ingest
+    /// sliced raw description to 500 chars before cleaning, so existing DB
+    /// rows can hold an unclosed `[et_pb_image src="..."` that the closed
+    /// pattern never matches.
     static func stripDiviShortcodes(_ input: String) -> String {
-        regexReplace(input, pattern: #"\[\/?et_pb_[a-z0-9_]*[^\]]*\]"#, with: "")
+        var out = regexReplace(input, pattern: #"\[\/?et_pb_[a-z0-9_]*[^\]]*\]"#, with: "")
+        out = regexReplace(out, pattern: #"\[\/?et_pb_[a-z0-9_]*[^\]]*$"#, with: "")
+        return out
     }
 
     /// Generic WordPress shortcode fallback: `[caption …]`, `[gallery]`,
     /// `[/caption]`. Conservative — only matches `[name …]` where name is
-    /// alphanumeric+underscore so we don't eat user-written `[notes]` prose.
+    /// strictly lowercase so we don't eat user prose like `[See details]`.
+    /// Case-insensitive matching would also kill capitalized prose, so the
+    /// regex options here intentionally disable it.
     static func stripGenericShortcodes(_ input: String) -> String {
-        regexReplace(input, pattern: #"\[\/?[a-z][a-z0-9_]*(?:\s[^\]]*)?\]"#, with: "")
+        var out = regexReplace(
+            input,
+            pattern: #"\[\/?[a-z][a-z0-9_]*(?:\s[^\]]*)?\]"#,
+            with: "",
+            caseInsensitive: false
+        )
+        // Trailing unclosed shortcode (truncation case). Whitespace after the
+        // name keeps user prose like `[See details` at end-of-string intact.
+        out = regexReplace(
+            out,
+            pattern: #"\[\/?[a-z][a-z0-9_]*\s[^\]]*$"#,
+            with: "",
+            caseInsensitive: false
+        )
+        return out
     }
 
     /// Replaces `<br>` / `<br/>` / `<p>` with newlines, then strips all

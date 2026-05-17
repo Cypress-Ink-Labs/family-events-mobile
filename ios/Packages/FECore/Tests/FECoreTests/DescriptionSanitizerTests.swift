@@ -63,4 +63,19 @@ final class DescriptionSanitizerTests: XCTestCase {
         let input = "A normal sentence. Another one."
         XCTAssertEqual(DescriptionSanitizer.clean(input), "A normal sentence. Another one.")
     }
+
+    func testStripsTrailingUnclosedDiviShortcode() {
+        // Mirrors the 500-char-truncated Rock the Block DB row: ingest used
+        // to slice raw description before cleaning, so the final shortcode
+        // arrives without its closing `]`.
+        let input = #"[et_pb_section fb_built="1"]Hello[et_pb_image src="https://example.org/img.png" title_text="Rock the Block" "#
+        XCTAssertEqual(DescriptionSanitizer.clean(input), "Hello")
+    }
+
+    func testStripsTrailingUnclosedGenericShortcodeButKeepsUnclosedProse() {
+        XCTAssertEqual(DescriptionSanitizer.clean(#"Hello[caption id="x""#), "Hello")
+        // Unclosed prose with no attributes should survive — only an
+        // attribute (`name <space> ...`) suggests it's a shortcode.
+        XCTAssertEqual(DescriptionSanitizer.clean("Hello [See details"), "Hello [See details")
+    }
 }

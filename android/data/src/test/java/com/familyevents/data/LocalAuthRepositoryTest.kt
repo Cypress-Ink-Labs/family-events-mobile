@@ -1,5 +1,7 @@
 package com.familyevents.data
 
+import com.familyevents.core.CityId
+import com.familyevents.core.EventId
 import com.familyevents.core.UserId
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -29,4 +31,39 @@ class LocalAuthRepositoryTest {
 
         assertEquals(SessionState.SignedOut, repository.sessionState.first())
     }
+
+    @Test
+    fun signInPersistsRemoteSessionTokens() = runTest {
+        val store = MemorySessionStore()
+        val repository = LocalAuthRepository(
+            store,
+            object : FakeConsumerApi() {
+                override suspend fun signIn(email: String, password: String): PersistedSession =
+                    PersistedSession(UserId("remote-user"), accessToken = "access", refreshToken = "refresh")
+            },
+        )
+
+        repository.signIn("parent@example.com", "password")
+
+        assertEquals(SessionState.SignedIn(UserId("remote-user")), repository.sessionState.first())
+        assertEquals("access", store.readAccessToken())
+    }
+}
+
+private open class FakeConsumerApi : SupabaseConsumerApi {
+    override suspend fun signIn(email: String, password: String): PersistedSession = unsupported()
+    override suspend fun signUp(email: String, password: String): PersistedSession = unsupported()
+    override suspend fun resetPassword(email: String) = unsupported<Unit>()
+    override suspend fun signOut() = Unit
+    override suspend fun cities(): List<CityDto> = unsupported()
+    override suspend fun events(query: EventQuery): List<EventDto> = unsupported()
+    override suspend fun event(id: EventId): EventDto? = unsupported()
+    override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> = unsupported()
+    override suspend fun profile(userId: UserId): ProfileContext? = unsupported()
+    override suspend fun updateProfile(profile: ProfileContext) = unsupported<Unit>()
+    override suspend fun favorite(userId: UserId, eventId: EventId) = unsupported<Unit>()
+    override suspend fun unfavorite(userId: UserId, eventId: EventId) = unsupported<Unit>()
+    override suspend fun deleteAccount() = unsupported<Unit>()
+
+    private fun <T> unsupported(): T = throw UnsupportedOperationException()
 }
