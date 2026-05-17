@@ -75,5 +75,13 @@ public struct EventCard: View {
             )
         }
         .buttonStyle(.plain)
+        // SwiftUI Buttons inherit their label's intrinsic size. Without this
+        // outer frame, AsyncImage.aspectRatio(.fill) reports the source
+        // image's native pixel width upward through the VStack and the
+        // Button, and LazyVGrid(.flexible()) cells accept that oversized
+        // child instead of clipping — producing the overlapping-cards bug.
+        // maxWidth: .infinity locks the Button to the grid cell it's
+        // placed into.
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
