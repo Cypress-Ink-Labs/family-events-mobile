@@ -3,6 +3,7 @@ import FECore
 import FEData
 import FEDesignSystem
 
+@MainActor
 public struct ExploreScreen: View {
     @Bindable var viewModel: ExploreViewModel
     public let onSelectEvent: (EventID) -> Void
