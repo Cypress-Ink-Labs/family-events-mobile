@@ -21,6 +21,7 @@ private struct InlineNavTitle: ViewModifier {
     }
 }
 
+@MainActor
 public struct SaturdayPlanScreen: View {
     @Bindable var viewModel: PlanViewModel
     public let context: PlanContext

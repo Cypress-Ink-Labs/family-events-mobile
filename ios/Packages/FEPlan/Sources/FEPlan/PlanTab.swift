@@ -4,6 +4,7 @@ import FEData
 import FEDesignSystem
 import FEEventDetail
 
+@MainActor
 public struct PlanTab: View {
     public let tabTitle = "Plan"
     @State private var viewModel: PlanViewModel
