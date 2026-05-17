@@ -1,6 +1,8 @@
 name: FamilyEvents
 options:
   minimumXcodeGenVersion: 2.38.0
+  xcodeVersion: "15.4"
+  projectFormat: xcode15_3
 settings:
   base:
     SWIFT_VERSION: 5.10
