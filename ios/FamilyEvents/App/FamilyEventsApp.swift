@@ -3,6 +3,7 @@ import SwiftData
 import FECore
 import FEData
 import FEAuth
+import FEDesignSystem
 import FEPlan
 
 @main
@@ -22,7 +23,13 @@ struct FamilyEventsApp: App {
     }
     private let boot: BootResult
 
-    init() { boot = Self.bootstrap() }
+    init() {
+        // Register bundled fonts before any view renders. Idempotent — re-runs
+        // safely on hot-reload. Failures are non-fatal; missing fonts fall back
+        // to system serif/sans equivalents.
+        FEDesignSystem.registerFonts()
+        boot = Self.bootstrap()
+    }
 
     private static func bootstrap() -> BootResult {
         do {
