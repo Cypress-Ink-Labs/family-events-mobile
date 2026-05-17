@@ -10,6 +10,7 @@
 		112083AC13F0C1F856EDCAC8 /* PlaceholderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */; };
 		1989763382F59581D1E20C8C /* testEventCardWithImageAndBadge.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E25E003D87FAA2DF4668D2D /* testEventCardWithImageAndBadge.dark.png */; };
 		19BCE47C6893926E53962577 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F71FCF3E0F318AFA91B50660 /* FEAuth */; };
+		19E15B92ECB194A960E4D120 /* FontRegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46653127FE9DEE5A70C852B /* FontRegistrationTests.swift */; };
 		1A7123A8480347823FF4A737 /* EndpointPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59E23778BBA9A8B215CC79D0 /* EndpointPolicyTests.swift */; };
 		1E7EE2C7260AB2D3F9AF2A7B /* testFavoriteButtonUnfavoritedState.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */; };
 		21B9B24A491F16DAAC02486A /* FEAuthTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 65E2409342315B807311D9F6 /* FEAuthTesting */; };
@@ -101,6 +102,7 @@
 		BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyEventsApp.swift; sourceTree = "<group>"; };
 		C0E94BE15112B1D067E3C791 /* testEventCardLongTitleWraps.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardLongTitleWraps.xxl-type.png"; sourceTree = "<group>"; };
 		C22E36C996074657288512C6 /* EventCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardTests.swift; sourceTree = "<group>"; };
+		C46653127FE9DEE5A70C852B /* FontRegistrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontRegistrationTests.swift; sourceTree = "<group>"; };
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
 		D20C5A97FCDCB5CB6935294A /* testFavoriteButtonUnfavoritedState.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonUnfavoritedState.dark.png; sourceTree = "<group>"; };
 		D890C8D7C4B176D36D48B555 /* FESaved */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FESaved; path = Packages/FESaved; sourceTree = SOURCE_ROOT; };
@@ -256,6 +258,7 @@
 			children = (
 				C22E36C996074657288512C6 /* EventCardTests.swift */,
 				DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */,
+				C46653127FE9DEE5A70C852B /* FontRegistrationTests.swift */,
 				385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */,
 				A734A1FB591A0D98D3C24791 /* SnapshotHelpers.swift */,
 				1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */,
@@ -447,6 +450,7 @@
 			files = (
 				AB632FC4CA1F2C9471378860 /* EventCardTests.swift in Sources */,
 				3B3D2272937549E740332DA6 /* FavoriteButtonTests.swift in Sources */,
+				19E15B92ECB194A960E4D120 /* FontRegistrationTests.swift in Sources */,
 				112083AC13F0C1F856EDCAC8 /* PlaceholderViewTests.swift in Sources */,
 				B0AEB6A1FCB34BC5092B49B6 /* SnapshotHelpers.swift in Sources */,
 			);

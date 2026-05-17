@@ -141,11 +141,30 @@ class InMemoryWeatherRepository : WeatherRepository {
     override suspend fun refreshForecast(cityId: CityId) = Unit
 }
 
-class RepositoryGraph {
-    val authRepository: AuthRepository = InMemoryAuthRepository()
-    val eventRepository: EventRepository = InMemoryEventRepository()
-    val favoriteRepository: FavoriteRepository = InMemoryFavoriteRepository(eventRepository)
-    val profileRepository: ProfileRepository = InMemoryProfileRepository()
-    val cityRepository: CityRepository = InMemoryCityRepository()
-    val weatherRepository: WeatherRepository = InMemoryWeatherRepository()
+class RepositoryGraph(
+    val authRepository: AuthRepository = InMemoryAuthRepository(),
+    val eventRepository: EventRepository = InMemoryEventRepository(),
+    val favoriteRepository: FavoriteRepository = InMemoryFavoriteRepository(eventRepository),
+    val profileRepository: ProfileRepository = InMemoryProfileRepository(),
+    val cityRepository: CityRepository = InMemoryCityRepository(),
+    val weatherRepository: WeatherRepository = InMemoryWeatherRepository(),
+) {
+    companion object {
+        fun roomBacked(
+            database: FamilyEventsDatabase,
+            config: com.familyevents.core.EnvConfig,
+            sessionStore: SessionStore = MemorySessionStore(),
+        ): RepositoryGraph {
+            SupabaseClientFactory.create(config)
+            val eventRepository = RoomBackedEventRepository(database.eventDao(), database.planDao())
+            return RepositoryGraph(
+                authRepository = LocalAuthRepository(sessionStore),
+                eventRepository = eventRepository,
+                favoriteRepository = RoomBackedFavoriteRepository(database.favoriteDao()),
+                profileRepository = RoomBackedProfileRepository(database.profileDao()),
+                cityRepository = RoomBackedCityRepository(database.cityDao()),
+                weatherRepository = RoomBackedWeatherRepository(database.weatherDao()),
+            )
+        }
+    }
 }

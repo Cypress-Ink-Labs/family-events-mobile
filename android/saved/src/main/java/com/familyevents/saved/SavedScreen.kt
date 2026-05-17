@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
+import com.familyevents.data.EventQuery
 import com.familyevents.data.EventRepository
 import com.familyevents.data.FavoriteRepository
 import com.familyevents.designsystem.EmptyState
@@ -32,6 +33,8 @@ fun SavedScreen(
     onOpenProfile: () -> Unit,
 ) {
     val favorites by favoriteRepository.observeFavorites(userId).collectAsState(initial = emptyList())
+    val events by eventRepository.observeEventList(EventQuery(cityId = null)).collectAsState(initial = emptyList())
+    val eventsById = events.associateBy { it.id }
     val scope = rememberCoroutineScope()
 
     Column(
@@ -47,9 +50,10 @@ fun SavedScreen(
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
                 items(favorites, key = { it.eventId.rawValue }) { fav ->
+                    val event = eventsById[fav.eventId]
                     EventCard(
-                        title = fav.eventId.rawValue,
-                        subtitle = "Saved event",
+                        title = event?.title ?: fav.eventId.rawValue,
+                        subtitle = event?.venueName ?: "Saved event",
                         badge = "Saved",
                         onClick = { onOpenEvent(fav.eventId) },
                     )

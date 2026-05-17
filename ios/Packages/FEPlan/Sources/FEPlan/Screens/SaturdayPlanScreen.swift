@@ -49,7 +49,7 @@ public struct SaturdayPlanScreen: View {
     }
 
     private var secondaryEvents: [EventDTO] {
-        cachedPlan.dropFirst().prefix(2).compactMap { row in
+        cachedPlan.dropFirst().prefix(6).compactMap { row in
             eventsByID[row.eventID]?.asEventDTO()
         }
     }
@@ -122,14 +122,30 @@ public struct SaturdayPlanScreen: View {
         } else if let hero = heroEvent {
             PlanHeroCard(event: hero, onTap: { onSelectEvent(hero.id) })
             if !secondaryEvents.isEmpty {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    ForEach(secondaryEvents, id: \.id) { event in
-                        PlanThumbCard(event: event, onTap: { onSelectEvent(event.id) })
-                    }
-                }
+                alsoThisWeek
             }
         } else {
             emptyView
+        }
+    }
+
+    @ViewBuilder
+    private var alsoThisWeek: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Also this week")
+                .font(.dsCaption2xs)
+                .textCase(.uppercase)
+                .tracking(1.2)
+                .foregroundStyle(Color.dsAccentSecondary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 12) {
+                    ForEach(secondaryEvents, id: \.id) { event in
+                        PlanCarouselCard(event: event, onTap: { onSelectEvent(event.id) })
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+            .padding(.horizontal, -16)
         }
     }
 

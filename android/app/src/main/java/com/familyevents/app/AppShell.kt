@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -35,7 +36,9 @@ import com.familyevents.data.SessionState
 import com.familyevents.eventdetail.EventDetailScreen
 import com.familyevents.explore.ExploreScreen
 import com.familyevents.plan.PlanScreen
+import com.familyevents.platform.PlatformActions
 import com.familyevents.saved.SavedScreen
+import kotlinx.coroutines.launch
 
 private enum class AppTab(val title: String) {
     Plan("Plan"),
@@ -44,8 +47,14 @@ private enum class AppTab(val title: String) {
 }
 
 @Composable
-fun FamilyEventsApp(config: EnvConfig, repositories: RepositoryGraph, initialUrl: String?) {
+fun FamilyEventsApp(
+    config: EnvConfig,
+    repositories: RepositoryGraph,
+    platformActions: PlatformActions,
+    initialUrl: String?,
+) {
     val session by repositories.authRepository.sessionState.collectAsState(initial = SessionState.Restoring)
+    val signedInUser = (session as? SessionState.SignedIn)?.userId
     var selectedTab by remember { mutableStateOf(AppTab.Plan) }
     var detailEventId by remember { mutableStateOf<EventId?>(null) }
     var showProfile by remember { mutableStateOf(false) }
@@ -79,6 +88,7 @@ fun FamilyEventsApp(config: EnvConfig, repositories: RepositoryGraph, initialUrl
                     )
                     AppTab.Explore -> ExploreScreen(
                         cityId = com.familyevents.core.CityId("chicago"),
+                        mapStyleUrl = config.mapStyleUrl,
                         eventRepository = repositories.eventRepository,
                         onOpenEvent = { detailEventId = it },
                     )
@@ -96,22 +106,43 @@ fun FamilyEventsApp(config: EnvConfig, repositories: RepositoryGraph, initialUrl
                         userId = userId,
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
-                        onShare = {},
-                        onDirections = {},
-                        onAddToCalendar = {},
+                        onShare = platformActions::share,
+                        onDirections = platformActions::directions,
+                        onAddToCalendar = platformActions::addToCalendar,
                     )
                 }
             }
         }
     }
 
-    if (showProfile) {
+    if (showProfile && signedInUser != null) {
+        val profile by repositories.profileRepository.observeProfile(signedInUser).collectAsState(initial = null)
+        val scope = rememberCoroutineScope()
         AlertDialog(
             onDismissRequest = { showProfile = false },
             title = { Text("Profile") },
-            text = { Text("City, kid context, notifications, sign out, and delete account live here.") },
+            text = {
+                Text(
+                    "City: ${profile?.currentCityId?.rawValue ?: "chicago"}\n" +
+                        "Kid age: ${profile?.kidAge ?: 7}\n" +
+                        "Notifications: ${if (profile?.notificationsEnabled == true) "on" else "off"}",
+                )
+            },
             confirmButton = {
-                TextButton(onClick = { showProfile = false }) { Text("Done") }
+                TextButton(onClick = {
+                    scope.launch {
+                        repositories.profileRepository.updateNotificationPreference(
+                            signedInUser,
+                            enabled = profile?.notificationsEnabled != true,
+                        )
+                    }
+                }) { Text("Notifications") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showProfile = false
+                    scope.launch { repositories.authRepository.signOut() }
+                }) { Text("Sign out") }
             },
         )
     }

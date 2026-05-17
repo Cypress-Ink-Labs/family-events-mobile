@@ -29,8 +29,8 @@ fun EventDetailScreen(
     eventRepository: EventRepository,
     favoriteRepository: FavoriteRepository,
     onShare: (EventId) -> Unit,
-    onDirections: (EventId) -> Unit,
-    onAddToCalendar: (EventId) -> Unit,
+    onDirections: (String) -> Unit,
+    onAddToCalendar: (String, Long, Long?) -> Unit,
 ) {
     val event by eventRepository.observeEventDetail(eventId).collectAsState(initial = null)
     val scope = rememberCoroutineScope()
@@ -58,8 +58,14 @@ fun EventDetailScreen(
                 Button(onClick = { scope.launch { favoriteRepository.favorite(userId, eventId) } }) { Text("Save") }
             }
             Button(onClick = { onShare(eventId) }) { Text("Share") }
-            Button(onClick = { onDirections(eventId) }) { Text("Directions") }
-            Button(onClick = { onAddToCalendar(eventId) }) { Text("Calendar") }
+            Button(onClick = { onDirections(current.address ?: current.venueName ?: current.title) }) { Text("Directions") }
+            Button(onClick = {
+                onAddToCalendar(
+                    current.title,
+                    current.startsAt.toEpochMilli(),
+                    current.endsAt?.toEpochMilli(),
+                )
+            }) { Text("Calendar") }
         }
     }
 }
