@@ -23,7 +23,6 @@ final class EventCardTests: XCTestCase {
 }
 
 #if os(iOS) && canImport(UIKit)
-import Foundation
 import SnapshotTesting
 
 @MainActor
@@ -35,9 +34,7 @@ final class EventCardSnapshotTests: XCTestCase {
         // isRecording = true
     }
 
-    func testEventCardWithImageAndBadge() throws {
-        try skipIfHostedActions()
-
+    func testEventCardWithImageAndBadge() {
         let card = EventCard(
             title: "Storytime at the Library",
             subtitle: "Sat, May 16 · 10:00 AM · Central Library",
@@ -47,9 +44,7 @@ final class EventCardSnapshotTests: XCTestCase {
         assertSnapshotVariants(of: card.padding(16))
     }
 
-    func testEventCardWithoutBadge() throws {
-        try skipIfHostedActions()
-
+    func testEventCardWithoutBadge() {
         let card = EventCard(
             title: "Family Yoga in the Park",
             subtitle: "Sun, May 17 · 9:00 AM · Moncus Park",
@@ -59,9 +54,7 @@ final class EventCardSnapshotTests: XCTestCase {
         assertSnapshotVariants(of: card.padding(16))
     }
 
-    func testEventCardLongTitleWraps() throws {
-        try skipIfHostedActions()
-
+    func testEventCardLongTitleWraps() {
         let card = EventCard(
             title: "An Exceptionally Long Event Title That Should Wrap Across Multiple Lines To Verify Layout Stability",
             subtitle: "Mon, May 18 · 6:00 PM",
@@ -69,13 +62,6 @@ final class EventCardSnapshotTests: XCTestCase {
             badge: "Free"
         )
         assertSnapshotVariants(of: card.padding(16))
-    }
-
-    private func skipIfHostedActions() throws {
-        try XCTSkipIf(
-            ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true",
-            "EventCard image snapshots depend on hosted simulator font rasterization."
-        )
     }
 }
 #endif
