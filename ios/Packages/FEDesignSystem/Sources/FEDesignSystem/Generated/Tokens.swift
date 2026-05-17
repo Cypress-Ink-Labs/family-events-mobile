@@ -7,44 +7,44 @@ import SwiftUI
 public enum DesignTokens {
     public enum Color {
         public enum Light {
-        public static let bg = Color(red: 0.9804, green: 0.9647, blue: 0.9333, opacity: 1)
-        public static let surface = Color(red: 1.0000, green: 1.0000, blue: 1.0000, opacity: 1)
-        public static let surfaceRaised = Color(red: 0.9490, green: 0.9216, blue: 0.8588, opacity: 1)
-        public static let textPrimary = Color(red: 0.1647, green: 0.1451, blue: 0.1255, opacity: 1)
-        public static let textMuted = Color(red: 0.4627, green: 0.4157, blue: 0.3373, opacity: 1)
-        public static let border = Color(red: 0.8510, green: 0.8118, blue: 0.7216, opacity: 1)
-        public static let accentPrimary = Color(red: 0.1451, green: 0.4353, blue: 0.3647, opacity: 1)
-        public static let accentPrimarySoft = Color(red: 0.8667, green: 0.9333, blue: 0.9059, opacity: 1)
-        public static let accentSecondary = Color(red: 0.8902, green: 0.4196, blue: 0.2471, opacity: 1)
-        public static let accentSecondarySoft = Color(red: 0.9804, green: 0.8784, blue: 0.8235, opacity: 1)
-        public static let accentTertiary = Color(red: 0.2314, green: 0.4588, blue: 0.6863, opacity: 1)
-        public static let accentTertiarySoft = Color(red: 0.8667, green: 0.9137, blue: 0.9569, opacity: 1)
-        public static let accentKid = Color(red: 0.9490, green: 0.7882, blue: 0.2980, opacity: 1)
-        public static let accentKidSoft = Color(red: 0.9843, green: 0.9216, blue: 0.7216, opacity: 1)
-        public static let success = Color(red: 0.1804, green: 0.4902, blue: 0.3569, opacity: 1)
-        public static let warning = Color(red: 0.7176, green: 0.4745, blue: 0.1216, opacity: 1)
-        public static let error = Color(red: 0.7255, green: 0.2902, blue: 0.2824, opacity: 1)
-        public static let info = Color(red: 0.2314, green: 0.4588, blue: 0.6863, opacity: 1)
+        public static let bg = SwiftUI.Color(red: 0.9804, green: 0.9647, blue: 0.9333, opacity: 1)
+        public static let surface = SwiftUI.Color(red: 1.0000, green: 1.0000, blue: 1.0000, opacity: 1)
+        public static let surfaceRaised = SwiftUI.Color(red: 0.9490, green: 0.9216, blue: 0.8588, opacity: 1)
+        public static let textPrimary = SwiftUI.Color(red: 0.1647, green: 0.1451, blue: 0.1255, opacity: 1)
+        public static let textMuted = SwiftUI.Color(red: 0.4627, green: 0.4157, blue: 0.3373, opacity: 1)
+        public static let border = SwiftUI.Color(red: 0.8510, green: 0.8118, blue: 0.7216, opacity: 1)
+        public static let accentPrimary = SwiftUI.Color(red: 0.1451, green: 0.4353, blue: 0.3647, opacity: 1)
+        public static let accentPrimarySoft = SwiftUI.Color(red: 0.8667, green: 0.9333, blue: 0.9059, opacity: 1)
+        public static let accentSecondary = SwiftUI.Color(red: 0.8902, green: 0.4196, blue: 0.2471, opacity: 1)
+        public static let accentSecondarySoft = SwiftUI.Color(red: 0.9804, green: 0.8784, blue: 0.8235, opacity: 1)
+        public static let accentTertiary = SwiftUI.Color(red: 0.2314, green: 0.4588, blue: 0.6863, opacity: 1)
+        public static let accentTertiarySoft = SwiftUI.Color(red: 0.8667, green: 0.9137, blue: 0.9569, opacity: 1)
+        public static let accentKid = SwiftUI.Color(red: 0.9490, green: 0.7882, blue: 0.2980, opacity: 1)
+        public static let accentKidSoft = SwiftUI.Color(red: 0.9843, green: 0.9216, blue: 0.7216, opacity: 1)
+        public static let success = SwiftUI.Color(red: 0.1804, green: 0.4902, blue: 0.3569, opacity: 1)
+        public static let warning = SwiftUI.Color(red: 0.7176, green: 0.4745, blue: 0.1216, opacity: 1)
+        public static let error = SwiftUI.Color(red: 0.7255, green: 0.2902, blue: 0.2824, opacity: 1)
+        public static let info = SwiftUI.Color(red: 0.2314, green: 0.4588, blue: 0.6863, opacity: 1)
         }
         public enum Dark {
-        public static let bg = Color(red: 0.1216, green: 0.1059, blue: 0.0902, opacity: 1)
-        public static let surface = Color(red: 0.1647, green: 0.1451, blue: 0.1255, opacity: 1)
-        public static let surfaceRaised = Color(red: 0.2000, green: 0.1765, blue: 0.1529, opacity: 1)
-        public static let textPrimary = Color(red: 0.9451, green: 0.9255, blue: 0.8863, opacity: 1)
-        public static let textMuted = Color(red: 0.7098, green: 0.6745, blue: 0.6118, opacity: 1)
-        public static let border = Color(red: 0.2902, green: 0.2549, blue: 0.2196, opacity: 1)
-        public static let accentPrimary = Color(red: 0.3020, green: 0.6392, blue: 0.5529, opacity: 1)
-        public static let accentPrimarySoft = Color(red: 0.1216, green: 0.3059, blue: 0.2627, opacity: 1)
-        public static let accentSecondary = Color(red: 0.9412, green: 0.5412, blue: 0.3765, opacity: 1)
-        public static let accentSecondarySoft = Color(red: 0.3686, green: 0.2000, blue: 0.1451, opacity: 1)
-        public static let accentTertiary = Color(red: 0.4353, green: 0.6275, blue: 0.8275, opacity: 1)
-        public static let accentTertiarySoft = Color(red: 0.1451, green: 0.2588, blue: 0.3725, opacity: 1)
-        public static let accentKid = Color(red: 0.9490, green: 0.7882, blue: 0.2980, opacity: 1)
-        public static let accentKidSoft = Color(red: 0.3569, green: 0.2902, blue: 0.1020, opacity: 1)
-        public static let success = Color(red: 0.3373, green: 0.6471, blue: 0.5020, opacity: 1)
-        public static let warning = Color(red: 0.8392, green: 0.5961, blue: 0.2706, opacity: 1)
-        public static let error = Color(red: 0.8431, green: 0.4510, blue: 0.4392, opacity: 1)
-        public static let info = Color(red: 0.4353, green: 0.6275, blue: 0.8275, opacity: 1)
+        public static let bg = SwiftUI.Color(red: 0.1216, green: 0.1059, blue: 0.0902, opacity: 1)
+        public static let surface = SwiftUI.Color(red: 0.1647, green: 0.1451, blue: 0.1255, opacity: 1)
+        public static let surfaceRaised = SwiftUI.Color(red: 0.2000, green: 0.1765, blue: 0.1529, opacity: 1)
+        public static let textPrimary = SwiftUI.Color(red: 0.9451, green: 0.9255, blue: 0.8863, opacity: 1)
+        public static let textMuted = SwiftUI.Color(red: 0.7098, green: 0.6745, blue: 0.6118, opacity: 1)
+        public static let border = SwiftUI.Color(red: 0.2902, green: 0.2549, blue: 0.2196, opacity: 1)
+        public static let accentPrimary = SwiftUI.Color(red: 0.3020, green: 0.6392, blue: 0.5529, opacity: 1)
+        public static let accentPrimarySoft = SwiftUI.Color(red: 0.1216, green: 0.3059, blue: 0.2627, opacity: 1)
+        public static let accentSecondary = SwiftUI.Color(red: 0.9412, green: 0.5412, blue: 0.3765, opacity: 1)
+        public static let accentSecondarySoft = SwiftUI.Color(red: 0.3686, green: 0.2000, blue: 0.1451, opacity: 1)
+        public static let accentTertiary = SwiftUI.Color(red: 0.4353, green: 0.6275, blue: 0.8275, opacity: 1)
+        public static let accentTertiarySoft = SwiftUI.Color(red: 0.1451, green: 0.2588, blue: 0.3725, opacity: 1)
+        public static let accentKid = SwiftUI.Color(red: 0.9490, green: 0.7882, blue: 0.2980, opacity: 1)
+        public static let accentKidSoft = SwiftUI.Color(red: 0.3569, green: 0.2902, blue: 0.1020, opacity: 1)
+        public static let success = SwiftUI.Color(red: 0.3373, green: 0.6471, blue: 0.5020, opacity: 1)
+        public static let warning = SwiftUI.Color(red: 0.8392, green: 0.5961, blue: 0.2706, opacity: 1)
+        public static let error = SwiftUI.Color(red: 0.8431, green: 0.4510, blue: 0.4392, opacity: 1)
+        public static let info = SwiftUI.Color(red: 0.4353, green: 0.6275, blue: 0.8275, opacity: 1)
         }
     }
 
@@ -77,8 +77,8 @@ public enum DesignTokens {
     }
 
     public enum TextScale {
-    public static let 2xsMobile = TextSize(size: 11, lineHeight: 1.4)
-    public static let 2xsDesktop = TextSize(size: 11, lineHeight: 1.4)
+    public static let size2xsMobile = TextSize(size: 11, lineHeight: 1.4)
+    public static let size2xsDesktop = TextSize(size: 11, lineHeight: 1.4)
     public static let xsMobile = TextSize(size: 12, lineHeight: 1.45)
     public static let xsDesktop = TextSize(size: 12, lineHeight: 1.45)
     public static let smMobile = TextSize(size: 14, lineHeight: 1.5)
@@ -91,10 +91,10 @@ public enum DesignTokens {
     public static let lgDesktop = TextSize(size: 26, lineHeight: 1.3)
     public static let xlMobile = TextSize(size: 28, lineHeight: 1.15)
     public static let xlDesktop = TextSize(size: 34, lineHeight: 1.15)
-    public static let 2xlMobile = TextSize(size: 36, lineHeight: 1.1)
-    public static let 2xlDesktop = TextSize(size: 44, lineHeight: 1.1)
-    public static let 3xlMobile = TextSize(size: 44, lineHeight: 1.05)
-    public static let 3xlDesktop = TextSize(size: 60, lineHeight: 1.05)
+    public static let size2xlMobile = TextSize(size: 36, lineHeight: 1.1)
+    public static let size2xlDesktop = TextSize(size: 44, lineHeight: 1.1)
+    public static let size3xlMobile = TextSize(size: 44, lineHeight: 1.05)
+    public static let size3xlDesktop = TextSize(size: 60, lineHeight: 1.05)
     }
 
     public enum FontFamily {
@@ -110,7 +110,7 @@ public enum DesignTokens {
     public static let md: CGFloat = 640
     public static let lg: CGFloat = 900
     public static let xl: CGFloat = 1200
-    public static let 2xl: CGFloat = 1440
+    public static let bp2xl: CGFloat = 1440
     }
 
     public enum Touch {

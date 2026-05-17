@@ -7,7 +7,13 @@ public struct EventCard: View {
     public let badge: String?
     public let onTap: (() -> Void)?
 
-    public init(title: String, subtitle: String, imageURL: URL? = nil, badge: String? = nil, onTap: (() -> Void)? = nil) {
+    public init(
+        title: String,
+        subtitle: String,
+        imageURL: URL? = nil,
+        badge: String? = nil,
+        onTap: (() -> Void)? = nil
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.imageURL = imageURL
@@ -17,34 +23,43 @@ public struct EventCard: View {
 
     public var body: some View {
         Button { onTap?() } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignTokens.Space.s2) {
                 if let url = imageURL {
                     AsyncImage(url: url) { image in
                         image.resizable().aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Rectangle().fill(Color.appSecondaryBackground)
+                        Rectangle().fill(Color.dsSurfaceRaised)
                     }
                     .frame(height: 160)
                     .clipped()
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
                 }
                 HStack(alignment: .top) {
-                    Text(title).appTypography(.titleMedium).foregroundStyle(.primary)
+                    Text(title)
+                        .font(.dsTitleLg)
+                        .foregroundStyle(Color.dsTextPrimary)
                     Spacer()
                     if let badge {
                         Text(badge)
-                            .appTypography(.caption)
-                            .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(Color.appAccent.opacity(0.15))
+                            .font(.dsCaptionXs)
+                            .foregroundStyle(Color.dsAccentPrimary)
+                            .padding(.horizontal, DesignTokens.Space.s2)
+                            .padding(.vertical, DesignTokens.Space.s1)
+                            .background(Color.dsAccentPrimarySoft)
                             .clipShape(Capsule())
                     }
                 }
-                Text(subtitle).appTypography(.body).foregroundStyle(.secondary)
+                Text(subtitle)
+                    .font(.dsBodySm)
+                    .foregroundStyle(Color.dsTextMuted)
             }
-            .padding()
-            .background(Color.appBackground)
-            .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.appSecondaryBackground, lineWidth: 1))
+            .padding(DesignTokens.Space.s4)
+            .background(Color.dsSurface)
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
+                    .stroke(Color.dsBorder, lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
     }
