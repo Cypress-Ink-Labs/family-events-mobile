@@ -4,6 +4,7 @@ import FECore
 import FEData
 import FEDesignSystem
 
+@MainActor
 public struct SavedScreen: View {
     @Bindable var coordinator: SavedSyncCoordinator
     public let userID: UserID

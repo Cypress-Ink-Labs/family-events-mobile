@@ -5,6 +5,7 @@ import FEData
 import FEDesignSystem
 import FEEventDetail
 
+@MainActor
 public struct SavedTab: View {
     public let tabTitle = "Saved"
     @State private var coordinator: SavedSyncCoordinator
