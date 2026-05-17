@@ -4,6 +4,19 @@ import FECore
 import FEData
 import FEDesignSystem
 
+/// Forces inline nav title on iOS so the large-title transition doesn't
+/// overlap the screen's own H1 mid-scroll. No-op on macOS where the
+/// modifier isn't available.
+private struct InlineNavTitle: ViewModifier {
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        content.navigationBarTitleDisplayMode(.inline)
+        #else
+        content
+        #endif
+    }
+}
+
 public struct SaturdayPlanScreen: View {
     @Bindable var viewModel: PlanViewModel
     public let context: PlanContext
@@ -57,18 +70,29 @@ public struct SaturdayPlanScreen: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 20)
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.dsBackground.ignoresSafeArea())
         .refreshable { await viewModel.refresh(context: context) }
         .task { await viewModel.refresh(context: context) }
         .navigationTitle("Plan")
+        .modifier(InlineNavTitle())
     }
 
     @ViewBuilder
     private var header: some View {
         Text("This week's plan")
-            .appTypography(.caption)
-            .foregroundStyle(.tint)
+            .font(.dsCaption2xs)
+            .textCase(.uppercase)
+            .tracking(1.2)
+            .foregroundStyle(Color.dsAccentSecondary)
         Text("Best family options this week")
-            .appTypography(.titleLarge)
+            .font(.dsTitleXl)
+            .foregroundStyle(Color.dsTextPrimary)
+        Text(
+            "A ranked shortlist from the next 7 days, tuned by distance, weather, age fit, and saved events."
+        )
+        .font(.dsBodySm)
+        .foregroundStyle(Color.dsTextMuted)
     }
 
     @ViewBuilder
