@@ -1,0 +1,11 @@
+{
+  "name": "@family-events/android",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "check": "./gradlew check",
+    "test": "./gradlew test",
+    "build": "./gradlew assembleDebug",
+    "lint": "./gradlew lint"
+  }
+}
