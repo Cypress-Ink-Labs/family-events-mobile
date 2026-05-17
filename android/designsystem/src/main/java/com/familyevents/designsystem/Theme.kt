@@ -7,9 +7,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.familyevents.designsystem.generated.Tokens
@@ -42,39 +40,16 @@ private val DarkColors: ColorScheme = darkColorScheme(
     error = Tokens.ColorDark.Error,
 )
 
-/**
- * Token-driven typography. The font families load the bundled variable TTFs
- * shipped under `res/font/` — each FontFamily declares the same file at
- * multiple weights so Compose resolves `FontWeight.Medium` against the
- * variable axis instead of substituting a system sans.
- *
- * If the variable file isn't selected (older OS levels, fallback path),
- * Compose drops back to `FontFamily.Serif` / `SansSerif` / `Monospace`.
- */
 object FamilyTypography {
-    val Display: FontFamily = FontFamily(
-        Font(R.font.fraunces, weight = FontWeight.Normal),
-        Font(R.font.fraunces, weight = FontWeight.Medium),
-        Font(R.font.fraunces, weight = FontWeight.SemiBold),
-        Font(R.font.fraunces, weight = FontWeight.Bold),
-    )
-    val Body: FontFamily = FontFamily(
-        Font(R.font.dm_sans, weight = FontWeight.Normal),
-        Font(R.font.dm_sans, weight = FontWeight.Medium),
-    )
-    val Editorial: FontFamily = FontFamily(
-        Font(R.font.newsreader, weight = FontWeight.Normal),
-        Font(R.font.newsreader_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
-    )
-    val Mono: FontFamily = FontFamily(
-        Font(R.font.geist_mono, weight = FontWeight.Normal),
-        Font(R.font.geist_mono, weight = FontWeight.Medium),
-    )
+    val Display: FontFamily = FontFamily.Serif
+    val BodyFamily: FontFamily = FontFamily.SansSerif
+    val Editorial: FontFamily = FontFamily.Serif
+    val Mono: FontFamily = FontFamily.Monospace
 
     val TitleLarge = TextStyle(fontFamily = Display, fontWeight = FontWeight.Medium, fontSize = 28.sp, lineHeight = 32.sp)
     val TitleMedium = TextStyle(fontFamily = Display, fontWeight = FontWeight.Medium, fontSize = 22.sp, lineHeight = 28.sp)
-    val Body = TextStyle(fontFamily = Body, fontSize = 16.sp, lineHeight = 25.sp)
-    val BodySmall = TextStyle(fontFamily = Body, fontSize = 14.sp, lineHeight = 21.sp)
+    val Body = TextStyle(fontFamily = BodyFamily, fontSize = 16.sp, lineHeight = 25.sp)
+    val BodySmall = TextStyle(fontFamily = BodyFamily, fontSize = 14.sp, lineHeight = 21.sp)
     val Caption = TextStyle(fontFamily = Mono, fontSize = 12.sp, lineHeight = 17.sp)
 }
 

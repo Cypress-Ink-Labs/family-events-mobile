@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.familyevents.core.CityId
@@ -36,8 +38,8 @@ fun PlanScreen(
     onSetCity: () -> Unit,
 ) {
     val rows by eventRepository.observePlanEvents(userId, cityId).collectAsState(initial = emptyList())
-    val forecast by (cityId?.let { weatherRepository.observeForecast(it) })?.collectAsState(initial = emptyList())
-        ?: androidx.compose.runtime.mutableStateOf(emptyList())
+    val emptyForecast = remember { mutableStateOf(emptyList<com.familyevents.data.WeatherSnapshotDto>()) }
+    val forecast by cityId?.let { weatherRepository.observeForecast(it).collectAsState(initial = emptyList()) } ?: emptyForecast
     val scope = rememberCoroutineScope()
 
     LazyColumn(

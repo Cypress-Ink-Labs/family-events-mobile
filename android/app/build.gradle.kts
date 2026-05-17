@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.familyevents"
     compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
 
     defaultConfig {
         applicationId = "com.familyevents.app"
@@ -27,11 +29,16 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            val releaseUrl = providers.environmentVariable("SUPABASE_URL").orElse("").get()
-            val releaseKey = providers.environmentVariable("SUPABASE_ANON_KEY").orElse("").get()
-            if (releaseUrl.isBlank() || releaseKey.isBlank()) {
-                throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY.")
-            }
+        }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.name.contains("Release") || it.name == "bundle" }) {
+        val releaseUrl = providers.environmentVariable("SUPABASE_URL").orElse("").get()
+        val releaseKey = providers.environmentVariable("SUPABASE_ANON_KEY").orElse("").get()
+        if (releaseUrl.isBlank() || releaseKey.isBlank()) {
+            throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY.")
         }
     }
 }
@@ -54,7 +61,5 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
     testImplementation(libs.junit)
 }

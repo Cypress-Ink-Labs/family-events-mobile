@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.familyevents.saved"
     compileSdk = 36
+    buildFeatures { compose = true }
     defaultConfig { minSdk = 26 }
 }
 

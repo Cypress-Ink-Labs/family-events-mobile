@@ -4,11 +4,10 @@ kotlin = "2.3.21"
 composeBom = "2026.05.00"
 supabaseBom = "3.6.0"
 ktor = "3.5.0"
-hilt = "2.58.1"
-room = "2.9.0"
-navigation = "2.10.0"
+room = "2.8.4"
+navigation = "2.9.8"
 lifecycle = "2.10.0"
-activity = "1.12.0"
+activity = "1.13.0"
 security = "1.2.0"
 credentials = "1.6.0"
 googleid = "1.2.0"
@@ -37,8 +36,6 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security" }
 google-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
@@ -53,7 +50,5 @@ supabase-realtime = { module = "io.github.jan-tennert.supabase:realtime-kt" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }

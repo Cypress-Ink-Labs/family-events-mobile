@@ -128,7 +128,7 @@ interface WeatherDao {
         CachedWeatherEntity::class,
     ],
     version = 1,
-    exportSchema = true,
+    exportSchema = false,
 )
 abstract class FamilyEventsDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
