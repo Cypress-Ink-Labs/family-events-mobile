@@ -1,5 +1,6 @@
 import CoreText
 import Foundation
+import SwiftUI
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -61,4 +62,59 @@ public enum FEDesignSystem {
         "Newsreader-Italic",
         "GeistMono-Regular",
     ]
+
+    #if canImport(UIKit)
+    /// Configures global UINavigationBar + UITabBar appearance to the
+    /// warm-paper palette so translucent system chrome doesn't ghost
+    /// scroll content behind it. Idempotent; safe to re-run.
+    ///
+    /// Call once at app start after `registerFonts()`. Without this, iOS
+    /// renders nav/tab bars with a system-translucent material that lets
+    /// the warm-paper background bleed through and reads as confused
+    /// ghosting on phone screens.
+    public static func configureChromeAppearance() {
+        let bgColor = UIColor(Color.dsBackground)
+        let textColor = UIColor(Color.dsTextPrimary)
+
+        // Nav bar
+        let navAppearance = UINavigationBarAppearance()
+        navAppearance.configureWithOpaqueBackground()
+        navAppearance.backgroundColor = bgColor
+        navAppearance.shadowColor = UIColor(Color.dsBorder)
+        navAppearance.titleTextAttributes = [
+            .foregroundColor: textColor,
+            .font: UIFont(name: "Fraunces-Medium", size: 17) ?? UIFont.systemFont(ofSize: 17, weight: .medium),
+        ]
+        navAppearance.largeTitleTextAttributes = [
+            .foregroundColor: textColor,
+            .font: UIFont(name: "Fraunces-Medium", size: 32) ?? UIFont.systemFont(ofSize: 32, weight: .medium),
+        ]
+        UINavigationBar.appearance().standardAppearance = navAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+        UINavigationBar.appearance().compactAppearance = navAppearance
+
+        // Tab bar
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = bgColor
+        tabAppearance.shadowColor = UIColor(Color.dsBorder)
+        let selectedAttrs: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(Color.dsAccentPrimary),
+        ]
+        let normalAttrs: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(Color.dsTextMuted),
+        ]
+        for layout in [tabAppearance.stackedLayoutAppearance, tabAppearance.inlineLayoutAppearance, tabAppearance.compactInlineLayoutAppearance] {
+            layout.selected.iconColor = UIColor(Color.dsAccentPrimary)
+            layout.selected.titleTextAttributes = selectedAttrs
+            layout.normal.iconColor = UIColor(Color.dsTextMuted)
+            layout.normal.titleTextAttributes = normalAttrs
+        }
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+    }
+    #else
+    public static func configureChromeAppearance() {}
+    #endif
 }
+

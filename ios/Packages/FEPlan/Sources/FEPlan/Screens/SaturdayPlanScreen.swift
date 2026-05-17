@@ -4,13 +4,17 @@ import FECore
 import FEData
 import FEDesignSystem
 
-/// Forces inline nav title on iOS so the large-title transition doesn't
-/// overlap the screen's own H1 mid-scroll. No-op on macOS where the
-/// modifier isn't available.
+/// iOS-specific nav chrome: inline title display + opaque warm-paper
+/// background. Without the opaque toolbar bg, scroll content shows
+/// through the translucent nav bar and reads as ghosted text behind the
+/// title. No-op on macOS where these modifiers aren't available.
 private struct InlineNavTitle: ViewModifier {
     func body(content: Content) -> some View {
         #if os(iOS)
-        content.navigationBarTitleDisplayMode(.inline)
+        content
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.dsBackground, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         #else
         content
         #endif

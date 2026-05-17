@@ -28,6 +28,9 @@ struct FamilyEventsApp: App {
         // safely on hot-reload. Failures are non-fatal; missing fonts fall back
         // to system serif/sans equivalents.
         FEDesignSystem.registerFonts()
+        // Apply warm-paper opaque appearance to UINavigationBar + UITabBar so
+        // scroll content doesn't ghost behind translucent system chrome.
+        FEDesignSystem.configureChromeAppearance()
         boot = Self.bootstrap()
     }
 
