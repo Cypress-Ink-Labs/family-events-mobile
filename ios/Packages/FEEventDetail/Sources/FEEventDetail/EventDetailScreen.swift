@@ -3,6 +3,7 @@ import FECore
 import FEData
 import FEDesignSystem
 
+@MainActor
 public struct EventDetailScreen: View {
     @State private var viewModel: EventDetailViewModel
     @State private var calendarToast: CalendarToast?

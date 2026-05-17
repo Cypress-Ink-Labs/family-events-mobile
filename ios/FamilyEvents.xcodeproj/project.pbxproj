@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -392,7 +392,7 @@
 				369E0085144452F893E9F88E /* XCLocalSwiftPackageReference "Packages/FEPlan" */,
 				080F0A1D6B0623E4824A5B97 /* XCLocalSwiftPackageReference "Packages/FESaved" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 60;
 			productRefGroup = 35B3025E43387FD7FA5E77BE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
