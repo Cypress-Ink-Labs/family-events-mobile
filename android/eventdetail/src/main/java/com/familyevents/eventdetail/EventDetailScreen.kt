@@ -4,11 +4,16 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,19 +37,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
+import com.familyevents.core.decodeHtmlEntities
 import com.familyevents.data.CommentDto
 import com.familyevents.data.CommentRepository
 import com.familyevents.data.EventRepository
 import com.familyevents.data.FavoriteRepository
 import com.familyevents.data.RatingRepository
+import com.familyevents.designsystem.AttendeeStepper
 import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.EventHeroImage
 import com.familyevents.designsystem.FamilyTypography
+import com.familyevents.designsystem.InfoGrid
+import com.familyevents.designsystem.InfoGridItem
 import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
 import kotlinx.coroutines.launch
+
+/** Decode nullable string for display; empty string when null. */
+private fun text(s: String?): String = decodeHtmlEntities(s ?: "")
 
 @Composable
 fun EventDetailScreen(
@@ -64,6 +79,7 @@ fun EventDetailScreen(
     var comments by remember(eventId.rawValue) { mutableStateOf(emptyList<CommentDto>()) }
     var draftComment by rememberSaveable(eventId.rawValue) { mutableStateOf("") }
     var feedback by remember(eventId.rawValue) { mutableStateOf<String?>(null) }
+    var attendees by rememberSaveable(eventId.rawValue) { mutableIntStateOf(1) }
 
     BackHandler(onBack = onBack)
 
@@ -84,6 +100,38 @@ fun EventDetailScreen(
     }
 
     val current = event!!
+
+    // ── InfoGrid items ──────────────────────────────────────────────────────
+    val infoItems = buildList {
+        current.endsAt?.let { end ->
+            val totalMinutes = ((end.toEpochMilli() - current.startsAt.toEpochMilli()) / 60_000).toInt()
+            if (totalMinutes > 0) {
+                val h = totalMinutes / 60
+                val m = totalMinutes % 60
+                val formatted = if (h > 0) "${h}h ${m}m" else "${m}m"
+                add(InfoGridItem(label = "DURATION", value = formatted, icon = "⏱"))
+            }
+        }
+        if (current.isFree) {
+            add(InfoGridItem(label = "PRICE", value = "Free", icon = "💲"))
+        } else {
+            current.price?.let { add(InfoGridItem(label = "PRICE", value = "$$it", icon = "💲")) }
+        }
+        val agesValue = when {
+            current.ageMin != null && current.ageMax != null -> "Ages ${current.ageMin}–${current.ageMax}"
+            current.ageMin != null -> "Ages ${current.ageMin}+"
+            else -> null
+        }
+        agesValue?.let { add(InfoGridItem(label = "AGES", value = it, icon = "👨‍👩‍👧")) }
+        if (current.avgRating > 0) {
+            add(InfoGridItem(
+                label = "RATING",
+                value = "%.1f (%d)".format(current.avgRating, current.ratingCount),
+                icon = "⭐",
+            ))
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
         modifier = Modifier
@@ -96,37 +144,58 @@ fun EventDetailScreen(
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
-            Text(current.title, style = FamilyTypography.TitleLarge, modifier = Modifier.weight(1f))
+            Text(text(current.title), style = FamilyTypography.TitleLarge, modifier = Modifier.weight(1f))
         }
-        EventHeroImage(title = current.title, imageUrl = current.imageUrl)
-        Text(current.venueName ?: "Location TBA", style = FamilyTypography.Body)
-        Text(
-            listOfNotNull(
-                if (current.isFree) "Free" else current.price?.let { "$$it" },
-                current.ageMin?.let { low -> current.ageMax?.let { high -> "Ages $low-$high" } ?: "Ages $low+" },
-                current.avgRating.takeIf { it > 0 }?.let { "${"%.1f".format(it)} (${current.ratingCount})" },
-            ).ifEmpty { listOf("See details") }.joinToString(" • "),
-            style = FamilyTypography.BodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
-        )
-        current.description?.let { Text(it, style = FamilyTypography.Body) }
-        Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-            current.tags.forEach { TagPill(it.label) }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-            if (userId != null) {
-                Button(onClick = { scope.launch { favoriteRepository.favorite(userId, eventId) } }) { Text("Save") }
+        EventHeroImage(title = text(current.title), imageUrl = current.imageUrl)
+        Text(text(current.venueName) .ifEmpty { "Location TBA" }, style = FamilyTypography.Body)
+
+        // Tags — no "See details" fallback
+        if (current.tags.isNotEmpty()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                current.tags.forEach { TagPill(it.label) }
             }
-            Button(onClick = { onShare(eventId) }) { Text("Share") }
-            Button(onClick = { onDirections(current.address ?: current.venueName ?: current.title) }) { Text("Directions") }
+        }
+
+        current.description?.let { Text(text(it), style = FamilyTypography.Body) }
+
+        // InfoGrid (Duration / Price / Ages / Rating)
+        InfoGrid(items = infoItems)
+
+        // AttendeeStepper
+        AttendeeStepper(
+            value = attendees,
+            onValueChange = { attendees = it },
+        )
+
+        // Action row — FlowRow so button labels never wrap
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+        ) {
+            if (userId != null) {
+                Button(onClick = { scope.launch { favoriteRepository.favorite(userId, eventId) } }) {
+                    Text("Save", softWrap = false, maxLines = 1)
+                }
+            }
+            Button(onClick = { onShare(eventId) }) {
+                Text("Share", softWrap = false, maxLines = 1)
+            }
+            Button(onClick = {
+                onDirections(text(current.address).ifEmpty { text(current.venueName).ifEmpty { text(current.title) } })
+            }) {
+                Text("Directions", softWrap = false, maxLines = 1)
+            }
             Button(onClick = {
                 onAddToCalendar(
-                    current.title,
+                    text(current.title),
                     current.startsAt.toEpochMilli(),
                     current.endsAt?.toEpochMilli(),
                 )
-            }) { Text("Calendar") }
+            }) {
+                Text("Calendar", softWrap = false, maxLines = 1)
+            }
         }
+
         Text("Reviews", style = FamilyTypography.TitleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
             (1..5).forEach { score ->
@@ -136,10 +205,14 @@ fun EventDetailScreen(
                             feedback = "Sign in to rate events."
                             return@TextButton
                         }
+                        val previousRating = userRating
                         userRating = score
                         scope.launch {
                             runCatching { ratingRepository.upsertRating(userId, eventId, score) }
-                                .onFailure { feedback = it.message ?: "Rating failed." }
+                                .onFailure {
+                                    userRating = previousRating
+                                    feedback = it.message ?: "Rating failed."
+                                }
                         }
                     },
                 ) {
@@ -172,9 +245,28 @@ fun EventDetailScreen(
         ) { Text("Post comment") }
         feedback?.let { Text(it, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.error) }
         comments.forEach { comment ->
+            val decodedName = text(comment.authorDisplayName).ifEmpty { "Family Events member" }
+            val initial = decodedName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "U"
             Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
-                Text(comment.authorDisplayName ?: "Family Events member", style = FamilyTypography.BodySmall)
-                Text(comment.body, style = FamilyTypography.Body)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.size(32.dp),
+                    ) {
+                        Text(
+                            text = initial,
+                            style = FamilyTypography.BodySmall,
+                            modifier = Modifier.fillMaxSize(),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    Spacer(Modifier.width(Tokens.Space.S2))
+                    Column {
+                        Text(decodedName, style = FamilyTypography.BodySmall)
+                        Text(text(comment.body), style = FamilyTypography.Body)
+                    }
+                }
             }
         }
     }
