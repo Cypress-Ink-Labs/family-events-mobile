@@ -37,6 +37,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.familyevents.core.EventId
@@ -80,6 +82,7 @@ fun EventDetailScreen(
     var draftComment by rememberSaveable(eventId.rawValue) { mutableStateOf("") }
     var feedback by remember(eventId.rawValue) { mutableStateOf<String?>(null) }
     var attendees by rememberSaveable(eventId.rawValue) { mutableIntStateOf(1) }
+    var ratingInFlight by remember { mutableStateOf(false) }
 
     BackHandler(onBack = onBack)
 
@@ -102,7 +105,7 @@ fun EventDetailScreen(
     val current = event!!
 
     // ── InfoGrid items ──────────────────────────────────────────────────────
-    val infoItems = buildList {
+    val infoItems = remember(current) { buildList {
         current.endsAt?.let { end ->
             val totalMinutes = ((end.toEpochMilli() - current.startsAt.toEpochMilli()) / 60_000).toInt()
             if (totalMinutes > 0) {
@@ -130,7 +133,7 @@ fun EventDetailScreen(
                 icon = "⭐",
             ))
         }
-    }
+    } }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
@@ -200,6 +203,7 @@ fun EventDetailScreen(
         Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
             (1..5).forEach { score ->
                 TextButton(
+                    enabled = !ratingInFlight,
                     onClick = {
                         if (userId == null || ratingRepository == null) {
                             feedback = "Sign in to rate events."
@@ -207,9 +211,12 @@ fun EventDetailScreen(
                         }
                         val previousRating = userRating
                         userRating = score
+                        ratingInFlight = true
                         scope.launch {
                             runCatching { ratingRepository.upsertRating(userId, eventId, score) }
+                                .onSuccess { ratingInFlight = false }
                                 .onFailure {
+                                    ratingInFlight = false
                                     userRating = previousRating
                                     feedback = it.message ?: "Rating failed."
                                 }
@@ -252,7 +259,9 @@ fun EventDetailScreen(
                     Surface(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .semantics { contentDescription = "Avatar for $decodedName" },
                     ) {
                         Text(
                             text = initial,
