@@ -17,7 +17,7 @@ function readAndroidSources() {
     for (const entry of entries) {
       const next = path.join(current, entry.name)
       if (entry.isDirectory()) {
-        if (!["build", ".gradle"].includes(entry.name)) stack.push(next)
+        if (!entry.name.startsWith(".") && entry.name !== "build") stack.push(next)
       } else if (/\.(kt|kts|xml)$/.test(entry.name)) {
         files.push(next)
       }

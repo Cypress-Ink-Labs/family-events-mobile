@@ -99,6 +99,12 @@ android {
             "**/libmaplibre.so",
         )
     }
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 
 gradle.taskGraph.whenReady {
@@ -134,6 +140,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.security.crypto)
     implementation(libs.hilt.android)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     kapt(libs.hilt.compiler)
     testImplementation(libs.junit)
 }

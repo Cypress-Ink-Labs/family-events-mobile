@@ -8,6 +8,12 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
     buildFeatures { compose = true }
     defaultConfig { minSdk = libs.versions.minSdk.get().toInt() }
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 
 dependencies {
@@ -21,5 +27,6 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.activity.compose)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     testImplementation(libs.junit)
 }

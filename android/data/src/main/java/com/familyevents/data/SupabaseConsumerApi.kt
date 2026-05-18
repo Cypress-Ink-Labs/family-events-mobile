@@ -328,19 +328,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {
-        client.post("$baseUrl/rest/v1/rpc/admin_update_event") {
-            baseHeaders()
-            bearer()
-            contentType(ContentType.Application.Json)
-            setBody(
-                buildJsonObject {
-                    put("p_event_id", eventId.rawValue)
-                    put("p_patch", json.decodeFromString<JsonElement>(patchJson))
-                    put("p_tag_ids", JsonArray(emptyList()))
-                    put("p_lock_edited_fields", true)
-                }.toString(),
-            )
-        }.requireOkOrNoContent()
+        throw AppError.Remote("Event management is unavailable on Android.")
     }
 
     override suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {
@@ -354,20 +342,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String {
-        val response = client.post("$baseUrl/rest/v1/rpc/admin_create_invite_code") {
-            baseHeaders()
-            bearer()
-            contentType(ContentType.Application.Json)
-            setBody(
-                buildJsonObject {
-                    putNullable("p_max_uses", maxUses)
-                    putNullable("p_expires_at", expiresAtIso)
-                    putNullable("p_note", note)
-                }.toString(),
-            )
-        }.requireOk()
-        return response.decodeList<InviteCodeRow>().firstOrNull()?.code
-            ?: throw AppError.Remote("Invite code was created but not returned.")
+        throw AppError.Remote("Invite management is unavailable on Android.")
     }
 
     override suspend fun adminRevokeInvite(inviteId: String) {
@@ -390,16 +365,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminRunCron(jobName: String?) {
-        if (jobName.isNullOrBlank() || jobName == "due-scrapes") {
-            client.post("$baseUrl/rest/v1/rpc/admin_run_due_scrapes") {
-                baseHeaders()
-                bearer()
-                contentType(ContentType.Application.Json)
-                setBody("{}")
-            }.requireOkOrNoContent()
-        } else {
-            throw AppError.Remote("Unsupported cron shortcut: $jobName")
-        }
+        throw AppError.Remote("Scheduled job controls are unavailable on Android.")
     }
 
     override suspend fun deleteAccount() {
