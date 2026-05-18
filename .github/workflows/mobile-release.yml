@@ -1,0 +1,294 @@
+name: mobile-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to upload
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - ios
+          - android
+      android_track:
+        description: Google Play track
+        required: true
+        default: internal
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      ios_internal_only:
+        description: Mark TestFlight build as internal testing only
+        required: true
+        default: true
+        type: boolean
+  push:
+    tags:
+      - "mobile-v*"
+      - "ios-v*"
+      - "android-v*"
+
+concurrency:
+  group: mobile-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IOS_BUNDLE_ID: com.familyevents.app
+  IOS_PROJECT: apps/ios/FamilyEvents.xcodeproj
+  IOS_SCHEME: FamilyEvents
+  IOS_TEAM_ID: MG77MU456K
+  IOS_VERSION_NAME: "1.0"
+
+jobs:
+  ios-testflight:
+    name: iOS TestFlight
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.platform == 'all' || inputs.platform == 'ios') ||
+      startsWith(github.ref_name, 'mobile-v') ||
+      startsWith(github.ref_name, 'ios-v')
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate required secrets
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          ASC_API_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
+          PROD_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          PROD_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          : "${ASC_API_KEY_ID:?missing ASC_API_KEY_ID}"
+          : "${ASC_API_ISSUER_ID:?missing ASC_API_ISSUER_ID}"
+          : "${ASC_API_KEY_P8_BASE64:?missing ASC_API_KEY_P8_BASE64}"
+          : "${IOS_DISTRIBUTION_CERTIFICATE_BASE64:?missing IOS_DISTRIBUTION_CERTIFICATE_BASE64}"
+          : "${IOS_DISTRIBUTION_CERTIFICATE_PASSWORD:?missing IOS_DISTRIBUTION_CERTIFICATE_PASSWORD}"
+          : "${IOS_PROVISIONING_PROFILE_BASE64:?missing IOS_PROVISIONING_PROFILE_BASE64}"
+          : "${IOS_PROVISIONING_PROFILE_SPECIFIER:?missing IOS_PROVISIONING_PROFILE_SPECIFIER}"
+          : "${PROD_SUPABASE_URL:?missing PROD_SUPABASE_URL}"
+          : "${PROD_SUPABASE_ANON_KEY:?missing PROD_SUPABASE_ANON_KEY}"
+
+      - name: Install App Store Connect API key
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/app-store-connect"
+          echo "$ASC_API_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+
+      - name: Install signing assets
+        shell: bash
+        env:
+          IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD || github.run_id }}
+        run: |
+          set -euo pipefail
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security list-keychains -d user -s build.keychain login.keychain
+
+          echo "$IOS_DISTRIBUTION_CERTIFICATE_BASE64" | base64 --decode > "$RUNNER_TEMP/ios_distribution.p12"
+          security import "$RUNNER_TEMP/ios_distribution.p12" \
+            -k build.keychain \
+            -P "$IOS_DISTRIBUTION_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/FamilyEvents.mobileprovision"
+
+      - name: Archive
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
+          PROD_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          PROD_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -project "$IOS_PROJECT" \
+            -scheme "$IOS_SCHEME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/FamilyEvents.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_API_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_API_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROVISIONING_PROFILE_SPECIFIER" \
+            MARKETING_VERSION="$IOS_VERSION_NAME" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            SUPABASE_URL="${PROD_SUPABASE_URL}" \
+            SUPABASE_ANON_KEY="${PROD_SUPABASE_ANON_KEY}"
+
+      - name: Upload to TestFlight
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
+          IOS_INTERNAL_ONLY_INPUT: ${{ inputs.ios_internal_only }}
+        run: |
+          set -euo pipefail
+          internal_only="${IOS_INTERNAL_ONLY_INPUT:-true}"
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>destination</key>
+            <string>upload</string>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string>${IOS_TEAM_ID}</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${IOS_BUNDLE_ID}</key>
+              <string>${IOS_PROVISIONING_PROFILE_SPECIFIER}</string>
+            </dict>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+            <key>testFlightInternalTestingOnly</key>
+            <${internal_only}/>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/FamilyEvents.xcarchive" \
+            -exportPath "$RUNNER_TEMP/ios-export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_API_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_API_ISSUER_ID"
+
+      - name: Upload archive artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-events-ios-xcarchive
+          path: ${{ runner.temp }}/FamilyEvents.xcarchive
+          if-no-files-found: ignore
+          retention-days: 7
+
+  android-play:
+    name: Android Play
+    if: |
+      github.event_name == 'workflow_dispatch' && (inputs.platform == 'all' || inputs.platform == 'android') ||
+      startsWith(github.ref_name, 'mobile-v') ||
+      startsWith(github.ref_name, 'android-v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-cleanup: never
+
+      - name: Decode keystore
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          PROD_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          PROD_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          : "${ANDROID_KEYSTORE_BASE64:?missing ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?missing ANDROID_KEYSTORE_PASSWORD}"
+          : "${ANDROID_KEY_ALIAS:?missing ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?missing ANDROID_KEY_PASSWORD}"
+          : "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:?missing GOOGLE_PLAY_SERVICE_ACCOUNT_JSON}"
+          : "${PROD_SUPABASE_URL:?missing PROD_SUPABASE_URL}"
+          : "${PROD_SUPABASE_ANON_KEY:?missing PROD_SUPABASE_ANON_KEY}"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > apps/android/app/release.keystore
+
+      - name: Build release
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+          ANDROID_KEYSTORE_PATH: release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
+          ANDROID_VERSION_NAME: "0.1.${{ github.run_number }}"
+        run: |
+          set -euo pipefail
+          cd apps/android
+          ./gradlew :app:bundleRelease :app:assembleRelease --stacktrace
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.familyevents.app
+          releaseFiles: apps/android/app/build/outputs/bundle/release/*.aab
+          track: ${{ inputs.android_track || 'internal' }}
+          status: draft
+
+      - name: Upload Android artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-events-android-release
+          path: |
+            apps/android/app/build/outputs/bundle/release/*.aab
+            apps/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+          retention-days: 7
