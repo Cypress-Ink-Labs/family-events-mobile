@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.familyevents.explore
 
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +32,6 @@ import com.familyevents.designsystem.EventCard
 import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.generated.Tokens
 import org.maplibre.android.MapLibre
-import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
@@ -97,6 +94,7 @@ fun ExploreScreen(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun MapLibreMap(styleUrl: String, points: List<Pair<String, GeoCoordinate>>) {
     val context = LocalContext.current
     val mapView = remember {
@@ -121,7 +119,7 @@ private fun MapLibreMap(styleUrl: String, points: List<Pair<String, GeoCoordinat
                         map.clear()
                         points.forEach { (title, coord) ->
                             map.addMarker(
-                                MarkerOptions()
+                                org.maplibre.android.annotations.MarkerOptions()
                                     .position(LatLng(coord.latitude, coord.longitude))
                                     .title(title),
                             )

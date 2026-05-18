@@ -1,8 +1,31 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.legacy.kapt)
     alias(libs.plugins.hilt)
+}
+
+fun getEnvValue(key: String): String? {
+    // 1. System environment variable
+    val env = System.getenv(key) ?: System.getenv("VITE_$key")
+    if (!env.isNullOrBlank()) return env
+
+    // 2. Project property (-Pkey=value)
+    val prop = project.findProperty(key) as? String ?: project.findProperty("VITE_$key") as? String
+    if (!prop.isNullOrBlank()) return prop
+
+    // 3. .env file in root
+    val envFile = project.rootProject.file("../../.env")
+    if (envFile.exists()) {
+        val properties = Properties()
+        envFile.inputStream().use { properties.load(it) }
+        val fileVal = properties.getProperty(key) ?: properties.getProperty("VITE_$key")
+        if (!fileVal.isNullOrBlank()) return fileVal
+    }
+
+    return null
 }
 
 android {
@@ -22,20 +45,25 @@ android {
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "SUPABASE_URL", "\"${providers.environmentVariable("SUPABASE_URL").orElse("http://10.0.2.2:55321").get()}\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${providers.environmentVariable("SUPABASE_ANON_KEY").orElse("sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH").get()}\"")
-        buildConfigField("String", "MAP_STYLE_URL", "\"${providers.environmentVariable("MAP_STYLE_URL").orElse("https://demotiles.maplibre.org/style.json").get()}\"")
-        buildConfigField("String", "ANDROID_GOOGLE_WEB_CLIENT_ID", "\"${providers.environmentVariable("ANDROID_GOOGLE_WEB_CLIENT_ID").orElse("").get()}\"")
+        val supabaseUrl = getEnvValue("SUPABASE_URL") ?: "http://10.0.2.2:55321"
+        val supabaseKey = getEnvValue("SUPABASE_ANON_KEY") ?: "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
+        val mapStyleUrl = getEnvValue("MAP_STYLE_URL") ?: "https://demotiles.maplibre.org/style.json"
+        val webClientId = getEnvValue("ANDROID_GOOGLE_WEB_CLIENT_ID") ?: ""
+
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
+        buildConfigField("String", "MAP_STYLE_URL", "\"$mapStyleUrl\"")
+        buildConfigField("String", "ANDROID_GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
     }
 
     signingConfigs {
         create("release") {
-            val keystorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+            val keystorePath = getEnvValue("ANDROID_KEYSTORE_PATH")
             if (keystorePath != null) {
                 storeFile = file(keystorePath)
-                storePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").get()
-                keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").get()
-                keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").get()
+                storePassword = getEnvValue("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = getEnvValue("ANDROID_KEY_ALIAS")
+                keyPassword = getEnvValue("ANDROID_KEY_PASSWORD")
             }
         }
     }
@@ -43,7 +71,12 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            val isSigningConfigured = getEnvValue("ANDROID_KEYSTORE_PATH") != null
+            signingConfig = if (isSigningConfigured) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
@@ -57,10 +90,10 @@ android {
 
 gradle.taskGraph.whenReady {
     if (allTasks.any { it.name.contains("Release") || it.name == "bundle" }) {
-        val releaseUrl = providers.environmentVariable("SUPABASE_URL").orElse("").get()
-        val releaseKey = providers.environmentVariable("SUPABASE_ANON_KEY").orElse("").get()
-        if (releaseUrl.isBlank() || releaseKey.isBlank()) {
-            throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY.")
+        val releaseUrl = getEnvValue("SUPABASE_URL")
+        val releaseKey = getEnvValue("SUPABASE_ANON_KEY")
+        if (releaseUrl.isNullOrBlank() || releaseKey.isNullOrBlank()) {
+            throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY. Please set them in your environment or root .env file (VITE_ prefix supported).")
         }
     }
 }

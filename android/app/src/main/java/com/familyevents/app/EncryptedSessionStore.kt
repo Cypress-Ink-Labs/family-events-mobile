@@ -1,23 +1,20 @@
-@file:Suppress("DEPRECATION")
-
 package com.familyevents.app
 
 import android.content.Context
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.familyevents.core.UserId
 import com.familyevents.data.PersistedSession
 import com.familyevents.data.SessionStore
 
 class EncryptedSessionStore(context: Context) : SessionStore {
-    private val prefs = EncryptedSharedPreferences.create(
+    @Suppress("DEPRECATION")
+    private val prefs = androidx.security.crypto.EncryptedSharedPreferences.create(
         context,
         "family_events_session",
-        MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        androidx.security.crypto.MasterKey.Builder(context)
+            .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
             .build(),
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
     )
 
     override suspend fun readSession(): PersistedSession? =
