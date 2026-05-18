@@ -105,7 +105,8 @@ fun EventDetailScreen(
     val current = event!!
 
     // ── InfoGrid items ──────────────────────────────────────────────────────
-    val infoItems = remember(current) { buildList {
+    val infoItems = remember(current) {
+        buildList {
         current.endsAt?.let { end ->
             val totalMinutes = ((end.toEpochMilli() - current.startsAt.toEpochMilli()) / 60_000).toInt()
             if (totalMinutes > 0) {
@@ -133,7 +134,8 @@ fun EventDetailScreen(
                 icon = "⭐",
             ))
         }
-    } }
+    }
+}
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
@@ -150,7 +152,7 @@ fun EventDetailScreen(
             Text(text(current.title), style = FamilyTypography.TitleLarge, modifier = Modifier.weight(1f))
         }
         EventHeroImage(title = text(current.title), imageUrl = current.imageUrl)
-        Text(text(current.venueName) .ifEmpty { "Location TBA" }, style = FamilyTypography.Body)
+        Text(text(current.venueName).ifEmpty { "Location TBA" }, style = FamilyTypography.Body)
 
         // Tags — no "See details" fallback
         if (current.tags.isNotEmpty()) {
