@@ -75,7 +75,7 @@ fun ExploreScreen(
         when (mode) {
             ExploreMode.List -> LazyColumn(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
                 items(events, key = { it.id.rawValue }) { event ->
-                    EventCard(event.title, event.venueName ?: "Family event", event.tags.firstOrNull()?.label) {
+                    EventCard(event.title, event.venueName ?: "Family event", event.tags.firstOrNull()?.label, imageUrl = event.imageUrl) {
                         onOpenEvent(event.id)
                     }
                 }
@@ -86,7 +86,7 @@ fun ExploreScreen(
             )
             ExploreMode.Calendar -> LazyColumn(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
                 items(events, key = { it.id.rawValue }) { event ->
-                    EventCard(event.title, event.startsAt.toString(), "Calendar") { onOpenEvent(event.id) }
+                    EventCard(event.title, event.startsAt.toString(), "Calendar", imageUrl = event.imageUrl) { onOpenEvent(event.id) }
                 }
             }
         }

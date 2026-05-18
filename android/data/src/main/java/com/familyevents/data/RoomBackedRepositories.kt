@@ -51,14 +51,14 @@ class LocalAuthRepository(
 
     override suspend fun signIn(email: String, password: String) {
         val session = api?.signIn(email, password)
-            ?: PersistedSession(UserId(email.trim().lowercase().ifBlank { "fixture-user" }))
+            ?: PersistedSession(UserId("00000000-0000-0000-0000-000000000000"))
         sessionStore.writeSession(session)
         state.value = SessionState.SignedIn(session.userId)
     }
 
     override suspend fun signUp(email: String, password: String) {
         val session = api?.signUp(email, password)
-            ?: PersistedSession(UserId(email.trim().lowercase().ifBlank { "fixture-user" }))
+            ?: PersistedSession(UserId("00000000-0000-0000-0000-000000000000"))
         sessionStore.writeSession(session)
         state.value = SessionState.SignedIn(session.userId)
     }
@@ -193,10 +193,13 @@ class RoomBackedProfileRepository(
     override suspend fun currentContext(userId: UserId): ProfileContext =
         profile(userId).toContext()
 
-    override suspend fun profile(userId: UserId): UserProfile =
+    override suspend fun profile(userId: UserId): UserProfile = try {
         api?.profile(userId)?.also { profileDao.upsert(it.toEntity()) }
             ?: profileDao.profile(userId.rawValue)?.toProfile()
             ?: defaultProfile(userId)
+    } catch (error: Throwable) {
+        profileDao.profile(userId.rawValue)?.toProfile() ?: defaultProfile(userId)
+    }
 
     override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
         val local = profile(userId).copy(

@@ -67,6 +67,7 @@ fun PlanScreen(
                     title = row.event.title,
                     subtitle = row.event.venueName ?: row.section,
                     badge = row.event.tags.firstOrNull()?.label,
+                    imageUrl = row.event.imageUrl,
                     onClick = { onOpenEvent(row.event.id) },
                 )
             }

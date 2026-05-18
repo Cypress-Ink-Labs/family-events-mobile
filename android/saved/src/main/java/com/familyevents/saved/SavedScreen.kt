@@ -55,6 +55,7 @@ fun SavedScreen(
                         title = event?.title ?: fav.eventId.rawValue,
                         subtitle = event?.venueName ?: "Saved event",
                         badge = "Saved",
+                        imageUrl = event?.imageUrl,
                         onClick = { onOpenEvent(fav.eventId) },
                     )
                     Button(onClick = { scope.launch { favoriteRepository.unfavorite(userId, fav.eventId) } }) {

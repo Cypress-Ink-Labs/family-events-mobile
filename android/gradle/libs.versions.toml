@@ -15,9 +15,12 @@ maplibre = "13.1.0"
 hilt = "2.59.2"
 junit = "4.13.2"
 coroutines = "1.10.2"
+coil = "3.4.0"
 compileSdk = "36"
 targetSdk = "35"
 minSdk = "24"
+androidVersionCode = "2"
+androidVersionName = "0.1.4"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -41,6 +44,8 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 google-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }

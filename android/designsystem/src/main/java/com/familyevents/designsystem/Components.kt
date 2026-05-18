@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -30,8 +31,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.familyevents.designsystem.generated.Tokens
 
 @Composable
@@ -39,6 +42,7 @@ fun EventCard(
     title: String,
     subtitle: String,
     badge: String?,
+    imageUrl: String? = null,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -56,10 +60,19 @@ fun EventCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 96.dp)
+                    .height(104.dp)
                     .clip(RoundedCornerShape(Tokens.Radius.Md))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
+            ) {
+                imageUrl?.takeIf { it.isNotBlank() }?.let { url ->
+                    AsyncImage(
+                        model = url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
             Row(verticalAlignment = Alignment.Top) {
                 Text(title, style = FamilyTypography.TitleMedium, modifier = Modifier.weight(1f))
                 if (badge != null) {
