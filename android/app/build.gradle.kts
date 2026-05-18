@@ -41,8 +41,8 @@ android {
         applicationId = "com.familyevents.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = getEnvValue("ANDROID_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = getEnvValue("ANDROID_VERSION_NAME") ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val supabaseUrl = getEnvValue("SUPABASE_URL") ?: "http://10.0.2.2:55321"
