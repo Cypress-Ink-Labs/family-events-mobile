@@ -17,7 +17,9 @@ function readAndroidSources() {
     for (const entry of entries) {
       const next = path.join(current, entry.name)
       if (entry.isDirectory()) {
-        if (!entry.name.startsWith(".") && entry.name !== "build") stack.push(next)
+        if (!entry.name.startsWith(".") && entry.name !== "build" && entry.name !== "test" && entry.name !== "androidTest") {
+          stack.push(next)
+        }
       } else if (/\.(kt|kts|xml)$/.test(entry.name)) {
         files.push(next)
       }
