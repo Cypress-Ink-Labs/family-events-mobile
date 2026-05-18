@@ -8,11 +8,11 @@ sealed interface DeepLinkTarget {
 }
 
 object DeepLinkPolicy {
-    fun parse(raw: String): DeepLinkTarget? {
+    fun parse(raw: String): DeepLinkTarget? = runCatching {
         val uri = java.net.URI(raw)
         val host = uri.host.orEmpty()
-        val segments = uri.path.trim('/').split('/').filter { it.isNotBlank() }
-        return when {
+        val segments = (uri.path ?: "").trim('/').split('/').filter { it.isNotBlank() }
+        when {
             uri.scheme == "familyevents" && host == "event" && segments.size == 1 -> DeepLinkTarget.Event(EventId(segments[0]))
             uri.scheme == "familyevents" && host == "city" && segments.size == 1 -> DeepLinkTarget.City(CityId(segments[0]))
             uri.scheme == "familyevents" && host == "reset-password" -> {
@@ -26,5 +26,5 @@ object DeepLinkPolicy {
                 DeepLinkTarget.Share(EventId(segments[1]))
             else -> null
         }
-    }
+    }.getOrNull()
 }

@@ -7,6 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -41,7 +48,17 @@ import com.familyevents.saved.SavedScreen
 private enum class AppTab(val title: String) {
     Plan("Plan"),
     Explore("Explore"),
-    Saved("Saved"),
+    Saved("Saved");
+
+    @Composable
+    fun Icon(selected: Boolean) {
+        val imageVector = when (this) {
+            Plan -> if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
+            Explore -> if (selected) Icons.Filled.Explore else Icons.Outlined.Explore
+            Saved -> if (selected) Icons.Filled.Favorite else Icons.Outlined.Favorite
+        }
+        Icon(imageVector, contentDescription = null)
+    }
 }
 
 @Composable
@@ -112,6 +129,7 @@ fun FamilyEventsApp(
                         userId = userId,
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
+                        onBack = { detailEventId = null },
                         onShare = platformActions::share,
                         onDirections = platformActions::directions,
                         onAddToCalendar = platformActions::addToCalendar,
@@ -146,7 +164,7 @@ private fun AppScaffold(
                     NavigationRailItem(
                         selected = selectedTab == tab,
                         onClick = { onSelectTab(tab) },
-                        icon = { IconPlaceholder(tab.title) },
+                        icon = { tab.Icon(selected = selectedTab == tab) },
                         label = { Text(tab.title) },
                     )
                 }
@@ -161,7 +179,7 @@ private fun AppScaffold(
                         NavigationBarItem(
                             selected = selectedTab == tab,
                             onClick = { onSelectTab(tab) },
-                            icon = { IconPlaceholder(tab.title) },
+                            icon = { tab.Icon(selected = selectedTab == tab) },
                             label = { Text(tab.title) },
                         )
                     }
@@ -171,11 +189,6 @@ private fun AppScaffold(
             Box(Modifier.padding(padding)) { content(Modifier.fillMaxSize()) }
         }
     }
-}
-
-@Composable
-private fun IconPlaceholder(label: String) {
-    Text(label.take(1))
 }
 
 private fun routeDeepLink(raw: String?, onTab: (AppTab) -> Unit, onEvent: (EventId) -> Unit) {
