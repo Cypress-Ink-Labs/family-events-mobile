@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 
 interface SessionStore {
     suspend fun readSession(): PersistedSession?
@@ -143,9 +145,13 @@ class RoomBackedEventRepository(
 class RoomBackedFavoriteRepository(
     private val favoriteDao: FavoriteDao,
     private val api: SupabaseConsumerApi? = null,
+    val realtimeTelemetry: RealtimeLifecycleTelemetry = RealtimeLifecycleTelemetry(),
 ) : FavoriteRepository {
     override fun observeFavorites(userId: UserId): Flow<List<FavoriteDto>> =
-        favoriteDao.observeFavorites(userId.rawValue).map { rows -> rows.map { it.toDto() } }
+        favoriteDao.observeFavorites(userId.rawValue)
+            .onStart { realtimeTelemetry.recordAttach() }
+            .onCompletion { realtimeTelemetry.recordDetach() }
+            .map { rows -> rows.map { it.toDto() } }
 
     override fun observeFavoriteIds(userId: UserId): Flow<Set<EventId>> =
         observeFavorites(userId).map { rows -> rows.mapTo(mutableSetOf()) { it.eventId } }

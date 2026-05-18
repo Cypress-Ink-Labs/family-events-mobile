@@ -16,16 +16,22 @@ public final class SavedSyncCoordinator {
     private let favoriteRepo: any FavoriteRepo
     private let eventRepo: any EventRepository
     private let modelContainer: ModelContainer
+    private let subscriptionAudit: RealtimeSubscriptionLifecycleAudit
+    private let reconnectPolicy: FavoriteSubscriptionReconnectPolicy
     private var observationTask: Task<Void, Never>?
 
     public init(
         favoriteRepo: any FavoriteRepo,
         eventRepo: any EventRepository,
-        modelContainer: ModelContainer
+        modelContainer: ModelContainer,
+        subscriptionAudit: RealtimeSubscriptionLifecycleAudit = RealtimeSubscriptionLifecycleAudit(),
+        reconnectPolicy: FavoriteSubscriptionReconnectPolicy = FavoriteSubscriptionReconnectPolicy()
     ) {
         self.favoriteRepo = favoriteRepo
         self.eventRepo = eventRepo
         self.modelContainer = modelContainer
+        self.subscriptionAudit = subscriptionAudit
+        self.reconnectPolicy = reconnectPolicy
     }
 
     public func refresh(userID: UserID) async {
@@ -47,16 +53,36 @@ public final class SavedSyncCoordinator {
         stopObserving()
         observationTask = Task { [weak self] in
             guard let self else { return }
-            let stream = self.favoriteRepo.observeFavorites(for: userID)
-            for await change in stream {
-                self.apply(change: change, userID: userID)
+            var reconnectAttempts = 0
+            while !Task.isCancelled {
+                await self.subscriptionAudit.recordAttach()
+                let stream = self.favoriteRepo.observeFavorites(for: userID)
+                for await change in stream {
+                    if Task.isCancelled { break }
+                    self.apply(change: change, userID: userID)
+                }
+                if Task.isCancelled { break }
+                await self.subscriptionAudit.recordDetach()
+                guard reconnectAttempts < self.reconnectPolicy.maxAttempts else {
+                    self.errorMessage = "Favorites realtime subscription stopped. Pull to refresh."
+                    break
+                }
+                reconnectAttempts += 1
+                await self.subscriptionAudit.recordReconnect()
+                try? await Task.sleep(for: self.reconnectPolicy.delay)
             }
         }
     }
 
     public func stopObserving() {
-        observationTask?.cancel()
-        observationTask = nil
+        guard let observationTask else { return }
+        observationTask.cancel()
+        self.observationTask = nil
+        Task { await subscriptionAudit.recordDetach() }
+    }
+
+    public func subscriptionAuditSnapshot() async -> RealtimeSubscriptionAuditSnapshot {
+        await subscriptionAudit.snapshot()
     }
 
     // MARK: - private
@@ -120,5 +146,15 @@ public final class SavedSyncCoordinator {
             }
             try? ctx.save()
         }
+    }
+}
+
+public struct FavoriteSubscriptionReconnectPolicy: Equatable, Sendable {
+    public let maxAttempts: Int
+    public let delay: Duration
+
+    public init(maxAttempts: Int = 3, delay: Duration = .seconds(5)) {
+        self.maxAttempts = max(0, maxAttempts)
+        self.delay = delay
     }
 }

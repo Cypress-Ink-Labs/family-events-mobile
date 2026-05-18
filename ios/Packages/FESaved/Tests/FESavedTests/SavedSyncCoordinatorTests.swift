@@ -8,14 +8,18 @@ import FEDataTesting
 @MainActor
 final class SavedSyncCoordinatorTests: XCTestCase {
     private func makeCoordinator(
-        favoriteRepo: FakeFavoriteRepo,
-        eventRepo: FakeEventRepository = FakeEventRepository()
+        favoriteRepo: any FavoriteRepo,
+        eventRepo: FakeEventRepository = FakeEventRepository(),
+        subscriptionAudit: RealtimeSubscriptionLifecycleAudit = RealtimeSubscriptionLifecycleAudit(),
+        reconnectPolicy: FavoriteSubscriptionReconnectPolicy = FavoriteSubscriptionReconnectPolicy(delay: .zero)
     ) throws -> (SavedSyncCoordinator, ModelContainer) {
         let container = try AppModelContainer.makeInMemory()
         let coord = SavedSyncCoordinator(
             favoriteRepo: favoriteRepo,
             eventRepo: eventRepo,
-            modelContainer: container
+            modelContainer: container,
+            subscriptionAudit: subscriptionAudit,
+            reconnectPolicy: reconnectPolicy
         )
         return (coord, container)
     }
@@ -73,5 +77,120 @@ final class SavedSyncCoordinatorTests: XCTestCase {
         let (coord, _) = try makeCoordinator(favoriteRepo: repo)
         await coord.refresh(userID: UserID("u_1"))
         XCTAssertNotNil(coord.errorMessage)
+    }
+
+    func testStopObservingLeavesNoLeakedRealtimeSubscription() async throws {
+        let repo = ControllableFavoriteRepo()
+        let audit = RealtimeSubscriptionLifecycleAudit()
+        let (coord, _) = try makeCoordinator(favoriteRepo: repo, subscriptionAudit: audit)
+
+        coord.startObserving(userID: UserID("u_1"))
+        await repo.waitForAttachCount(1)
+
+        coord.stopObserving()
+        await repo.waitForDetachCount(1)
+        await waitUntil { await coord.subscriptionAuditSnapshot().activeSubscriptions == 0 }
+        let snapshot = await coord.subscriptionAuditSnapshot()
+
+        XCTAssertEqual(snapshot.activeSubscriptions, 0)
+        XCTAssertEqual(snapshot.attachCount, 1)
+        XCTAssertEqual(snapshot.detachCount, 1)
+        XCTAssertFalse(snapshot.hasLeakedSubscriptions)
+    }
+
+    func testEndedStreamReconnectsOnlyWithinPolicyLimit() async throws {
+        let repo = FinishingFavoriteRepo()
+        let audit = RealtimeSubscriptionLifecycleAudit()
+        let (coord, _) = try makeCoordinator(
+            favoriteRepo: repo,
+            subscriptionAudit: audit,
+            reconnectPolicy: FavoriteSubscriptionReconnectPolicy(maxAttempts: 2, delay: .zero)
+        )
+
+        coord.startObserving(userID: UserID("u_1"))
+        await repo.waitForAttachCount(3)
+        await waitUntil { await coord.errorMessage != nil }
+        let snapshot = await coord.subscriptionAuditSnapshot()
+
+        XCTAssertEqual(snapshot.activeSubscriptions, 0)
+        XCTAssertEqual(snapshot.attachCount, 3)
+        XCTAssertEqual(snapshot.detachCount, 3)
+        XCTAssertEqual(snapshot.reconnectCount, 2)
+        XCTAssertLessThanOrEqual(snapshot.reconnectCount, 2)
+        XCTAssertTrue(snapshot.batteryNetworkImpactSummary.contains("reconnects=2"))
+    }
+}
+
+private final class ControllableFavoriteRepo: FavoriteRepo, @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: AsyncStream<FavoriteChange>.Continuation?
+    private var attachCount = 0
+    private var detachCount = 0
+
+    func favorites(for userID: UserID) async throws -> [FavoriteDTO] { [] }
+    func favorite(eventID: EventID, for userID: UserID) async throws {}
+    func unfavorite(eventID: EventID, for userID: UserID) async throws {}
+
+    func observeFavorites(for userID: UserID) -> AsyncStream<FavoriteChange> {
+        AsyncStream { continuation in
+            lock.withLock {
+                attachCount += 1
+                self.continuation = continuation
+            }
+            continuation.onTermination = { [weak self] _ in
+                self?.lock.withLock {
+                    self?.detachCount += 1
+                    self?.continuation = nil
+                }
+            }
+        }
+    }
+
+    func waitForAttachCount(_ expected: Int) async {
+        await waitUntil { self.lock.withLock { self.attachCount >= expected } }
+    }
+
+    func waitForDetachCount(_ expected: Int) async {
+        continuation?.finish()
+        await waitUntil { self.lock.withLock { self.detachCount >= expected } }
+    }
+}
+
+private final class FinishingFavoriteRepo: FavoriteRepo, @unchecked Sendable {
+    private let lock = NSLock()
+    private var attachCount = 0
+
+    func favorites(for userID: UserID) async throws -> [FavoriteDTO] { [] }
+    func favorite(eventID: EventID, for userID: UserID) async throws {}
+    func unfavorite(eventID: EventID, for userID: UserID) async throws {}
+
+    func observeFavorites(for userID: UserID) -> AsyncStream<FavoriteChange> {
+        AsyncStream { continuation in
+            lock.withLock { attachCount += 1 }
+            continuation.finish()
+        }
+    }
+
+    func waitForAttachCount(_ expected: Int) async {
+        await waitUntil { self.lock.withLock { self.attachCount >= expected } }
+    }
+}
+
+private func waitUntil(
+    timeout: Duration = .seconds(1),
+    predicate: @escaping @Sendable () async -> Bool
+) async {
+    let deadline = ContinuousClock.now + timeout
+    while ContinuousClock.now < deadline {
+        if await predicate() { return }
+        try? await Task.sleep(for: .milliseconds(10))
+    }
+}
+
+private extension NSLock {
+    func withLock<T>(_ body: () -> T) -> T {
+        lock()
+        defer { unlock() }
+        return body()
     }
 }
