@@ -15,6 +15,7 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -43,13 +44,14 @@ interface SupabaseConsumerApi {
     suspend fun signIn(email: String, password: String): PersistedSession
     suspend fun signUp(email: String, password: String): PersistedSession
     suspend fun resetPassword(email: String)
+    suspend fun changePassword(email: String, currentPassword: String, newPassword: String)
     suspend fun signOut()
     suspend fun cities(): List<CityDto>
     suspend fun events(query: EventQuery): List<EventDto>
     suspend fun event(id: EventId): EventDto?
     suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto>
-    suspend fun profile(userId: UserId): ProfileContext?
-    suspend fun updateProfile(profile: ProfileContext)
+    suspend fun profile(userId: UserId): UserProfile?
+    suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun favorite(userId: UserId, eventId: EventId)
     suspend fun unfavorite(userId: UserId, eventId: EventId)
     suspend fun deleteAccount()
@@ -90,6 +92,17 @@ class KtorSupabaseConsumerApi(
             baseHeaders()
             contentType(ContentType.Application.Json)
             setBody(json.encodeToString(RecoverRequest.serializer(), RecoverRequest(email)))
+        }.requireOk()
+    }
+
+    override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) {
+        val verified = signIn(email, currentPassword)
+        val accessToken = verified.accessToken ?: throw AppError.AuthRequired
+        client.put("$baseUrl/auth/v1/user") {
+            baseHeaders()
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("password", newPassword) }.toString())
         }.requireOk()
     }
 
@@ -157,31 +170,35 @@ class KtorSupabaseConsumerApi(
         }
     }
 
-    override suspend fun profile(userId: UserId): ProfileContext? {
+    override suspend fun profile(userId: UserId): UserProfile? {
         val response = client.get("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer(optional = true)
-            parameter("select", "id,city_preference_id,child_age")
+            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age")
             parameter("id", "eq.${userId.rawValue}")
             parameter("limit", "1")
         }
         return response.requireOk().decodeList<ProfileRow>().firstOrNull()?.toDto()
     }
 
-    override suspend fun updateProfile(profile: ProfileContext) {
-        client.patch("$baseUrl/rest/v1/user_profiles") {
+    override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
+        val response = client.patch("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer()
-            header("Prefer", "return=minimal")
-            parameter("id", "eq.${profile.userId.rawValue}")
+            header("Prefer", "return=representation")
+            parameter("id", "eq.${userId.rawValue}")
+            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age")
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {
-                    profile.currentCityId?.let { put("city_preference_id", it.rawValue) }
-                    profile.kidAge?.let { put("child_age", it) }
+                    putNullable("display_name", update.displayName)
+                    putNullable("city_preference_id", update.currentCityId?.rawValue)
+                    putNullable("child_name", update.childName)
+                    putNullable("child_age", update.childAge)
                 }.toString(),
             )
-        }.requireOkOrNoContent()
+        }.requireOk()
+        return response.decodeList<ProfileRow>().firstOrNull()?.toDto() ?: profile(userId) ?: throw AppError.AuthRequired
     }
 
     override suspend fun favorite(userId: UserId, eventId: EventId) {
@@ -296,10 +313,23 @@ private data class CityRow(val id: String, val name: String, val state: String? 
 @Serializable
 private data class ProfileRow(
     val id: String,
+    val email: String? = null,
+    @SerialName("display_name") val displayName: String? = null,
+    @SerialName("avatar_url") val avatarUrl: String? = null,
     @SerialName("city_preference_id") val cityPreferenceId: String? = null,
+    @SerialName("child_name") val childName: String? = null,
     @SerialName("child_age") val childAge: Int? = null,
 ) {
-    fun toDto(): ProfileContext = ProfileContext(UserId(id), cityPreferenceId?.let(::CityId), childAge, notificationsEnabled = false)
+    fun toDto(): UserProfile = UserProfile(
+        userId = UserId(id),
+        email = email,
+        displayName = displayName,
+        avatarUrl = avatarUrl,
+        currentCityId = cityPreferenceId?.let(::CityId),
+        childName = childName,
+        childAge = childAge,
+        notificationsEnabled = false,
+    )
 }
 
 @Serializable
@@ -367,4 +397,12 @@ private fun JsonElement?.toTags(): List<EventTagDto> = when (this) {
         EventTagDto(id, label)
     }
     else -> emptyList()
+}
+
+private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: String?) {
+    if (value == null) put(key, JsonNull) else put(key, value)
+}
+
+private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: Int?) {
+    if (value == null) put(key, JsonNull) else put(key, value)
 }

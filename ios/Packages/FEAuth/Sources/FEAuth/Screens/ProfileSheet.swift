@@ -62,7 +62,11 @@ public struct ProfileSheet: View {
                 }
             }
             .task(id: signedInUserID?.rawValue) {
-                guard let userID = signedInUserID else { return }
+                guard let userID = signedInUserID else {
+                    viewModel = nil
+                    return
+                }
+                viewModel = nil
                 let model = ProfileViewModel(
                     userID: userID,
                     profileRepo: profileRepo,
@@ -114,6 +118,7 @@ private struct ProfileForm: View {
             passwordSection
             destructiveSection
         }
+        .disabled(viewModel.isLoading)
         .overlay {
             if viewModel.isLoading {
                 ProgressView()

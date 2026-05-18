@@ -37,6 +37,37 @@ final class ProfileViewModelTests: XCTestCase {
         XCTAssertEqual(model.cities.map(\.name), ["Chicago"])
     }
 
+    func testLoadPreservesProfileWhenCityFetchFails() async {
+        let profile = UserProfile(
+            id: UserID("u_1"),
+            email: "user@example.com",
+            displayName: "Jordan",
+            avatarURL: nil,
+            cityPreferenceID: CityID("city_nyc"),
+            childName: "Sam",
+            childAge: 8
+        )
+        let profileRepo = FakeProfileRepo()
+        profileRepo.profileResult = .success(profile)
+        let cityRepo = FakeCityRepository()
+        cityRepo.citiesResult = .failure(AppError.networkError)
+        let model = ProfileViewModel(
+            userID: UserID("u_1"),
+            profileRepo: profileRepo,
+            cityRepo: cityRepo,
+            authService: FakeAuthService()
+        )
+
+        await model.load()
+
+        XCTAssertEqual(model.displayName, "Jordan")
+        XCTAssertEqual(model.childName, "Sam")
+        XCTAssertEqual(model.childAgeText, "8")
+        XCTAssertEqual(model.selectedCityID, CityID("city_nyc"))
+        XCTAssertTrue(model.cities.isEmpty)
+        XCTAssertNotNil(model.errorMessage)
+    }
+
     func testSaveValidatesChildAge() async {
         let profileRepo = FakeProfileRepo()
         let model = ProfileViewModel(

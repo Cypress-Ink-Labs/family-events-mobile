@@ -2,6 +2,8 @@ package com.familyevents.app
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.familyevents.BuildConfig
 import com.familyevents.core.EnvConfig
 import com.familyevents.data.FamilyEventsDatabase
@@ -31,6 +33,7 @@ object AndroidDataModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): FamilyEventsDatabase =
         Room.databaseBuilder(context, FamilyEventsDatabase::class.java, "family-events.db")
+            .addMigrations(ProfileV2Migration)
             .build()
 
     @Provides
@@ -48,4 +51,13 @@ object AndroidDataModule {
     @Provides
     @Singleton
     fun providePlatformActions(@ApplicationContext context: Context): PlatformActions = PlatformActions(context)
+}
+
+private object ProfileV2Migration : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE profiles ADD COLUMN email TEXT")
+        db.execSQL("ALTER TABLE profiles ADD COLUMN displayName TEXT")
+        db.execSQL("ALTER TABLE profiles ADD COLUMN avatarUrl TEXT")
+        db.execSQL("ALTER TABLE profiles ADD COLUMN childName TEXT")
+    }
 }

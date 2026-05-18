@@ -55,4 +55,24 @@ data class ProfileContext(
     val notificationsEnabled: Boolean,
 )
 
+data class UserProfile(
+    val userId: UserId,
+    val email: String?,
+    val displayName: String?,
+    val avatarUrl: String?,
+    val currentCityId: CityId?,
+    val childName: String?,
+    val childAge: Int?,
+    val notificationsEnabled: Boolean,
+) {
+    fun toContext(): ProfileContext = ProfileContext(userId, currentCityId, childAge, notificationsEnabled)
+}
+
+data class UserProfileUpdate(
+    val displayName: String?,
+    val currentCityId: CityId?,
+    val childName: String?,
+    val childAge: Int?,
+)
+
 data class CityDto(val id: CityId, val name: String, val region: String?)
