@@ -17,7 +17,10 @@ public final class FakeProfileRepo: ProfileRepo, @unchecked Sendable {
         lastUserID = userID
         lastUpdate = update
         if let updateResult {
-            return try updateResult.get()
+            let updated = try updateResult.get()
+            profileResult = .success(updated)
+            contextResult = .success((updated.cityPreferenceID, updated.childAge))
+            return updated
         }
         let updated = UserProfile(
             id: userID,

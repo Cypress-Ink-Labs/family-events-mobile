@@ -47,26 +47,30 @@ public final class ProfileViewModel {
         errorMessage = nil
         defer { isLoading = false }
 
+        var loadedProfile = profile ?? emptyProfile()
+        var loadedCities = cities
+        var firstError: Error?
+
         do {
-            async let fetchedProfile = profileRepo.profile(userID: userID)
-            async let fetchedCities = cityRepo.cities()
-            let loadedProfile = try await fetchedProfile ?? emptyProfile()
-            let loadedCities = try await fetchedCities
-            profile = loadedProfile
-            cities = loadedCities
-            resetDrafts(from: loadedProfile)
-        } catch let error as AppError {
-            errorMessage = error.userMessage
-            if profile == nil {
-                profile = emptyProfile()
-                resetDrafts(from: profile)
-            }
+            loadedProfile = try await profileRepo.profile(userID: userID) ?? emptyProfile()
         } catch {
+            firstError = error
+        }
+
+        do {
+            loadedCities = try await cityRepo.cities()
+        } catch {
+            firstError = firstError ?? error
+        }
+
+        profile = loadedProfile
+        cities = loadedCities
+        resetDrafts(from: loadedProfile)
+
+        if let error = firstError as? AppError {
+            errorMessage = error.userMessage
+        } else if firstError != nil {
             errorMessage = "Couldn't load your profile."
-            if profile == nil {
-                profile = emptyProfile()
-                resetDrafts(from: profile)
-            }
         }
     }
 
