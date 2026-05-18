@@ -67,6 +67,10 @@ class LocalAuthRepository(
         api?.resetPassword(email)
     }
 
+    override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) {
+        api?.changePassword(email, currentPassword, newPassword)
+    }
+
     override suspend fun signOut() {
         runCatching { api?.signOut() }
         sessionStore.writeSession(null)
@@ -184,30 +188,54 @@ class RoomBackedProfileRepository(
     private val api: SupabaseConsumerApi? = null,
 ) : ProfileRepository {
     override fun observeProfile(userId: UserId): Flow<ProfileContext?> =
-        profileDao.observeProfile(userId.rawValue).map { it?.toDto() }
+        profileDao.observeProfile(userId.rawValue).map { it?.toProfile()?.toContext() }
 
     override suspend fun currentContext(userId: UserId): ProfileContext =
+        profile(userId).toContext()
+
+    override suspend fun profile(userId: UserId): UserProfile =
         api?.profile(userId)?.also { profileDao.upsert(it.toEntity()) }
-            ?: profileDao.profile(userId.rawValue)?.toDto()
-            ?: ProfileContext(userId, CityId("chicago"), kidAge = 7, notificationsEnabled = false)
+            ?: profileDao.profile(userId.rawValue)?.toProfile()
+            ?: defaultProfile(userId)
+
+    override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
+        val local = profile(userId).copy(
+            displayName = update.displayName,
+            currentCityId = update.currentCityId,
+            childName = update.childName,
+            childAge = update.childAge,
+        )
+        val remote = api?.updateProfile(userId, update)
+        if (remote != null) {
+            profileDao.upsert(remote.toEntity())
+            return remote
+        }
+        profileDao.upsert(local.toEntity())
+        return local
+    }
 
     override suspend fun updateContext(userId: UserId, cityId: CityId?, kidAge: Int?) {
-        val current = currentContext(userId)
-        val updated = ProfileContext(userId, cityId, kidAge, current.notificationsEnabled)
-        profileDao.upsert(updated.toEntity())
-        api?.updateProfile(updated)
+        val current = profile(userId)
+        updateProfile(
+            userId,
+            UserProfileUpdate(
+                displayName = current.displayName,
+                currentCityId = cityId,
+                childName = current.childName,
+                childAge = kidAge,
+            ),
+        )
     }
 
     override suspend fun updateNotificationPreference(userId: UserId, enabled: Boolean) {
-        val current = currentContext(userId)
+        val current = profile(userId)
         val updated = current.copy(notificationsEnabled = enabled)
         profileDao.upsert(updated.toEntity())
-        api?.updateProfile(updated)
     }
 
     override suspend fun deleteAccount(userId: UserId) {
         api?.deleteAccount()
-        profileDao.upsert(CachedProfileEntity(userId.rawValue, null, null, notificationsEnabled = false))
+        profileDao.upsert(defaultProfile(userId).copy(currentCityId = null, childAge = null).toEntity())
     }
 }
 
@@ -277,11 +305,41 @@ private fun EventDto.toEntity(): CachedEventEntity = CachedEventEntity(
 private fun CachedFavoriteEntity.toDto(): FavoriteDto =
     FavoriteDto(EventId(eventId), UserId(userId), Instant.parse(createdAt))
 
-private fun CachedProfileEntity.toDto(): ProfileContext =
-    ProfileContext(UserId(userId), currentCityId?.let(::CityId), kidAge, notificationsEnabled)
+private fun CachedProfileEntity.toProfile(): UserProfile =
+    UserProfile(
+        userId = UserId(userId),
+        email = email,
+        displayName = displayName,
+        avatarUrl = avatarUrl,
+        currentCityId = currentCityId?.let(::CityId),
+        childName = childName,
+        childAge = kidAge,
+        notificationsEnabled = notificationsEnabled,
+    )
 
-private fun ProfileContext.toEntity(): CachedProfileEntity =
-    CachedProfileEntity(userId.rawValue, currentCityId?.rawValue, kidAge, notificationsEnabled)
+private fun UserProfile.toEntity(): CachedProfileEntity =
+    CachedProfileEntity(
+        userId = userId.rawValue,
+        email = email,
+        displayName = displayName,
+        avatarUrl = avatarUrl,
+        currentCityId = currentCityId?.rawValue,
+        childName = childName,
+        kidAge = childAge,
+        notificationsEnabled = notificationsEnabled,
+    )
+
+private fun defaultProfile(userId: UserId): UserProfile =
+    UserProfile(
+        userId = userId,
+        email = userId.rawValue.takeIf { it.contains("@") },
+        displayName = null,
+        avatarUrl = null,
+        currentCityId = CityId("chicago"),
+        childName = null,
+        childAge = 7,
+        notificationsEnabled = false,
+    )
 
 private fun CachedCityEntity.toDto(): CityDto = CityDto(CityId(id), name, region)
 

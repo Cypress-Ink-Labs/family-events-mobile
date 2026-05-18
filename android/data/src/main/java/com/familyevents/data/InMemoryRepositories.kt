@@ -25,6 +25,7 @@ class InMemoryAuthRepository : AuthRepository {
 
     override suspend fun signUp(email: String, password: String) = signIn(email, password)
     override suspend fun resetPassword(email: String) = Unit
+    override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) = Unit
     override suspend fun signOut() {
         state.value = SessionState.SignedOut
     }
@@ -37,6 +38,32 @@ class InMemoryProfileRepository : ProfileRepository {
 
     override suspend fun currentContext(userId: UserId): ProfileContext =
         profiles.value[userId.rawValue] ?: ProfileContext(userId, CityId("chicago"), 7, notificationsEnabled = false)
+
+    override suspend fun profile(userId: UserId): UserProfile =
+        currentContext(userId).let { context ->
+            UserProfile(
+                userId = userId,
+                email = userId.rawValue.takeIf { it.contains("@") },
+                displayName = null,
+                avatarUrl = null,
+                currentCityId = context.currentCityId,
+                childName = null,
+                childAge = context.kidAge,
+                notificationsEnabled = context.notificationsEnabled,
+            )
+        }
+
+    override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
+        val current = profile(userId)
+        val updated = current.copy(
+            displayName = update.displayName,
+            currentCityId = update.currentCityId,
+            childName = update.childName,
+            childAge = update.childAge,
+        )
+        profiles.update { rows -> rows + (userId.rawValue to updated.toContext()) }
+        return updated
+    }
 
     override suspend fun updateContext(userId: UserId, cityId: CityId?, kidAge: Int?) {
         profiles.update { current ->

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,17 +14,16 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import com.familyevents.core.CityId
 import com.familyevents.auth.AuthScreen
 import com.familyevents.core.DeepLinkPolicy
 import com.familyevents.core.DeepLinkTarget
@@ -33,12 +31,12 @@ import com.familyevents.core.EnvConfig
 import com.familyevents.core.EventId
 import com.familyevents.data.RepositoryGraph
 import com.familyevents.data.SessionState
+import com.familyevents.designsystem.AppThemePreference
 import com.familyevents.eventdetail.EventDetailScreen
 import com.familyevents.explore.ExploreScreen
 import com.familyevents.plan.PlanScreen
 import com.familyevents.platform.PlatformActions
 import com.familyevents.saved.SavedScreen
-import kotlinx.coroutines.launch
 
 private enum class AppTab(val title: String) {
     Plan("Plan"),
@@ -52,6 +50,8 @@ fun FamilyEventsApp(
     repositories: RepositoryGraph,
     platformActions: PlatformActions,
     initialUrl: String?,
+    themePreference: AppThemePreference,
+    onThemePreferenceChange: (AppThemePreference) -> Unit,
 ) {
     val session by repositories.authRepository.sessionState.collectAsState(initial = SessionState.Restoring)
     val signedInUser = (session as? SessionState.SignedIn)?.userId
@@ -74,12 +74,18 @@ fun FamilyEventsApp(
             googleSignInEnabled = config.googleSignInEnabled,
         )
         is SessionState.SignedIn -> {
+            val userId = state.userId
+            val profile by repositories.profileRepository.observeProfile(userId).collectAsState(initial = null)
+            val activeCityId = profile?.currentCityId ?: CityId("chicago")
+            LaunchedEffect(userId) {
+                repositories.cityRepository.refreshCities()
+                repositories.profileRepository.currentContext(userId)
+            }
             AppScaffold(selectedTab = selectedTab, onSelectTab = { selectedTab = it }) { contentModifier ->
-                val userId = state.userId
                 when (selectedTab) {
                     AppTab.Plan -> PlanScreen(
                         userId = userId,
-                        cityId = com.familyevents.core.CityId("chicago"),
+                        cityId = activeCityId,
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
                         weatherRepository = repositories.weatherRepository,
@@ -87,7 +93,7 @@ fun FamilyEventsApp(
                         onSetCity = { showProfile = true },
                     )
                     AppTab.Explore -> ExploreScreen(
-                        cityId = com.familyevents.core.CityId("chicago"),
+                        cityId = activeCityId,
                         mapStyleUrl = config.mapStyleUrl,
                         eventRepository = repositories.eventRepository,
                         onOpenEvent = { detailEventId = it },
@@ -115,37 +121,15 @@ fun FamilyEventsApp(
         }
     }
 
-    if (showProfile && signedInUser != null) {
-        val profile by repositories.profileRepository.observeProfile(signedInUser).collectAsState(initial = null)
-        val scope = rememberCoroutineScope()
-        AlertDialog(
-            onDismissRequest = { showProfile = false },
-            title = { Text("Profile") },
-            text = {
-                Text(
-                    "City: ${profile?.currentCityId?.rawValue ?: "chicago"}\n" +
-                        "Kid age: ${profile?.kidAge ?: 7}\n" +
-                        "Notifications: ${if (profile?.notificationsEnabled == true) "on" else "off"}",
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    scope.launch {
-                        repositories.profileRepository.updateNotificationPreference(
-                            signedInUser,
-                            enabled = profile?.notificationsEnabled != true,
-                        )
-                    }
-                }) { Text("Notifications") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showProfile = false
-                    scope.launch { repositories.authRepository.signOut() }
-                }) { Text("Sign out") }
-            },
-        )
-    }
+    if (showProfile && signedInUser != null) ProfileDialog(
+        userId = signedInUser,
+        authRepository = repositories.authRepository,
+        profileRepository = repositories.profileRepository,
+        cityRepository = repositories.cityRepository,
+        themePreference = themePreference,
+        onThemePreferenceChange = onThemePreferenceChange,
+        onDismissRequest = { showProfile = false },
+    )
 }
 
 @Composable

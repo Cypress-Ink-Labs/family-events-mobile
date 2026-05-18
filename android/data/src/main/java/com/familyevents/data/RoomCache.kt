@@ -35,7 +35,11 @@ data class CachedPlanEventEntity(val userId: String, val eventId: String, val se
 @Entity(tableName = "profiles")
 data class CachedProfileEntity(
     @PrimaryKey val userId: String,
+    val email: String?,
+    val displayName: String?,
+    val avatarUrl: String?,
     val currentCityId: String?,
+    val childName: String?,
     val kidAge: Int?,
     val notificationsEnabled: Boolean,
 )
@@ -133,7 +137,7 @@ interface WeatherDao {
         CachedCityEntity::class,
         CachedWeatherEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class FamilyEventsDatabase : RoomDatabase() {

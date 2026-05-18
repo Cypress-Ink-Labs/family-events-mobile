@@ -17,12 +17,15 @@ interface AuthRepository {
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String)
     suspend fun resetPassword(email: String)
+    suspend fun changePassword(email: String, currentPassword: String, newPassword: String)
     suspend fun signOut()
 }
 
 interface ProfileRepository {
     fun observeProfile(userId: UserId): Flow<ProfileContext?>
     suspend fun currentContext(userId: UserId): ProfileContext
+    suspend fun profile(userId: UserId): UserProfile
+    suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun updateContext(userId: UserId, cityId: CityId?, kidAge: Int?)
     suspend fun updateNotificationPreference(userId: UserId, enabled: Boolean)
     suspend fun deleteAccount(userId: UserId)
