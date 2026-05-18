@@ -19,6 +19,7 @@ public final class SavedSyncCoordinator {
     private let subscriptionAudit: RealtimeSubscriptionLifecycleAudit
     private let reconnectPolicy: FavoriteSubscriptionReconnectPolicy
     private var observationTask: Task<Void, Never>?
+    private var observationAttemptID: UUID?
 
     public init(
         favoriteRepo: any FavoriteRepo,
@@ -51,6 +52,8 @@ public final class SavedSyncCoordinator {
 
     public func startObserving(userID: UserID) {
         stopObserving()
+        let attemptID = UUID()
+        observationAttemptID = attemptID
         observationTask = Task { [weak self] in
             guard let self else { return }
             var reconnectAttempts = 0
@@ -61,8 +64,9 @@ public final class SavedSyncCoordinator {
                     if Task.isCancelled { break }
                     self.apply(change: change, userID: userID)
                 }
-                if Task.isCancelled { break }
                 await self.subscriptionAudit.recordDetach()
+                if Task.isCancelled { break }
+                guard self.observationAttemptID == attemptID else { break }
                 guard reconnectAttempts < self.reconnectPolicy.maxAttempts else {
                     self.errorMessage = "Favorites realtime subscription stopped. Pull to refresh."
                     break
@@ -71,14 +75,18 @@ public final class SavedSyncCoordinator {
                 await self.subscriptionAudit.recordReconnect()
                 try? await Task.sleep(for: self.reconnectPolicy.delay)
             }
+            if self.observationAttemptID == attemptID {
+                self.observationAttemptID = nil
+                self.observationTask = nil
+            }
         }
     }
 
     public func stopObserving() {
         guard let observationTask else { return }
+        observationAttemptID = nil
         observationTask.cancel()
         self.observationTask = nil
-        Task { await subscriptionAudit.recordDetach() }
     }
 
     public func subscriptionAuditSnapshot() async -> RealtimeSubscriptionAuditSnapshot {
