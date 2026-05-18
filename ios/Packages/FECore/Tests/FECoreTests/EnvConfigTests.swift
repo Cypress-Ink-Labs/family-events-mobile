@@ -55,6 +55,16 @@ final class EnvConfigTests: XCTestCase {
         XCTAssertEqual(config.supabaseURL.absoluteString, "https://example.supabase.co")
         XCTAssertEqual(config.supabaseAnonKey, "anon_xxx")
     }
+
+    func testLoadsTrimmedValues() throws {
+        let bundle = StubBundle(values: [
+            "SupabaseURL": " https://example.supabase.co\n",
+            "SupabaseAnonKey": " anon_xxx\n",
+        ])
+        let config = try EnvConfig.load(from: bundle)
+        XCTAssertEqual(config.supabaseURL.absoluteString, "https://example.supabase.co")
+        XCTAssertEqual(config.supabaseAnonKey, "anon_xxx")
+    }
 }
 
 private final class StubBundle: InfoPlistReader {

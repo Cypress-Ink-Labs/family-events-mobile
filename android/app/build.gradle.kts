@@ -7,13 +7,14 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
-fun getEnvValue(key: String): String? {
+fun getEnvValue(key: String, allowViteFallback: Boolean = true): String? {
     // 1. System environment variable
-    val env = System.getenv(key) ?: System.getenv("VITE_$key")
+    val env = System.getenv(key) ?: if (allowViteFallback) System.getenv("VITE_$key") else null
     if (!env.isNullOrBlank()) return env
 
     // 2. Project property (-Pkey=value)
-    val prop = project.findProperty(key) as? String ?: project.findProperty("VITE_$key") as? String
+    val prop = project.findProperty(key) as? String
+        ?: if (allowViteFallback) project.findProperty("VITE_$key") as? String else null
     if (!prop.isNullOrBlank()) return prop
 
     // 3. .env file in root
@@ -21,12 +22,24 @@ fun getEnvValue(key: String): String? {
     if (envFile.exists()) {
         val properties = Properties()
         envFile.inputStream().use { properties.load(it) }
-        val fileVal = properties.getProperty(key) ?: properties.getProperty("VITE_$key")
+        val fileVal = properties.getProperty(key)
+            ?: if (allowViteFallback) properties.getProperty("VITE_$key") else null
         if (!fileVal.isNullOrBlank()) return fileVal
     }
 
     return null
 }
+
+val signingEnvKeys = listOf(
+    "ANDROID_KEYSTORE_PATH",
+    "ANDROID_KEYSTORE_PASSWORD",
+    "ANDROID_KEY_ALIAS",
+    "ANDROID_KEY_PASSWORD",
+)
+
+fun getSigningEnvValue(key: String): String? = getEnvValue(key, allowViteFallback = false)
+
+fun missingSigningEnvKeys(): List<String> = signingEnvKeys.filter { getSigningEnvValue(it).isNullOrBlank() }
 
 android {
     namespace = "com.familyevents"
@@ -58,12 +71,13 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePath = getEnvValue("ANDROID_KEYSTORE_PATH")
-            if (keystorePath != null) {
+            val missingSigningKeys = missingSigningEnvKeys()
+            if (missingSigningKeys.isEmpty()) {
+                val keystorePath = checkNotNull(getSigningEnvValue("ANDROID_KEYSTORE_PATH"))
                 storeFile = file(keystorePath)
-                storePassword = getEnvValue("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = getEnvValue("ANDROID_KEY_ALIAS")
-                keyPassword = getEnvValue("ANDROID_KEY_PASSWORD")
+                storePassword = getSigningEnvValue("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = getSigningEnvValue("ANDROID_KEY_ALIAS")
+                keyPassword = getSigningEnvValue("ANDROID_KEY_PASSWORD")
             }
         }
     }
@@ -71,11 +85,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            val isSigningConfigured = getEnvValue("ANDROID_KEYSTORE_PATH") != null
-            signingConfig = if (isSigningConfigured) {
+            signingConfig = if (missingSigningEnvKeys().isEmpty()) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug")
+                null
             }
         }
     }
@@ -94,6 +107,10 @@ gradle.taskGraph.whenReady {
         val releaseKey = getEnvValue("SUPABASE_ANON_KEY")
         if (releaseUrl.isNullOrBlank() || releaseKey.isNullOrBlank()) {
             throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY. Please set them in your environment or root .env file (VITE_ prefix supported).")
+        }
+        val missingSigningKeys = missingSigningEnvKeys()
+        if (missingSigningKeys.isNotEmpty()) {
+            throw GradleException("Release builds require Android signing env vars: ${missingSigningKeys.joinToString(", ")}.")
         }
     }
 }
