@@ -54,4 +54,19 @@ class HtmlTextTest {
     fun quotedEntity() {
         assertEquals("\"quoted\"", decodeHtmlEntities("&quot;quoted&quot;"))
     }
+
+    @Test
+    fun supplementaryEmojiCodepoint() {
+        assertEquals("Happy 😀 face", decodeHtmlEntities("Happy &#128512; face"))
+    }
+
+    @Test
+    fun loneSurrogatePassesThrough() {
+        assertEquals("Bad &#xD800; entity", decodeHtmlEntities("Bad &#xD800; entity"))
+    }
+
+    @Test
+    fun emptyHexPassesThrough() {
+        assertEquals("Empty &#x; entity", decodeHtmlEntities("Empty &#x; entity"))
+    }
 }

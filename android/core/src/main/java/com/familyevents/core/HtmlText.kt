@@ -36,14 +36,14 @@ fun decodeHtmlEntities(input: String): String {
                 val hex = entity.substring(2)
                 if (hex.isEmpty()) null
                 else hex.toLongOrNull(16)?.let { cp ->
-                    if (cp in 0..0x10FFFF) String(Character.toChars(cp.toInt())) else null
+                    if (cp in 0..0x10FFFF && cp !in 0xD800..0xDFFF) String(Character.toChars(cp.toInt())) else null
                 }
             }
             entity.startsWith("#") -> {
                 val dec = entity.substring(1)
                 if (dec.isEmpty()) null
                 else dec.toLongOrNull(10)?.let { cp ->
-                    if (cp in 0..0x10FFFF) String(Character.toChars(cp.toInt())) else null
+                    if (cp in 0..0x10FFFF && cp !in 0xD800..0xDFFF) String(Character.toChars(cp.toInt())) else null
                 }
             }
             else -> null
