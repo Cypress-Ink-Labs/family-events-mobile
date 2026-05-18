@@ -17,10 +17,12 @@ public struct EnvConfig: Sendable {
 
     public static func load(from reader: InfoPlistReader = Bundle.main) throws -> EnvConfig {
         guard let urlString = reader.object(forInfoDictionaryKey: "SupabaseURL") as? String,
+              !urlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               let url = URL(string: urlString) else {
             throw AppError.config("SupabaseURL")
         }
-        guard let key = reader.object(forInfoDictionaryKey: "SupabaseAnonKey") as? String else {
+        guard let key = reader.object(forInfoDictionaryKey: "SupabaseAnonKey") as? String,
+              !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw AppError.config("SupabaseAnonKey")
         }
         return EnvConfig(supabaseURL: url, supabaseAnonKey: key)

@@ -13,9 +13,37 @@ final class EnvConfigTests: XCTestCase {
         }
     }
 
+    func testFailsWhenSupabaseURLBlank() {
+        let bundle = StubBundle(values: ["SupabaseURL": "  ", "SupabaseAnonKey": "anon"])
+        XCTAssertThrowsError(try EnvConfig.load(from: bundle)) { error in
+            guard case AppError.config(let key) = error else {
+                XCTFail("expected config error, got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "SupabaseURL")
+        }
+    }
+
     func testFailsWhenAnonKeyMissing() {
         let bundle = StubBundle(values: ["SupabaseURL": "https://example.com"])
-        XCTAssertThrowsError(try EnvConfig.load(from: bundle))
+        XCTAssertThrowsError(try EnvConfig.load(from: bundle)) { error in
+            guard case AppError.config(let key) = error else {
+                XCTFail("expected config error, got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "SupabaseAnonKey")
+        }
+    }
+
+    func testFailsWhenAnonKeyBlank() {
+        let bundle = StubBundle(values: ["SupabaseURL": "https://example.com", "SupabaseAnonKey": "  "])
+        XCTAssertThrowsError(try EnvConfig.load(from: bundle)) { error in
+            guard case AppError.config(let key) = error else {
+                XCTFail("expected config error, got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "SupabaseAnonKey")
+        }
     }
 
     func testLoadsBothValues() throws {

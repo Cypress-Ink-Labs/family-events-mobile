@@ -615,8 +615,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SUPABASE_ANON_KEY = "";
-				SUPABASE_URL = "";
+				SUPABASE_ANON_KEY = sb_publishable_5SvbRT9MxYeLxn9lBAkSdA_xGVy430_;
+				SUPABASE_URL = "https://ufrjcnozcapskjtoakvf.supabase.co";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.1;
