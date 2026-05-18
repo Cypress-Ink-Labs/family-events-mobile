@@ -270,14 +270,13 @@ fun AttendeeStepper(
             val atMin = value <= min
             val atMax = value >= max
             IconButton(
-                onClick = { if (!atMin) onValueChange(value - 1) },
+                onClick = { onValueChange(value - 1) },
                 enabled = !atMin,
-                modifier = Modifier.size(Tokens.Touch.Min),
+                modifier = Modifier.size(Tokens.Touch.Min).semantics { contentDescription = "Decrease $label" },
             ) {
                 Text(
                     text = "−",
                     style = FamilyTypography.TitleMedium,
-                    color = if (atMin) LocalContentColor.current.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurface,
                 )
             }
             Text(
@@ -287,14 +286,13 @@ fun AttendeeStepper(
                 textAlign = TextAlign.Center,
             )
             IconButton(
-                onClick = { if (!atMax) onValueChange(value + 1) },
+                onClick = { onValueChange(value + 1) },
                 enabled = !atMax,
-                modifier = Modifier.size(Tokens.Touch.Min),
+                modifier = Modifier.size(Tokens.Touch.Min).semantics { contentDescription = "Increase $label" },
             ) {
                 Text(
                     text = "+",
                     style = FamilyTypography.TitleMedium,
-                    color = if (atMax) LocalContentColor.current.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
