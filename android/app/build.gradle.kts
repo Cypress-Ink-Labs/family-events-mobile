@@ -43,7 +43,7 @@ fun missingSigningEnvKeys(): List<String> = signingEnvKeys.filter { getSigningEn
 
 android {
     namespace = "com.familyevents"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
         buildConfig = true
@@ -52,8 +52,8 @@ android {
 
     defaultConfig {
         applicationId = "com.familyevents.app"
-        minSdk = 26
-        targetSdk = 36
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = getEnvValue("ANDROID_VERSION_CODE")?.toIntOrNull() ?: 1
         versionName = getEnvValue("ANDROID_VERSION_NAME") ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -88,7 +88,7 @@ android {
             signingConfig = if (missingSigningEnvKeys().isEmpty()) {
                 signingConfigs.getByName("release")
             } else {
-                null
+                signingConfigs.getByName("debug")
             }
         }
     }

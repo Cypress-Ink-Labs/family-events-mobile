@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.familyevents.designsystem"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
         compose = true
     }
 
     defaultConfig {
-        minSdk = 26
+        minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }

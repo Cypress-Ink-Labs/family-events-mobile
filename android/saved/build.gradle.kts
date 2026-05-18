@@ -5,9 +5,9 @@ plugins {
 
 android {
     namespace = "com.familyevents.saved"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
     buildFeatures { compose = true }
-    defaultConfig { minSdk = 26 }
+    defaultConfig { minSdk = libs.versions.minSdk.get().toInt() }
 }
 
 dependencies {
