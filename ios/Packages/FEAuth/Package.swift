@@ -33,7 +33,11 @@ let package = Package(
         ),
         .testTarget(
             name: "FEAuthTests",
-            dependencies: ["FEAuth", "FEAuthTesting"],
+            dependencies: [
+                "FEAuth",
+                "FEAuthTesting",
+                .product(name: "FEDataTesting", package: "FEData"),
+            ],
             path: "Tests/FEAuthTests"
         ),
     ]

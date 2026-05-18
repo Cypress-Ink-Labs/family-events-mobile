@@ -35,6 +35,7 @@ public protocol AuthService: Sendable {
     func signOut() async throws
     func sendPasswordResetEmail(_ email: String) async throws
     func resetPassword(accessToken: String, newPassword: String) async throws -> AuthSession
+    func changePassword(email: String, currentPassword: String, newPassword: String) async throws
     func deleteAccount() async throws
     /// Re-hydrate a session from stored refresh token on cold-start.
     func restoreSession(accessToken: String, refreshToken: String) async throws -> AuthSession

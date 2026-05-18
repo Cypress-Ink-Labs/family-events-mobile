@@ -55,6 +55,7 @@
 		EB5C374E92ABA31505BC4E94 /* FEDataTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 7D78F3FF96508BBA65DF1EDE /* FEDataTesting */; };
 		F665916E305E9F64E0377B0A /* testEventCardWithoutBadge.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AC6F7CB2255EBD042AC3A6 /* testEventCardWithoutBadge.dark.png */; };
 		FB1C8D7370E2A38930935CC1 /* FEEventDetail in Frameworks */ = {isa = PBXBuildFile; productRef = F91888BF2832B1DAEFA47BCB /* FEEventDetail */; };
+		FF4A93DB7ECB7BE1DB1F1CD7 /* AppAppearancePreferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D04B83567FB031F852F63C /* AppAppearancePreferenceTests.swift */; };
 		FFB8363FC63C6D248CBDDDE1 /* FEData in Frameworks */ = {isa = PBXBuildFile; productRef = 1592D61B348B5F234F607CC6 /* FEData */; };
 /* End PBXBuildFile section */
 
@@ -89,6 +90,7 @@
 		67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardWithImageAndBadge.xxl-type.png"; sourceTree = "<group>"; };
 		6BB7332AD1C515136B412F4E /* FEAuth */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAuth; path = Packages/FEAuth; sourceTree = SOURCE_ROOT; };
 		7CD8A5FA9FE6DEAE9CF2630D /* testFavoriteButtonFavoritedState.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.dark.png; sourceTree = "<group>"; };
+		80D04B83567FB031F852F63C /* AppAppearancePreferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearancePreferenceTests.swift; sourceTree = "<group>"; };
 		81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testFavoriteButtonUnfavoritedState.xxl-type.png"; sourceTree = "<group>"; };
 		842E1F96AA2DBCA6FF8DD3A0 /* AppModelContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelContainerTests.swift; sourceTree = "<group>"; };
 		8F62AF66C36F29653368CAFE /* Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tab.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 		E7785AE9D3045755E47DA115 /* FEDesignSystemTests */ = {
 			isa = PBXGroup;
 			children = (
+				80D04B83567FB031F852F63C /* AppAppearancePreferenceTests.swift */,
 				C22E36C996074657288512C6 /* EventCardTests.swift */,
 				DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */,
 				C46653127FE9DEE5A70C852B /* FontRegistrationTests.swift */,
@@ -448,6 +451,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF4A93DB7ECB7BE1DB1F1CD7 /* AppAppearancePreferenceTests.swift in Sources */,
 				AB632FC4CA1F2C9471378860 /* EventCardTests.swift in Sources */,
 				3B3D2272937549E740332DA6 /* FavoriteButtonTests.swift in Sources */,
 				19E15B92ECB194A960E4D120 /* FontRegistrationTests.swift in Sources */,
