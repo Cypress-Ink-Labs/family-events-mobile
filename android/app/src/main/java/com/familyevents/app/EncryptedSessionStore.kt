@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.familyevents.app
 
 import android.content.Context

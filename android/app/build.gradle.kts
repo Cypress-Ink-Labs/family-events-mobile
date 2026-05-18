@@ -33,6 +33,13 @@ android {
             isMinifyEnabled = false
         }
     }
+
+    packaging {
+        jniLibs.keepDebugSymbols += setOf(
+            "**/libandroidx.graphics.path.so",
+            "**/libmaplibre.so",
+        )
+    }
 }
 
 gradle.taskGraph.whenReady {

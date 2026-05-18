@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.familyevents.explore
 
 import androidx.compose.foundation.layout.Arrangement
