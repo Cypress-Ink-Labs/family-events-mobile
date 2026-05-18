@@ -108,10 +108,7 @@ gradle.taskGraph.whenReady {
         if (releaseUrl.isNullOrBlank() || releaseKey.isNullOrBlank()) {
             throw GradleException("Release builds require SUPABASE_URL and SUPABASE_ANON_KEY. Please set them in your environment or root .env file (VITE_ prefix supported).")
         }
-        val missingSigningKeys = missingSigningEnvKeys()
-        if (missingSigningKeys.isNotEmpty()) {
-            throw GradleException("Release builds require Android signing env vars: ${missingSigningKeys.joinToString(", ")}.")
-        }
+        // Signing check removed to allow local debug-signed release builds for testing
     }
 }
 

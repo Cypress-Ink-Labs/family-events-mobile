@@ -15,7 +15,7 @@ maplibre = "13.1.0"
 hilt = "2.59.2"
 junit = "4.13.2"
 coroutines = "1.10.2"
-compileSdk = "35"
+compileSdk = "36"
 targetSdk = "35"
 minSdk = "24"
 
