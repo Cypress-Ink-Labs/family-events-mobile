@@ -162,7 +162,7 @@ class KtorSupabaseConsumerApi(
     override suspend fun event(id: EventId): EventDto? = eventsByIds(listOf(id)).firstOrNull()
 
     override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> {
-        val response = client.post("$baseUrl/rest/v1/rpc/plan_events_for_user") {
+        val response = client.post("$baseUrl/rest/v1/rpc/plan_events_first_nonempty_window") {
             baseHeaders()
             bearer(optional = true)
             contentType(ContentType.Application.Json)
