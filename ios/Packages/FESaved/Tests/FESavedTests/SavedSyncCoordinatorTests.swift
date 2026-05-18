@@ -151,7 +151,8 @@ private final class ControllableFavoriteRepo: FavoriteRepo, @unchecked Sendable 
     }
 
     func waitForDetachCount(_ expected: Int) async {
-        continuation?.finish()
+        let streamContinuation = lock.withLock { continuation }
+        streamContinuation?.finish()
         await waitUntil { self.lock.withLock { self.detachCount >= expected } }
     }
 }
@@ -178,13 +179,16 @@ private final class FinishingFavoriteRepo: FavoriteRepo, @unchecked Sendable {
 
 private func waitUntil(
     timeout: Duration = .seconds(1),
-    predicate: @escaping @Sendable () async -> Bool
+    predicate: @escaping @Sendable () async -> Bool,
+    file: StaticString = #filePath,
+    line: UInt = #line
 ) async {
     let deadline = ContinuousClock.now + timeout
     while ContinuousClock.now < deadline {
         if await predicate() { return }
         try? await Task.sleep(for: .milliseconds(10))
     }
+    XCTFail("Timed out waiting for async condition", file: file, line: line)
 }
 
 private extension NSLock {

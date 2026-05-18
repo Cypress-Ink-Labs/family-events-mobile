@@ -42,19 +42,18 @@ class RealtimeLifecycleTelemetry(
     }
 
     fun recordDetach() {
-        var detached = false
-        activeSubscriptions.updateAndGet {
-            if (it > 0) {
-                detached = true
-                it - 1
-            } else {
-                0
+        while (true) {
+            val current = activeSubscriptions.get()
+            if (current <= 0) {
+                updatedAtMillis.set(clockMillis())
+                return
+            }
+            if (activeSubscriptions.compareAndSet(current, current - 1)) {
+                detachCount.incrementAndGet()
+                updatedAtMillis.set(clockMillis())
+                return
             }
         }
-        if (detached) {
-            detachCount.incrementAndGet()
-        }
-        updatedAtMillis.set(clockMillis())
     }
 
     fun recordReconnect() {
