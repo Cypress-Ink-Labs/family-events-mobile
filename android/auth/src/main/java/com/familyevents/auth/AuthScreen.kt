@@ -184,19 +184,20 @@ private fun InviteRequestDialog(
                         errorMessage = null
                         isSubmitting = true
                         scope.launch {
-                            val ok = try {
-                                authRepository.requestInvite(
+                            try {
+                                val ok = authRepository.requestInvite(
                                     trimmedEmail,
                                     message.trim().takeIf { it.isNotEmpty() },
                                 )
-                            } catch (_: Throwable) {
-                                false
-                            }
-                            isSubmitting = false
-                            if (ok) {
-                                successState = true
-                            } else {
+                                if (ok) {
+                                    successState = true
+                                } else {
+                                    errorMessage = "Couldn't submit your request. If you've requested recently, please wait a few minutes and try again."
+                                }
+                            } catch (e: Throwable) {
                                 errorMessage = "Couldn't submit your request. If you've requested recently, please wait a few minutes and try again."
+                            } finally {
+                                isSubmitting = false
                             }
                         }
                     },
