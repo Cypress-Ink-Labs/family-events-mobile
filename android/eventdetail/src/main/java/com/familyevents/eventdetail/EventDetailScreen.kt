@@ -1,16 +1,24 @@
 package com.familyevents.eventdetail
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
@@ -28,12 +36,15 @@ fun EventDetailScreen(
     userId: UserId?,
     eventRepository: EventRepository,
     favoriteRepository: FavoriteRepository,
+    onBack: () -> Unit,
     onShare: (EventId) -> Unit,
     onDirections: (String) -> Unit,
     onAddToCalendar: (String, Long, Long?) -> Unit,
 ) {
     val event by eventRepository.observeEventDetail(eventId).collectAsState(initial = null)
     val scope = rememberCoroutineScope()
+
+    BackHandler(onBack = onBack)
 
     if (event == null) {
         EmptyState("Event not found")
@@ -45,9 +56,15 @@ fun EventDetailScreen(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(Tokens.Space.S4),
     ) {
-        Text(current.title, style = FamilyTypography.TitleLarge)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+            Text(current.title, style = FamilyTypography.TitleLarge, modifier = Modifier.weight(1f))
+        }
         Text(current.venueName ?: "Location TBA", style = FamilyTypography.Body)
         current.description?.let { Text(it, style = FamilyTypography.Body) }
         Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {

@@ -48,19 +48,38 @@ class LocalAuthRepositoryTest {
         assertEquals(SessionState.SignedIn(UserId("remote-user")), repository.sessionState.first())
         assertEquals("access", store.readAccessToken())
     }
+
+    @Test
+    fun changePasswordDelegatesToRemoteApi() = runTest {
+        val api = RecordingConsumerApi()
+        val repository = LocalAuthRepository(MemorySessionStore(), api)
+
+        repository.changePassword("parent@example.com", "oldpass", "newpass")
+
+        assertEquals(Triple("parent@example.com", "oldpass", "newpass"), api.lastChangePassword)
+    }
+}
+
+private class RecordingConsumerApi : FakeConsumerApi() {
+    var lastChangePassword: Triple<String, String, String>? = null
+
+    override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) {
+        lastChangePassword = Triple(email, currentPassword, newPassword)
+    }
 }
 
 private open class FakeConsumerApi : SupabaseConsumerApi {
     override suspend fun signIn(email: String, password: String): PersistedSession = unsupported()
     override suspend fun signUp(email: String, password: String): PersistedSession = unsupported()
     override suspend fun resetPassword(email: String) = unsupported<Unit>()
+    override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) = unsupported<Unit>()
     override suspend fun signOut() = Unit
     override suspend fun cities(): List<CityDto> = unsupported()
     override suspend fun events(query: EventQuery): List<EventDto> = unsupported()
     override suspend fun event(id: EventId): EventDto? = unsupported()
     override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> = unsupported()
-    override suspend fun profile(userId: UserId): ProfileContext? = unsupported()
-    override suspend fun updateProfile(profile: ProfileContext) = unsupported<Unit>()
+    override suspend fun profile(userId: UserId): UserProfile? = unsupported()
+    override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile = unsupported()
     override suspend fun favorite(userId: UserId, eventId: EventId) = unsupported<Unit>()
     override suspend fun unfavorite(userId: UserId, eventId: EventId) = unsupported<Unit>()
     override suspend fun deleteAccount() = unsupported<Unit>()
