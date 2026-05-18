@@ -46,6 +46,8 @@ fun EventCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val resolvedImageUrl = imageUrl?.takeIf { it.isNotBlank() }
+        ?: "https://picsum.photos/seed/${title.hashCode().toUInt()}/600/400"
     OutlinedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -64,14 +66,12 @@ fun EventCard(
                     .clip(RoundedCornerShape(Tokens.Radius.Md))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             ) {
-                imageUrl?.takeIf { it.isNotBlank() }?.let { url ->
-                    AsyncImage(
-                        model = url,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                AsyncImage(
+                    model = resolvedImageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
             Row(verticalAlignment = Alignment.Top) {
                 Text(title, style = FamilyTypography.TitleMedium, modifier = Modifier.weight(1f))
@@ -81,6 +81,29 @@ fun EventCard(
             }
             Text(subtitle, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f))
         }
+    }
+}
+
+@Composable
+fun EventHeroImage(
+    title: String,
+    imageUrl: String?,
+    modifier: Modifier = Modifier,
+) {
+    val resolvedImageUrl = imageUrl?.takeIf { it.isNotBlank() }
+        ?: "https://picsum.photos/seed/${title.hashCode().toUInt()}/1200/630"
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(240.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        AsyncImage(
+            model = resolvedImageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 

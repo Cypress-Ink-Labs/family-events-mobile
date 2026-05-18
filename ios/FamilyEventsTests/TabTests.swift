@@ -3,7 +3,7 @@ import XCTest
 
 final class TabTests: XCTestCase {
     func testAllCasesExposed() {
-        XCTAssertEqual(AppTab.allCases, [.plan, .explore, .saved])
+        XCTAssertEqual(AppTab.allCases, [.plan, .explore, .saved, .admin])
     }
 
     func testSystemImagesAreNonEmpty() {

@@ -16,6 +16,11 @@ enum DeepLinkRouter {
         case "event":
             guard segments.count == 1, !segments[0].isEmpty else { return nil }
             return Result(tab: .plan, routes: [.event(EventID(segments[0]))])
+        case "tab":
+            guard segments.count == 1, let tab = AppTab(rawValue: segments[0]) else { return nil }
+            return Result(tab: tab, routes: [])
+        case "admin":
+            return Result(tab: .admin, routes: [.admin(section: segments.first)])
         case "saved":
             guard segments.isEmpty else { return nil }
             return Result(tab: .saved, routes: [])

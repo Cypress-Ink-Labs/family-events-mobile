@@ -16,12 +16,19 @@ data class EventDto(
     val endsAt: Instant?,
     val venueName: String?,
     val address: String?,
+    val ageMin: Int? = null,
+    val ageMax: Int? = null,
+    val price: Double? = null,
+    val isFree: Boolean = false,
     val imageUrl: String?,
     val sourceUrl: String?,
     val cityId: CityId,
     val coordinate: GeoCoordinate?,
     val tags: List<EventTagDto> = emptyList(),
+    val avgRating: Double = 0.0,
+    val ratingCount: Int = 0,
     val isFavorited: Boolean = false,
+    val isInCalendar: Boolean = false,
 )
 
 data class FavoriteDto(val eventId: EventId, val userId: UserId, val createdAt: Instant)
@@ -53,6 +60,30 @@ data class ProfileContext(
     val currentCityId: CityId?,
     val kidAge: Int?,
     val notificationsEnabled: Boolean,
+    val role: String = "user",
+) {
+    val isAdmin: Boolean get() = role == "admin"
+}
+
+data class RatingDto(
+    val id: String,
+    val userId: UserId,
+    val eventId: EventId,
+    val score: Int,
+    val createdAt: Instant,
+)
+
+data class CommentDto(
+    val id: String,
+    val userId: UserId,
+    val eventId: EventId,
+    val body: String,
+    val isApproved: Boolean,
+    val isFlagged: Boolean,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+    val authorDisplayName: String?,
+    val authorAvatarUrl: String?,
 )
 
 data class UserProfile(
@@ -64,8 +95,9 @@ data class UserProfile(
     val childName: String?,
     val childAge: Int?,
     val notificationsEnabled: Boolean,
+    val role: String = "user",
 ) {
-    fun toContext(): ProfileContext = ProfileContext(userId, currentCityId, childAge, notificationsEnabled)
+    fun toContext(): ProfileContext = ProfileContext(userId, currentCityId, childAge, notificationsEnabled, role)
 }
 
 data class UserProfileUpdate(
@@ -76,3 +108,17 @@ data class UserProfileUpdate(
 )
 
 data class CityDto(val id: CityId, val name: String, val region: String?)
+
+data class AdminStatsDto(
+    val totalEvents: Int,
+    val pendingReview: Int,
+    val published: Int,
+    val activeSources: Int,
+    val sourceErrors: Int,
+)
+
+data class AdminSectionDto(
+    val id: String,
+    val title: String,
+    val description: String,
+)

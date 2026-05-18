@@ -34,6 +34,7 @@ object AndroidDataModule {
     fun provideDatabase(@ApplicationContext context: Context): FamilyEventsDatabase =
         Room.databaseBuilder(context, FamilyEventsDatabase::class.java, "family-events.db")
             .addMigrations(ProfileV2Migration)
+            .addMigrations(ProfileV3RoleMigration)
             .build()
 
     @Provides
@@ -59,5 +60,11 @@ private object ProfileV2Migration : Migration(1, 2) {
         db.execSQL("ALTER TABLE profiles ADD COLUMN displayName TEXT")
         db.execSQL("ALTER TABLE profiles ADD COLUMN avatarUrl TEXT")
         db.execSQL("ALTER TABLE profiles ADD COLUMN childName TEXT")
+    }
+}
+
+private object ProfileV3RoleMigration : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE profiles ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
     }
 }

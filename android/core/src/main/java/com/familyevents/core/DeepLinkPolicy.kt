@@ -5,6 +5,8 @@ sealed interface DeepLinkTarget {
     data class City(val id: CityId) : DeepLinkTarget
     data class Share(val id: EventId) : DeepLinkTarget
     data class ResetPassword(val token: String) : DeepLinkTarget
+    data class Tab(val tab: String) : DeepLinkTarget
+    data class Admin(val section: String?) : DeepLinkTarget
 }
 
 object DeepLinkPolicy {
@@ -22,8 +24,14 @@ object DeepLinkPolicy {
                 }
                 token?.takeIf { it.isNotBlank() }?.let(DeepLinkTarget::ResetPassword)
             }
+            uri.scheme == "familyevents" && host == "tab" && segments.size == 1 ->
+                DeepLinkTarget.Tab(segments[0])
+            uri.scheme == "familyevents" && host == "admin" ->
+                DeepLinkTarget.Admin(segments.firstOrNull())
             uri.scheme == "https" && host == "familyevents.app" && segments.size == 2 && segments[0] == "share" ->
                 DeepLinkTarget.Share(EventId(segments[1]))
+            uri.scheme == "https" && host == "familyevents.app" && segments.firstOrNull() == "admin" ->
+                DeepLinkTarget.Admin(segments.getOrNull(1))
             else -> null
         }
     }.getOrNull()

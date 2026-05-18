@@ -1,5 +1,11 @@
 package com.familyevents.app
 
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +30,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        publishShortcuts()
         setContent {
             val preferences = remember { getSharedPreferences("family-events", MODE_PRIVATE) }
             var themeRawValue by remember { mutableStateOf(preferences.getString("family-events-theme", "system") ?: "system") }
@@ -43,4 +50,24 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun publishShortcuts() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
+        val manager = getSystemService(ShortcutManager::class.java) ?: return
+        val icon = Icon.createWithResource(this, applicationInfo.icon)
+        manager.dynamicShortcuts = listOf(
+            shortcut("plan", "Plan", "Open Saturday Plan", "familyevents://tab/plan", icon),
+            shortcut("explore", "Explore", "Search family events", "familyevents://tab/explore", icon),
+            shortcut("saved", "Saved", "Open saved events", "familyevents://tab/saved", icon),
+            shortcut("admin", "Admin", "Open the admin dashboard", "familyevents://admin/dashboard", icon),
+        )
+    }
+
+    private fun shortcut(id: String, label: String, longLabel: String, uri: String, icon: Icon): ShortcutInfo =
+        ShortcutInfo.Builder(this, id)
+            .setShortLabel(label)
+            .setLongLabel(longLabel)
+            .setIcon(icon)
+            .setIntent(Intent(Intent.ACTION_VIEW, Uri.parse(uri), this, MainActivity::class.java))
+            .build()
 }

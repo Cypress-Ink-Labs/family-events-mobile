@@ -57,3 +57,24 @@ interface WeatherRepository {
     fun observeForecast(cityId: CityId): Flow<List<WeatherSnapshotDto>>
     suspend fun refreshForecast(cityId: CityId)
 }
+
+interface RatingRepository {
+    suspend fun userRating(userId: UserId, eventId: EventId): RatingDto?
+    suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto
+}
+
+interface CommentRepository {
+    suspend fun comments(eventId: EventId): List<CommentDto>
+    suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto
+}
+
+interface AdminRepository {
+    suspend fun stats(): AdminStatsDto
+    suspend fun sections(): List<AdminSectionDto>
+    suspend fun updateEvent(eventId: EventId, patchJson: String)
+    suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean)
+    suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String
+    suspend fun revokeInvite(inviteId: String)
+    suspend fun runSource(sourceId: String?)
+    suspend fun runCron(jobName: String?)
+}

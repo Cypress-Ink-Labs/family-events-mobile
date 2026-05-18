@@ -168,6 +168,55 @@ class InMemoryWeatherRepository : WeatherRepository {
     override suspend fun refreshForecast(cityId: CityId) = Unit
 }
 
+class InMemoryRatingRepository : RatingRepository {
+    private val ratings = MutableStateFlow<Map<Pair<String, String>, RatingDto>>(emptyMap())
+
+    override suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? =
+        ratings.value[userId.rawValue to eventId.rawValue]
+
+    override suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto {
+        val rating = RatingDto("rating-${userId.rawValue}-${eventId.rawValue}", userId, eventId, score.coerceIn(1, 5), Instant.now())
+        ratings.update { it + ((userId.rawValue to eventId.rawValue) to rating) }
+        return rating
+    }
+}
+
+class InMemoryCommentRepository : CommentRepository {
+    private val comments = MutableStateFlow<Map<String, List<CommentDto>>>(emptyMap())
+
+    override suspend fun comments(eventId: EventId): List<CommentDto> =
+        comments.value[eventId.rawValue].orEmpty()
+
+    override suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto {
+        val now = Instant.now()
+        val comment = CommentDto(
+            id = "comment-${now.toEpochMilli()}",
+            userId = userId,
+            eventId = eventId,
+            body = body,
+            isApproved = true,
+            isFlagged = false,
+            createdAt = now,
+            updatedAt = now,
+            authorDisplayName = null,
+            authorAvatarUrl = null,
+        )
+        comments.update { rows -> rows + (eventId.rawValue to (listOf(comment) + rows[eventId.rawValue].orEmpty())) }
+        return comment
+    }
+}
+
+class InMemoryAdminRepository : AdminRepository {
+    override suspend fun stats(): AdminStatsDto = AdminStatsDto(2, 0, 2, 0, 0)
+    override suspend fun sections(): List<AdminSectionDto> = adminSections()
+    override suspend fun updateEvent(eventId: EventId, patchJson: String) = Unit
+    override suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean) = Unit
+    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String = "LOCAL-CODE"
+    override suspend fun revokeInvite(inviteId: String) = Unit
+    override suspend fun runSource(sourceId: String?) = Unit
+    override suspend fun runCron(jobName: String?) = Unit
+}
+
 class RepositoryGraph(
     val authRepository: AuthRepository = InMemoryAuthRepository(),
     val eventRepository: EventRepository = InMemoryEventRepository(),
@@ -175,6 +224,9 @@ class RepositoryGraph(
     val profileRepository: ProfileRepository = InMemoryProfileRepository(),
     val cityRepository: CityRepository = InMemoryCityRepository(),
     val weatherRepository: WeatherRepository = InMemoryWeatherRepository(),
+    val ratingRepository: RatingRepository = InMemoryRatingRepository(),
+    val commentRepository: CommentRepository = InMemoryCommentRepository(),
+    val adminRepository: AdminRepository = InMemoryAdminRepository(),
 ) {
     companion object {
         fun roomBacked(
@@ -192,6 +244,9 @@ class RepositoryGraph(
                 profileRepository = RoomBackedProfileRepository(database.profileDao(), api),
                 cityRepository = RoomBackedCityRepository(database.cityDao(), api),
                 weatherRepository = RoomBackedWeatherRepository(database.weatherDao()),
+                ratingRepository = SupabaseRatingRepository(api),
+                commentRepository = SupabaseCommentRepository(api),
+                adminRepository = SupabaseAdminRepository(api),
             )
         }
     }

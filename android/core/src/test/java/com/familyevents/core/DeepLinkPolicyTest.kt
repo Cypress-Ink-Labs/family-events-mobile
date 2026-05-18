@@ -11,7 +11,9 @@ class DeepLinkPolicyTest {
         assertEquals(DeepLinkTarget.City(CityId("chi")), DeepLinkPolicy.parse("familyevents://city/chi"))
         assertEquals(DeepLinkTarget.Share(EventId("evt_2")), DeepLinkPolicy.parse("https://familyevents.app/share/evt_2"))
         assertEquals(DeepLinkTarget.ResetPassword("tok_123"), DeepLinkPolicy.parse("familyevents://reset-password?token=tok_123"))
-        assertNull(DeepLinkPolicy.parse("familyevents://saved"))
+        assertEquals(DeepLinkTarget.Tab("saved"), DeepLinkPolicy.parse("familyevents://tab/saved"))
+        assertEquals(DeepLinkTarget.Admin("events"), DeepLinkPolicy.parse("familyevents://admin/events"))
+        assertEquals(DeepLinkTarget.Admin("sources"), DeepLinkPolicy.parse("https://familyevents.app/admin/sources"))
         assertNull(DeepLinkPolicy.parse("invalid-url"))
     }
 }

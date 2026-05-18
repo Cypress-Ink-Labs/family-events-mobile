@@ -54,6 +54,19 @@ interface SupabaseConsumerApi {
     suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun favorite(userId: UserId, eventId: EventId)
     suspend fun unfavorite(userId: UserId, eventId: EventId)
+    suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? = null
+    suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto =
+        throw AppError.Remote("Ratings are unavailable.")
+    suspend fun comments(eventId: EventId): List<CommentDto> = emptyList()
+    suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto =
+        throw AppError.Remote("Comments are unavailable.")
+    suspend fun adminStats(): AdminStatsDto = AdminStatsDto(0, 0, 0, 0, 0)
+    suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {}
+    suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {}
+    suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String = ""
+    suspend fun adminRevokeInvite(inviteId: String) {}
+    suspend fun adminRunSource(sourceId: String?) {}
+    suspend fun adminRunCron(jobName: String?) {}
     suspend fun deleteAccount()
 }
 
@@ -174,7 +187,7 @@ class KtorSupabaseConsumerApi(
         val response = client.get("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer(optional = true)
-            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age")
+            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age,role")
             parameter("id", "eq.${userId.rawValue}")
             parameter("limit", "1")
         }
@@ -187,7 +200,7 @@ class KtorSupabaseConsumerApi(
             bearer()
             header("Prefer", "return=representation")
             parameter("id", "eq.${userId.rawValue}")
-            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age")
+            parameter("select", "id,email,display_name,avatar_url,city_preference_id,child_name,child_age,role")
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {
@@ -223,6 +236,168 @@ class KtorSupabaseConsumerApi(
             parameter("user_id", "eq.${userId.rawValue}")
             parameter("event_id", "eq.${eventId.rawValue}")
         }.requireOkOrNoContent()
+    }
+
+    override suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? {
+        val response = client.get("$baseUrl/rest/v1/ratings") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,user_id,event_id,score,created_at")
+            parameter("user_id", "eq.${userId.rawValue}")
+            parameter("event_id", "eq.${eventId.rawValue}")
+            parameter("limit", "1")
+        }
+        return response.requireOk().decodeList<RatingRow>().firstOrNull()?.toDto()
+    }
+
+    override suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto {
+        val response = client.post("$baseUrl/rest/v1/ratings") {
+            baseHeaders()
+            bearer()
+            header("Prefer", "resolution=merge-duplicates,return=representation")
+            parameter("on_conflict", "user_id,event_id")
+            parameter("select", "id,user_id,event_id,score,created_at")
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("user_id", userId.rawValue)
+                    put("event_id", eventId.rawValue)
+                    put("score", score.coerceIn(1, 5))
+                }.toString(),
+            )
+        }.requireOk()
+        return response.decodeList<RatingRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Rating was saved but not returned.")
+    }
+
+    override suspend fun comments(eventId: EventId): List<CommentDto> {
+        val response = client.get("$baseUrl/rest/v1/comments") {
+            baseHeaders()
+            bearer(optional = true)
+            parameter("select", "id,user_id,event_id,body,is_approved,is_flagged,created_at,updated_at,user_profiles(display_name,avatar_url)")
+            parameter("event_id", "eq.${eventId.rawValue}")
+            parameter("is_approved", "eq.true")
+            parameter("order", "created_at.desc")
+        }
+        return response.requireOk().decodeList<CommentRow>().map { it.toDto() }
+    }
+
+    override suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto {
+        val response = client.post("$baseUrl/rest/v1/comments") {
+            baseHeaders()
+            bearer()
+            header("Prefer", "return=representation")
+            parameter("select", "id,user_id,event_id,body,is_approved,is_flagged,created_at,updated_at")
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("user_id", userId.rawValue)
+                    put("event_id", eventId.rawValue)
+                    put("body", body)
+                    put("is_approved", true)
+                    put("is_flagged", false)
+                }.toString(),
+            )
+        }.requireOk()
+        return response.decodeList<CommentRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Comment was posted but not returned.")
+    }
+
+    override suspend fun adminStats(): AdminStatsDto {
+        val eventsResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "status,ai_confidence")
+        }.requireOk()
+        val sourcesResponse = client.get("$baseUrl/rest/v1/event_sources") {
+            baseHeaders()
+            bearer()
+            parameter("select", "is_active,last_status")
+        }.requireOk()
+        val events = eventsResponse.decodeList<AdminEventStatsRow>()
+        val sources = sourcesResponse.decodeList<AdminSourceStatsRow>()
+        return AdminStatsDto(
+            totalEvents = events.size,
+            pendingReview = events.count { it.status == "draft" },
+            published = events.count { it.status == "published" },
+            activeSources = sources.count { it.isActive },
+            sourceErrors = sources.count { it.isActive && it.lastStatus == "error" },
+        )
+    }
+
+    override suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {
+        client.post("$baseUrl/rest/v1/rpc/admin_update_event") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_event_id", eventId.rawValue)
+                    put("p_patch", json.decodeFromString<JsonElement>(patchJson))
+                    put("p_tag_ids", JsonArray(emptyList()))
+                    put("p_lock_edited_fields", true)
+                }.toString(),
+            )
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {
+        client.patch("$baseUrl/rest/v1/comments") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$commentId")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("is_approved", approved); put("is_flagged", flagged) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_create_invite_code") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    putNullable("p_max_uses", maxUses)
+                    putNullable("p_expires_at", expiresAtIso)
+                    putNullable("p_note", note)
+                }.toString(),
+            )
+        }.requireOk()
+        return response.decodeList<InviteCodeRow>().firstOrNull()?.code
+            ?: throw AppError.Remote("Invite code was created but not returned.")
+    }
+
+    override suspend fun adminRevokeInvite(inviteId: String) {
+        client.patch("$baseUrl/rest/v1/invite_codes") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$inviteId")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("is_active", false) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminRunSource(sourceId: String?) {
+        client.post("$baseUrl/functions/v1/scrape-source") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { sourceId?.let { put("sourceId", it) } }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminRunCron(jobName: String?) {
+        if (jobName.isNullOrBlank() || jobName == "due-scrapes") {
+            client.post("$baseUrl/rest/v1/rpc/admin_run_due_scrapes") {
+                baseHeaders()
+                bearer()
+                contentType(ContentType.Application.Json)
+                setBody("{}")
+            }.requireOkOrNoContent()
+        } else {
+            throw AppError.Remote("Unsupported cron shortcut: $jobName")
+        }
     }
 
     override suspend fun deleteAccount() {
@@ -319,6 +494,7 @@ private data class ProfileRow(
     @SerialName("city_preference_id") val cityPreferenceId: String? = null,
     @SerialName("child_name") val childName: String? = null,
     @SerialName("child_age") val childAge: Int? = null,
+    val role: String? = null,
 ) {
     fun toDto(): UserProfile = UserProfile(
         userId = UserId(id),
@@ -329,6 +505,7 @@ private data class ProfileRow(
         childName = childName,
         childAge = childAge,
         notificationsEnabled = false,
+        role = role ?: "user",
     )
 }
 
@@ -344,13 +521,20 @@ private data class EventRow(
     @SerialName("end_datetime") val endDatetime: String? = null,
     @SerialName("venue_name") val venueName: String? = null,
     val address: String? = null,
+    @SerialName("age_min") val ageMin: Int? = null,
+    @SerialName("age_max") val ageMax: Int? = null,
+    val price: Double? = null,
+    @SerialName("is_free") val isFree: Boolean? = null,
     val images: JsonElement? = null,
     @SerialName("source_url") val sourceUrl: String? = null,
     @SerialName("city_id") val cityId: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val tags: JsonElement? = null,
+    @SerialName("avg_rating") val avgRating: Double? = null,
+    @SerialName("rating_count") val ratingCount: Int? = null,
     @SerialName("is_favorited") val isFavorited: Boolean? = null,
+    @SerialName("is_in_calendar") val isInCalendar: Boolean? = null,
 ) {
     fun toDto(): EventDto? {
         val parsedId = id?.takeIf { it.isNotBlank() } ?: return null
@@ -365,15 +549,80 @@ private data class EventRow(
             endsAt = endDatetime?.let(Instant::parse),
             venueName = venueName,
             address = address,
+            ageMin = ageMin,
+            ageMax = ageMax,
+            price = price,
+            isFree = isFree ?: false,
             imageUrl = images.firstImageUrl(),
             sourceUrl = sourceUrl,
             cityId = CityId(parsedCity),
             coordinate = latitude?.let { lat -> longitude?.let { lng -> GeoCoordinate(lat, lng) } },
             tags = tags.toTags(),
+            avgRating = avgRating ?: 0.0,
+            ratingCount = ratingCount ?: 0,
             isFavorited = isFavorited ?: false,
+            isInCalendar = isInCalendar ?: false,
         )
     }
 }
+
+@Serializable
+private data class RatingRow(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("event_id") val eventId: String,
+    val score: Int,
+    @SerialName("created_at") val createdAt: String,
+) {
+    fun toDto(): RatingDto = RatingDto(id, UserId(userId), EventId(eventId), score, Instant.parse(createdAt))
+}
+
+@Serializable
+private data class CommentProfileRow(
+    @SerialName("display_name") val displayName: String? = null,
+    @SerialName("avatar_url") val avatarUrl: String? = null,
+)
+
+@Serializable
+private data class CommentRow(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("event_id") val eventId: String,
+    val body: String,
+    @SerialName("is_approved") val isApproved: Boolean = true,
+    @SerialName("is_flagged") val isFlagged: Boolean = false,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String? = null,
+    @SerialName("user_profiles") val profile: CommentProfileRow? = null,
+) {
+    fun toDto(): CommentDto = CommentDto(
+        id = id,
+        userId = UserId(userId),
+        eventId = EventId(eventId),
+        body = body,
+        isApproved = isApproved,
+        isFlagged = isFlagged,
+        createdAt = Instant.parse(createdAt),
+        updatedAt = Instant.parse(updatedAt ?: createdAt),
+        authorDisplayName = profile?.displayName,
+        authorAvatarUrl = profile?.avatarUrl,
+    )
+}
+
+@Serializable
+private data class AdminEventStatsRow(
+    val status: String,
+    @SerialName("ai_confidence") val aiConfidence: Double? = null,
+)
+
+@Serializable
+private data class AdminSourceStatsRow(
+    @SerialName("is_active") val isActive: Boolean,
+    @SerialName("last_status") val lastStatus: String? = null,
+)
+
+@Serializable
+private data class InviteCodeRow(val code: String)
 
 private fun JsonElement?.firstImageUrl(): String? = when (this) {
     null, JsonNull -> null
@@ -404,5 +653,9 @@ private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String
 }
 
 private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: Int?) {
+    if (value == null) put(key, JsonNull) else put(key, value)
+}
+
+private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: JsonElement?) {
     if (value == null) put(key, JsonNull) else put(key, value)
 }

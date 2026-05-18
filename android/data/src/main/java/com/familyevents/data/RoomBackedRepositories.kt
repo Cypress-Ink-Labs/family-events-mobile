@@ -265,6 +265,65 @@ class RoomBackedWeatherRepository(private val weatherDao: WeatherDao) : WeatherR
     }
 }
 
+class SupabaseRatingRepository(private val api: SupabaseConsumerApi? = null) : RatingRepository {
+    override suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? =
+        api?.userRating(userId, eventId)
+
+    override suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto =
+        api?.upsertRating(userId, eventId, score.coerceIn(1, 5))
+            ?: RatingDto("local-${eventId.rawValue}", userId, eventId, score.coerceIn(1, 5), Instant.now())
+}
+
+class SupabaseCommentRepository(private val api: SupabaseConsumerApi? = null) : CommentRepository {
+    override suspend fun comments(eventId: EventId): List<CommentDto> =
+        api?.comments(eventId) ?: emptyList()
+
+    override suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto =
+        api?.addComment(userId, eventId, body)
+            ?: CommentDto(
+                id = "local-${Instant.now().toEpochMilli()}",
+                userId = userId,
+                eventId = eventId,
+                body = body,
+                isApproved = true,
+                isFlagged = false,
+                createdAt = Instant.now(),
+                updatedAt = Instant.now(),
+                authorDisplayName = null,
+                authorAvatarUrl = null,
+            )
+}
+
+class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : AdminRepository {
+    override suspend fun stats(): AdminStatsDto =
+        api?.adminStats() ?: AdminStatsDto(0, 0, 0, 0, 0)
+
+    override suspend fun sections(): List<AdminSectionDto> = adminSections()
+
+    override suspend fun updateEvent(eventId: EventId, patchJson: String) {
+        api?.adminUpdateEvent(eventId, patchJson)
+    }
+
+    override suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean) {
+        api?.adminModerateComment(commentId, approved, flagged)
+    }
+
+    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String =
+        api?.adminCreateInvite(maxUses, expiresAtIso, note) ?: ""
+
+    override suspend fun revokeInvite(inviteId: String) {
+        api?.adminRevokeInvite(inviteId)
+    }
+
+    override suspend fun runSource(sourceId: String?) {
+        api?.adminRunSource(sourceId)
+    }
+
+    override suspend fun runCron(jobName: String?) {
+        api?.adminRunCron(jobName)
+    }
+}
+
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =
     map { rows ->
         rows.ifEmpty {
@@ -318,6 +377,7 @@ private fun CachedProfileEntity.toProfile(): UserProfile =
         childName = childName,
         childAge = kidAge,
         notificationsEnabled = notificationsEnabled,
+        role = role,
     )
 
 private fun UserProfile.toEntity(): CachedProfileEntity =
@@ -330,6 +390,7 @@ private fun UserProfile.toEntity(): CachedProfileEntity =
         childName = childName,
         kidAge = childAge,
         notificationsEnabled = notificationsEnabled,
+        role = role,
     )
 
 private fun defaultProfile(userId: UserId): UserProfile =
@@ -342,7 +403,21 @@ private fun defaultProfile(userId: UserId): UserProfile =
         childName = null,
         childAge = 7,
         notificationsEnabled = false,
+        role = "user",
     )
+
+fun adminSections(): List<AdminSectionDto> = listOf(
+    AdminSectionDto("dashboard", "Dashboard", "Events, sources, review load, and AI confidence."),
+    AdminSectionDto("sources", "Sources", "Scrape sources, runs, errors, and refresh actions."),
+    AdminSectionDto("events", "Events", "Search, edit, publish, lock, and delete events."),
+    AdminSectionDto("cities", "Cities", "Markets, active status, timezone, and source coverage."),
+    AdminSectionDto("comments", "Comments", "Approve, flag, and moderate event comments."),
+    AdminSectionDto("ratings", "Ratings", "Review and remove event ratings."),
+    AdminSectionDto("access", "Access", "User access, role, and account enablement."),
+    AdminSectionDto("invites", "Invites", "Invite requests, codes, approval, and revocation."),
+    AdminSectionDto("logs", "Logs", "Source run logs, tag queue, and audit history."),
+    AdminSectionDto("crons", "Crons", "Scheduled jobs, run history, and manual triggers."),
+)
 
 private fun CachedCityEntity.toDto(): CityDto = CityDto(CityId(id), name, region)
 

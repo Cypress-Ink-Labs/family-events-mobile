@@ -10,6 +10,7 @@ public struct UserProfile: Equatable, Sendable {
     public let cityPreferenceID: CityID?
     public let childName: String?
     public let childAge: Int?
+    public let role: String
 
     public init(
         id: UserID,
@@ -18,7 +19,8 @@ public struct UserProfile: Equatable, Sendable {
         avatarURL: String?,
         cityPreferenceID: CityID?,
         childName: String?,
-        childAge: Int?
+        childAge: Int?,
+        role: String = "user"
     ) {
         self.id = id
         self.email = email
@@ -27,7 +29,10 @@ public struct UserProfile: Equatable, Sendable {
         self.cityPreferenceID = cityPreferenceID
         self.childName = childName
         self.childAge = childAge
+        self.role = role
     }
+
+    public var isAdmin: Bool { role == "admin" }
 }
 
 public struct UserProfileUpdate: Equatable, Sendable {
@@ -128,7 +133,7 @@ public final class SupabaseProfileRepo: ProfileRepo, @unchecked Sendable {
         return (profile.cityPreferenceID, profile.childAge)
     }
 
-    private static let profileSelection = "id,email,display_name,avatar_url,city_preference_id,child_name,child_age"
+    private static let profileSelection = "id,email,display_name,avatar_url,city_preference_id,child_name,child_age,role"
 }
 
 private struct UserProfileRow: Decodable {
@@ -139,6 +144,7 @@ private struct UserProfileRow: Decodable {
     let city_preference_id: String?
     let child_name: String?
     let child_age: Int?
+    let role: String?
 
     func toProfile() -> UserProfile {
         UserProfile(
@@ -148,7 +154,8 @@ private struct UserProfileRow: Decodable {
             avatarURL: avatar_url,
             cityPreferenceID: city_preference_id.map(CityID.init),
             childName: child_name,
-            childAge: child_age
+            childAge: child_age,
+            role: role ?? "user"
         )
     }
 }
