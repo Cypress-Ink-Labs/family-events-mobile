@@ -2,13 +2,17 @@ package com.familyevents.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +25,8 @@ import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.generated.Tokens
 import kotlinx.coroutines.launch
 
+private const val MESSAGE_LIMIT = 500
+
 @Composable
 fun AuthScreen(
     authRepository: AuthRepository,
@@ -30,6 +36,8 @@ fun AuthScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+
+    var showInviteDialog by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
@@ -76,5 +84,134 @@ fun AuthScreen(
                 Text("Continue with Google")
             }
         }
+        TextButton(
+            onClick = { showInviteDialog = true },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Request invite code")
+        }
     }
+
+    if (showInviteDialog) {
+        InviteRequestDialog(
+            initialEmail = email.trim(),
+            authRepository = authRepository,
+            onDismiss = { showInviteDialog = false },
+        )
+    }
+}
+
+@Composable
+private fun InviteRequestDialog(
+    initialEmail: String,
+    authRepository: AuthRepository,
+    onDismiss: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    var inviteEmail by remember { mutableStateOf(initialEmail) }
+    var message by remember { mutableStateOf("") }
+    var isSubmitting by remember { mutableStateOf(false) }
+    var successState by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val messageOverLimit = message.length > MESSAGE_LIMIT
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Request invite code") },
+        text = {
+            if (successState) {
+                Text(
+                    "Request received. We'll review and email you a code if it's a fit. Usually takes a day or two.",
+                    style = FamilyTypography.Body,
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                    OutlinedTextField(
+                        value = inviteEmail,
+                        onValueChange = { inviteEmail = it },
+                        label = { Text("Email") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
+                        OutlinedTextField(
+                            value = message,
+                            onValueChange = { message = it },
+                            label = { Text("Message (optional)") },
+                            minLines = 3,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = "${message.length}/$MESSAGE_LIMIT",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (messageOverLimit) MaterialTheme.colorScheme.error
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (successState) {
+                Button(onClick = onDismiss) {
+                    Text("Got it")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        val trimmedEmail = inviteEmail.trim()
+                        if (trimmedEmail.isBlank() || !trimmedEmail.contains("@")) {
+                            errorMessage = "Please enter a valid email address."
+                            return@Button
+                        }
+                        if (messageOverLimit) {
+                            errorMessage = "Message must be 500 characters or fewer."
+                            return@Button
+                        }
+                        errorMessage = null
+                        isSubmitting = true
+                        scope.launch {
+                            val ok = try {
+                                authRepository.requestInvite(
+                                    trimmedEmail,
+                                    message.trim().takeIf { it.isNotEmpty() },
+                                )
+                            } catch (_: Throwable) {
+                                false
+                            }
+                            isSubmitting = false
+                            if (ok) {
+                                successState = true
+                            } else {
+                                errorMessage = "Couldn't submit your request. If you've requested recently, please wait a few minutes and try again."
+                            }
+                        }
+                    },
+                    enabled = !isSubmitting,
+                ) {
+                    Text("Submit")
+                }
+            }
+        },
+        dismissButton = {
+            if (!successState) {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        },
+    )
 }

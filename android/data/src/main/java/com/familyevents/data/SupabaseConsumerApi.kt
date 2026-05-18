@@ -68,6 +68,8 @@ interface SupabaseConsumerApi {
     suspend fun adminRunSource(sourceId: String?) {}
     suspend fun adminRunCron(jobName: String?) {}
     suspend fun deleteAccount()
+    suspend fun invitesRequired(): Boolean = true
+    suspend fun requestInvite(email: String, message: String?): Boolean = false
 }
 
 class KtorSupabaseConsumerApi(
@@ -407,6 +409,33 @@ class KtorSupabaseConsumerApi(
             contentType(ContentType.Application.Json)
             setBody("{}")
         }.requireOkOrNoContent()
+    }
+
+    override suspend fun invitesRequired(): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/invites_required") {
+            baseHeaders()
+            bearer(optional = true)
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: true
+    }
+
+    override suspend fun requestInvite(email: String, message: String?): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/request_invite") {
+            baseHeaders()
+            bearer(optional = true)
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_email", email)
+                    if (message != null) put("p_message", message)
+                }.toString(),
+            )
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: false
     }
 
     private suspend fun eventsByIds(ids: List<EventId>): List<EventDto> {

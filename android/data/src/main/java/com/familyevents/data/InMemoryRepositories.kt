@@ -29,6 +29,9 @@ class InMemoryAuthRepository : AuthRepository {
     override suspend fun signOut() {
         state.value = SessionState.SignedOut
     }
+
+    override suspend fun invitesRequired(): Boolean = false
+    override suspend fun requestInvite(email: String, message: String?): Boolean = true
 }
 
 class InMemoryProfileRepository : ProfileRepository {

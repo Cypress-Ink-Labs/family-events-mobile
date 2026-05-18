@@ -76,6 +76,11 @@ class LocalAuthRepository(
         sessionStore.writeSession(null)
         state.value = SessionState.SignedOut
     }
+
+    override suspend fun invitesRequired(): Boolean = api?.invitesRequired() ?: true
+
+    override suspend fun requestInvite(email: String, message: String?): Boolean =
+        api?.requestInvite(email, message) ?: false
 }
 
 class RoomBackedEventRepository(
