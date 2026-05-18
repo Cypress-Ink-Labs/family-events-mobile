@@ -59,6 +59,15 @@ public final class SupabaseAuthService: AuthService, Sendable {
         return Self.session(from: session, provider: .password)
     }
 
+    public func changePassword(email: String, currentPassword: String, newPassword: String) async throws {
+        do {
+            _ = try await supabase.client.auth.signIn(email: email, password: currentPassword)
+            _ = try await supabase.client.auth.update(user: UserAttributes(password: newPassword))
+        } catch {
+            throw mapAuthError(error)
+        }
+    }
+
     public func deleteAccount() async throws {
         _ = try await (try supabase.client.rpc("delete_my_account")).execute()
         try await signOut()

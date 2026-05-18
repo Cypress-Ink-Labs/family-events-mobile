@@ -8,6 +8,8 @@ import FEPlan
 
 @main
 struct FamilyEventsApp: App {
+    @AppStorage("family-events-theme") private var appearanceRawValue = AppAppearancePreference.system.rawValue
+
     private enum BootResult {
         case ready(
             authService: any AuthService,
@@ -89,8 +91,10 @@ struct FamilyEventsApp: App {
                 )
                 .environment(sessionStore)
                 .modelContainer(modelContainer)   // D14b: same instance the composer holds
+                .preferredColorScheme(AppAppearancePreference.resolve(appearanceRawValue).preferredColorScheme)
             case .configError(let message):
                 ConfigErrorView(message: message)
+                    .preferredColorScheme(AppAppearancePreference.resolve(appearanceRawValue).preferredColorScheme)
             }
         }
     }

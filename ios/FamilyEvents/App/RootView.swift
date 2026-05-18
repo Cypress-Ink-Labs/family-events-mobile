@@ -14,6 +14,7 @@ private struct PendingResetToken: Identifiable, Equatable {
 
 /// No-op fallback used when no real CityRepository is injected (e.g., previews, tests).
 private struct FallbackCityRepository: CityRepository {
+    func cities() async throws -> [CitySummary] { [] }
     func cityName(id: CityID) async throws -> String? { nil }
 }
 
@@ -52,7 +53,6 @@ struct RootView: View {
     @State private var showProfile = false
     @State private var planContext: PlanContext?
     @State private var cityName: String?
-    @State private var showCityPicker = false
 
     init(
         authService: any AuthService,
@@ -100,10 +100,14 @@ struct RootView: View {
             }
         }
         .sheet(isPresented: $showProfile) {
-            ProfileSheet(authService: authService)
-        }
-        .sheet(isPresented: $showCityPicker) {
-            CityPickerStub(onDismiss: { showCityPicker = false })
+            ProfileSheet(
+                authService: authService,
+                profileRepo: profileRepo,
+                cityRepo: cityRepo,
+                onProfileSaved: { profile in
+                    Task { await applyProfile(profile) }
+                }
+            )
         }
         .sheet(item: $pendingResetToken) { pending in
             NavigationStack {
@@ -127,7 +131,7 @@ struct RootView: View {
                     commentRepo: commentRepo,
                     context: ctx,
                     cityName: cityName,
-                    onSetCity: { showCityPicker = true }
+                    onSetCity: { showProfile = true }
                 )
                     .tabItem { Label(AppTab.plan.title, systemImage: AppTab.plan.systemImage) }
                     .tag(AppTab.plan)
@@ -174,5 +178,19 @@ struct RootView: View {
         } catch {
             return PlanContext(userID: userID, cityID: nil, kidAge: nil)
         }
+    }
+
+    @MainActor
+    private func applyProfile(_ profile: UserProfile) async {
+        if let cityID = profile.cityPreferenceID {
+            cityName = try? await cityRepo.cityName(id: cityID)
+        } else {
+            cityName = nil
+        }
+        planContext = PlanContext(
+            userID: profile.id,
+            cityID: profile.cityPreferenceID,
+            kidAge: profile.childAge
+        )
     }
 }

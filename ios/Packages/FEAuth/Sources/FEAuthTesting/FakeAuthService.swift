@@ -10,10 +10,13 @@ public final class FakeAuthService: AuthService, @unchecked Sendable {
     public var signOutError: Error?
     public var sendResetError: Error?
     public var resetPasswordResult: Result<AuthSession, Error> = .failure(AppError.unauthorized)
+    public var changePasswordError: Error?
     public var deleteAccountError: Error?
 
     public private(set) var signOutCallCount = 0
     public private(set) var deleteAccountCallCount = 0
+    public private(set) var changePasswordCallCount = 0
+    public private(set) var lastChangePasswordInput: (email: String, currentPassword: String, newPassword: String)?
 
     public init() {}
 
@@ -35,6 +38,11 @@ public final class FakeAuthService: AuthService, @unchecked Sendable {
     }
     public func resetPassword(accessToken: String, newPassword: String) async throws -> AuthSession {
         return try resetPasswordResult.get()
+    }
+    public func changePassword(email: String, currentPassword: String, newPassword: String) async throws {
+        changePasswordCallCount += 1
+        lastChangePasswordInput = (email, currentPassword, newPassword)
+        if let changePasswordError { throw changePasswordError }
     }
     public func deleteAccount() async throws {
         deleteAccountCallCount += 1
