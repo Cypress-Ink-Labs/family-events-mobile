@@ -25,29 +25,7 @@ fun decodeHtmlEntities(input: String): String {
             continue
         }
         val entity = input.substring(i + 1, semi)
-        val decoded: String? = when {
-            entity == "amp" -> "&"
-            entity == "lt" -> "<"
-            entity == "gt" -> ">"
-            entity == "quot" -> "\""
-            entity == "apos" -> "'"
-            entity == "nbsp" -> " "
-            entity.startsWith("#x") || entity.startsWith("#X") -> {
-                val hex = entity.substring(2)
-                if (hex.isEmpty()) null
-                else hex.toLongOrNull(16)?.let { cp ->
-                    if (cp in 0..0x10FFFF && cp !in 0xD800..0xDFFF) String(Character.toChars(cp.toInt())) else null
-                }
-            }
-            entity.startsWith("#") -> {
-                val dec = entity.substring(1)
-                if (dec.isEmpty()) null
-                else dec.toLongOrNull(10)?.let { cp ->
-                    if (cp in 0..0x10FFFF && cp !in 0xD800..0xDFFF) String(Character.toChars(cp.toInt())) else null
-                }
-            }
-            else -> null
-        }
+        val decoded = decodeNamedEntity(entity) ?: decodeNumericEntity(entity)
         if (decoded != null) {
             sb.append(decoded)
             i = semi + 1
@@ -58,3 +36,32 @@ fun decodeHtmlEntities(input: String): String {
     }
     return sb.toString()
 }
+
+private fun decodeNamedEntity(entity: String): String? = when (entity) {
+    "amp" -> "&"
+    "lt" -> "<"
+    "gt" -> ">"
+    "quot" -> "\""
+    "apos" -> "'"
+    "nbsp" -> " "
+    else -> null
+}
+
+private fun decodeNumericEntity(entity: String): String? = when {
+    entity.startsWith("#x") || entity.startsWith("#X") -> {
+        val hex = entity.substring(2)
+        if (hex.isEmpty()) null else hex.toLongOrNull(16)?.let(::validateCodePoint)
+    }
+    entity.startsWith("#") -> {
+        val dec = entity.substring(1)
+        if (dec.isEmpty()) null else dec.toLongOrNull(10)?.let(::validateCodePoint)
+    }
+    else -> null
+}
+
+private fun validateCodePoint(cp: Long): String? =
+    if (cp in 0L..0x10FFFFL && cp !in 0xD800L..0xDFFFL) {
+        String(Character.toChars(cp.toInt()))
+    } else {
+        null
+    }

@@ -441,12 +441,31 @@ class KtorSupabaseConsumerApi(
 
     private suspend fun HttpResponse.requireOk(): HttpResponse {
         if (status.value in 200..299) return this
-        throw AppError.Remote(bodyAsText().ifBlank { "Supabase request failed with HTTP ${status.value}" })
+        throw toAppError(status, bodyAsText())
     }
 
     private suspend fun HttpResponse.requireOkOrNoContent(): HttpResponse {
         if (status == HttpStatusCode.NoContent || status.value in 200..299) return this
-        throw AppError.Remote(bodyAsText().ifBlank { "Supabase request failed with HTTP ${status.value}" })
+        throw toAppError(status, bodyAsText())
+    }
+
+    private fun toAppError(status: HttpStatusCode, body: String): AppError {
+        val payload = runCatching { json.parseToJsonElement(body) as? JsonObject }.getOrNull()
+        val code = payload?.get("error_code")?.jsonPrimitive?.contentOrNull
+            ?: payload?.get("code")?.jsonPrimitive?.contentOrNull
+        val message = payload?.get("msg")?.jsonPrimitive?.contentOrNull
+            ?: payload?.get("message")?.jsonPrimitive?.contentOrNull
+            ?: body.ifBlank { "Supabase request failed with HTTP ${status.value}" }
+
+        return when (code) {
+            "invalid_credentials" -> AppError.InvalidCredentials
+            "email_not_confirmed" -> AppError.EmailNotConfirmed
+            "user_already_exists",
+            "email_exists",
+            -> AppError.EmailAlreadyInUse
+            "weak_password" -> AppError.WeakPassword(message)
+            else -> if (status == HttpStatusCode.Unauthorized) AppError.Unauthorized else AppError.Remote(message)
+        }
     }
 
     private suspend inline fun <reified T> HttpResponse.decode(): T =

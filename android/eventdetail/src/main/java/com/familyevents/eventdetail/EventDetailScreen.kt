@@ -57,6 +57,7 @@ import com.familyevents.designsystem.InfoGrid
 import com.familyevents.designsystem.InfoGridItem
 import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /** Decode nullable string for display; empty string when null. */
@@ -130,7 +131,7 @@ fun EventDetailScreen(
         if (current.avgRating > 0) {
             add(InfoGridItem(
                 label = "RATING",
-                value = "%.1f (%d)".format(current.avgRating, current.ratingCount),
+                value = "%.1f (%d)".format(Locale.US, current.avgRating, current.ratingCount),
                 icon = "⭐",
             ))
         }
