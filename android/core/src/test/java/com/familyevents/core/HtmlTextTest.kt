@@ -69,4 +69,56 @@ class HtmlTextTest {
     fun emptyHexPassesThrough() {
         assertEquals("Empty &#x; entity", decodeHtmlEntities("Empty &#x; entity"))
     }
+
+    @Test
+    fun ltEntity() {
+        assertEquals("<less>", decodeHtmlEntities("&lt;less&gt;"))
+    }
+
+    @Test
+    fun aposEntity() {
+        assertEquals("it's", decodeHtmlEntities("it&apos;s"))
+    }
+
+    @Test
+    fun uppercaseHexPrefix() {
+        // &#X2014; (uppercase X) should decode the same as &#x2014;
+        assertEquals("—", decodeHtmlEntities("&#X2014;"))
+    }
+
+    @Test
+    fun emptyDecimalPassesThrough() {
+        // &#; has no digits — should pass through verbatim
+        assertEquals("Empty &#; entity", decodeHtmlEntities("Empty &#; entity"))
+    }
+
+    @Test
+    fun consecutiveEntitiesNoSeparator() {
+        assertEquals("&<>", decodeHtmlEntities("&amp;&lt;&gt;"))
+    }
+
+    @Test
+    fun ampWithNoSemicolonAtEndOfString() {
+        // A lone & at the end (no semicolon) passes through
+        assertEquals("trailing &", decodeHtmlEntities("trailing &"))
+    }
+
+    @Test
+    fun maxValidCodePoint() {
+        // U+10FFFF is the highest valid Unicode scalar — should decode successfully
+        val result = decodeHtmlEntities("&#x10FFFF;")
+        assertEquals(1, result.codePoints().count().toInt())
+        assertEquals(0x10FFFF, result.codePointAt(0))
+    }
+
+    @Test
+    fun aboveMaxCodePointPassesThrough() {
+        // U+110000 is out of range; should pass through verbatim
+        assertEquals("&#x110000;", decodeHtmlEntities("&#x110000;"))
+    }
+
+    @Test
+    fun stringWithOnlyEntities() {
+        assertEquals("& < >", decodeHtmlEntities("&amp; &lt; &gt;"))
+    }
 }

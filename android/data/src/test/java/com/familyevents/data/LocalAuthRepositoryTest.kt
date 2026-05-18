@@ -58,13 +58,65 @@ class LocalAuthRepositoryTest {
 
         assertEquals(Triple("parent@example.com", "oldpass", "newpass"), api.lastChangePassword)
     }
+
+    @Test
+    fun invitesRequiredDelegatesToApiWhenPresent() = runTest {
+        val api = object : FakeConsumerApi() {
+            override suspend fun invitesRequired(): Boolean = false
+        }
+        val repository = LocalAuthRepository(MemorySessionStore(), api)
+
+        assertEquals(false, repository.invitesRequired())
+    }
+
+    @Test
+    fun invitesRequiredReturnsTrueWhenApiIsAbsent() = runTest {
+        val repository = LocalAuthRepository(MemorySessionStore(), api = null)
+
+        assertEquals(true, repository.invitesRequired())
+    }
+
+    @Test
+    fun requestInviteDelegatesToApiWithEmailAndMessage() = runTest {
+        val api = RecordingConsumerApi()
+        val repository = LocalAuthRepository(MemorySessionStore(), api)
+
+        val result = repository.requestInvite("user@example.com", "Hello!")
+
+        assertEquals("user@example.com" to "Hello!", api.lastRequestInvite)
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun requestInviteDelegatesToApiWithNullMessage() = runTest {
+        val api = RecordingConsumerApi()
+        val repository = LocalAuthRepository(MemorySessionStore(), api)
+
+        val result = repository.requestInvite("user@example.com", null)
+
+        assertEquals("user@example.com" to null, api.lastRequestInvite)
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun requestInviteReturnsFalseWhenApiIsAbsent() = runTest {
+        val repository = LocalAuthRepository(MemorySessionStore(), api = null)
+
+        assertEquals(false, repository.requestInvite("user@example.com", null))
+    }
 }
 
 private class RecordingConsumerApi : FakeConsumerApi() {
     var lastChangePassword: Triple<String, String, String>? = null
+    var lastRequestInvite: Pair<String, String?>? = null
 
     override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) {
         lastChangePassword = Triple(email, currentPassword, newPassword)
+    }
+
+    override suspend fun requestInvite(email: String, message: String?): Boolean {
+        lastRequestInvite = email to message
+        return true
     }
 }
 
