@@ -1,7 +1,7 @@
 @rem Gradle startup script for Windows
 @setlocal
 @set APP_HOME=%~dp0
-@set DEFAULT_JVM_OPTS=
+@set DEFAULT_JVM_OPTS=--enable-native-access=ALL-UNNAMED
 @if defined JAVA_HOME (
   @set JAVA_EXE=%JAVA_HOME%\bin\java.exe
 ) else (

@@ -50,7 +50,7 @@ final class ProfileViewModelTests: XCTestCase {
         let profileRepo = FakeProfileRepo()
         profileRepo.profileResult = .success(profile)
         let cityRepo = FakeCityRepository()
-        cityRepo.citiesResult = .failure(AppError.networkError)
+        cityRepo.citiesResult = .failure(AppError.network(URLError(.notConnectedToInternet)))
         let model = ProfileViewModel(
             userID: UserID("u_1"),
             profileRepo: profileRepo,
