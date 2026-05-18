@@ -28,9 +28,22 @@ android {
         buildConfigField("String", "ANDROID_GOOGLE_WEB_CLIENT_ID", "\"${providers.environmentVariable("ANDROID_GOOGLE_WEB_CLIENT_ID").orElse("").get()}\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
