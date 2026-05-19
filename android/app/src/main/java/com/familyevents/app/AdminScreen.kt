@@ -46,7 +46,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.familyevents.core.decodeHtmlEntities
+import com.familyevents.core.DateFormatting
 import com.familyevents.data.AdminCommentDto
+import com.familyevents.data.AdminCronJobDto
+import com.familyevents.data.AdminCronRunDto
 import com.familyevents.data.AdminInviteCodeListDto
 import com.familyevents.data.AdminInviteRequestDto
 import com.familyevents.data.AdminRepository
@@ -78,6 +81,7 @@ fun AdminScreen(
         AdminCommentsSection(adminRepository)
         AdminSourcesSection(adminRepository)
         AdminInvitesSection(adminRepository)
+        AdminCronsSection(adminRepository)
     }
 }
 
@@ -666,6 +670,303 @@ private fun AdminInviteRequestCard(
             }
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Crons
+// ---------------------------------------------------------------------------
+
+private fun formatDuration(ms: Double): String =
+    if (ms >= 1000.0) "${"%.1f".format(ms / 1000.0)}s" else "${ms.toLong()}ms"
+
+private fun formatInstant(instant: java.time.Instant?): String =
+    if (instant == null) "—" else DateFormatting.cardSubtitle(instant)
+
+@Composable
+private fun AdminCronsSection(adminRepository: AdminRepository) {
+    var jobs by remember { mutableStateOf<List<AdminCronJobDto>>(emptyList()) }
+    var history by remember { mutableStateOf<List<AdminCronRunDto>>(emptyList()) }
+    var historyFilter by rememberSaveable { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    var inFlight by remember { mutableStateOf(false) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var editingJob by remember { mutableStateOf<AdminCronJobDto?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(refreshKey) {
+        try {
+            loading = true
+            jobs = adminRepository.listCronJobs()
+        } catch (e: Throwable) {
+            feedback = "Failed to load jobs: ${e.message ?: "unknown"}"
+        } finally {
+            loading = false
+        }
+    }
+
+    LaunchedEffect(historyFilter, refreshKey) {
+        try {
+            history = adminRepository.cronRunHistory(historyFilter, limit = 50)
+        } catch (e: Throwable) {
+            feedback = "Failed to load history: ${e.message ?: "unknown"}"
+        }
+    }
+
+    fun runDueScrapes() {
+        scope.launch {
+            inFlight = true
+            try {
+                adminRepository.runDueScrapes()
+                refreshKey++
+            } catch (e: Throwable) {
+                feedback = "Failed to run scrapes: ${e.message ?: "unknown"}"
+            } finally {
+                inFlight = false
+            }
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("Crons", style = FamilyTypography.TitleMedium)
+
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+            Button(onClick = { runDueScrapes() }, enabled = !inFlight) {
+                Text("Run All Due Now", softWrap = false, maxLines = 1)
+            }
+        }
+
+        feedback?.let { msg ->
+            Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+        }
+
+        when {
+            loading && jobs.isEmpty() -> LoadingState("Loading cron jobs")
+            !loading && jobs.isEmpty() -> EmptyState("No cron jobs configured.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                jobs.forEach { job ->
+                    CronJobCard(
+                        job = job,
+                        onToggleActive = { newActive ->
+                            scope.launch {
+                                try {
+                                    adminRepository.toggleCronJob(job.jobname, newActive)
+                                    refreshKey++
+                                } catch (e: Throwable) {
+                                    feedback = "Failed to toggle job: ${e.message ?: "unknown"}"
+                                }
+                            }
+                        },
+                        onEditSchedule = { editingJob = job },
+                    )
+                }
+            }
+        }
+
+        Text("Run history", style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+            FilterChip(
+                selected = historyFilter == null,
+                onClick = { historyFilter = null },
+                label = { Text("All") },
+            )
+            jobs.map { it.jobname }.distinct().forEach { name ->
+                FilterChip(
+                    selected = historyFilter == name,
+                    onClick = { historyFilter = name },
+                    label = { Text(name) },
+                )
+            }
+        }
+
+        if (history.isEmpty()) {
+            Text(
+                "No run history.",
+                style = FamilyTypography.BodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                history.forEach { run ->
+                    val statusColor = when (run.status.lowercase()) {
+                        "succeeded", "success" -> MaterialTheme.colorScheme.primary
+                        "failed", "failure" -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    }
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(Tokens.Space.S3),
+                            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1),
+                        ) {
+                            Text(
+                                text = "${run.jobname} · " +
+                                    run.status +
+                                    (run.durationMs?.let { " · ${formatDuration(it)}" } ?: ""),
+                                style = FamilyTypography.BodySmall,
+                                color = statusColor,
+                            )
+                            Text(
+                                text = formatInstant(run.startTime),
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                            val runMsg = run.returnMessage
+                            if (!runMsg.isNullOrBlank()) {
+                                Text(
+                                    text = runMsg,
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 2,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (editingJob != null) {
+        CronScheduleDialog(
+            job = editingJob!!,
+            adminRepository = adminRepository,
+            onDismiss = { editingJob = null },
+            onSaved = { editingJob = null; refreshKey++ },
+        )
+    }
+}
+
+@Composable
+private fun CronJobCard(
+    job: AdminCronJobDto,
+    onToggleActive: (Boolean) -> Unit,
+    onEditSchedule: () -> Unit,
+) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(Tokens.Space.S4),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = job.jobname,
+                    style = FamilyTypography.BodySmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                TagPill(label = if (job.active) "active" else "paused")
+            }
+            Text(
+                text = "schedule: ${job.schedule}",
+                style = FamilyTypography.Caption,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+            Text(
+                text = "last: ${job.lastRunStatus ?: "—"} at ${formatInstant(job.lastRunStart)}",
+                style = FamilyTypography.Caption,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+            val jobMsg = job.lastRunMessage
+            if (!jobMsg.isNullOrBlank()) {
+                Text(
+                    text = jobMsg,
+                    style = FamilyTypography.Caption,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    maxLines = 2,
+                )
+            }
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                ) {
+                    Text("Active", style = FamilyTypography.BodySmall)
+                    Switch(checked = job.active, onCheckedChange = onToggleActive)
+                }
+                OutlinedButton(onClick = onEditSchedule) {
+                    Text("Edit schedule")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CronScheduleDialog(
+    job: AdminCronJobDto,
+    adminRepository: AdminRepository,
+    onDismiss: () -> Unit,
+    onSaved: () -> Unit,
+) {
+    var schedule by rememberSaveable { mutableStateOf(job.schedule) }
+    var inFlight by remember { mutableStateOf(false) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    val quickPicks = listOf(
+        "0 * * * *" to "hourly",
+        "0 3 * * *" to "3am daily",
+        "*/15 * * * *" to "every 15 min",
+        "0 0 * * 0" to "Sunday midnight",
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit schedule for ${job.jobname}") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                errorMsg?.let { msg ->
+                    Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+                }
+                OutlinedTextField(
+                    value = schedule,
+                    onValueChange = { schedule = it },
+                    label = { Text("Cron expression") },
+                    supportingText = { Text("5-field cron, e.g. 0 3 * * *") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                    verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                ) {
+                    quickPicks.forEach { (expr, label) ->
+                        FilterChip(
+                            selected = schedule == expr,
+                            onClick = { schedule = expr },
+                            label = { Text(label) },
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    scope.launch {
+                        inFlight = true
+                        errorMsg = null
+                        try {
+                            adminRepository.setCronSchedule(job.jobname, schedule.trim())
+                            onSaved()
+                        } catch (e: Throwable) {
+                            errorMsg = e.message ?: "Failed to update schedule"
+                        } finally {
+                            inFlight = false
+                        }
+                    }
+                },
+                enabled = !inFlight && schedule.isNotBlank(),
+            ) { Text("Save") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
 }
 
 // ---------------------------------------------------------------------------
