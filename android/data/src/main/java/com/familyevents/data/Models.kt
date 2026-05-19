@@ -152,6 +152,18 @@ data class AdminCronJobDto(
     val lastRunMessage: String?,
 )
 
+data class AdminCommentDto(
+    val id: String,
+    val userId: UserId,
+    val eventId: EventId,
+    val body: String,
+    val isApproved: Boolean,
+    val isFlagged: Boolean,
+    val createdAt: Instant,
+    val authorDisplayName: String?,
+    val eventTitle: String?,
+)
+
 data class AdminCronRunDto(
     val runid: Long,
     val jobname: String,

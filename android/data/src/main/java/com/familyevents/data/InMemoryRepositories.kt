@@ -257,6 +257,8 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun toggleCronJob(jobName: String, active: Boolean) = Unit
     override suspend fun setCronSchedule(jobName: String, schedule: String) = Unit
     override suspend fun runDueScrapes() = Unit
+    override suspend fun listComments(filter: String): List<AdminCommentDto> = emptyList()
+    override suspend fun deleteComment(commentId: String) = Unit
 }
 
 class RepositoryGraph(

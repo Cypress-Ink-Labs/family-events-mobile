@@ -366,6 +366,13 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
     override suspend fun runDueScrapes() {
         api?.adminRunDueScrapes()
     }
+
+    override suspend fun listComments(filter: String): List<AdminCommentDto> =
+        api?.adminListComments(filter) ?: emptyList()
+
+    override suspend fun deleteComment(commentId: String) {
+        api?.adminDeleteComment(commentId)
+    }
 }
 
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =

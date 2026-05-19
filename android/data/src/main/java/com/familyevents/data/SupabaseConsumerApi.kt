@@ -82,6 +82,8 @@ interface SupabaseConsumerApi {
     suspend fun adminToggleCronJob(jobName: String, active: Boolean): Unit {}
     suspend fun adminSetCronSchedule(jobName: String, schedule: String): Unit {}
     suspend fun adminRunDueScrapes(): Unit {}
+    suspend fun adminListComments(filter: String = "all"): List<AdminCommentDto> = emptyList()
+    suspend fun adminDeleteComment(commentId: String) {}
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
@@ -544,6 +546,31 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
+    override suspend fun adminListComments(filter: String): List<AdminCommentDto> {
+        val response = client.get("$baseUrl/rest/v1/comments") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,user_id,event_id,body,is_approved,is_flagged,created_at,user_profiles(display_name),events(title)")
+            when (filter) {
+                "flagged" -> parameter("is_flagged", "eq.true")
+                "pending" -> parameter("is_approved", "eq.false")
+                "approved" -> parameter("is_approved", "eq.true")
+                // "all" — no extra filter
+            }
+            parameter("order", "created_at.desc")
+            parameter("limit", "50")
+        }
+        return response.requireOk().decodeList<AdminCommentRow>().map { it.toAdminDto() }
+    }
+
+    override suspend fun adminDeleteComment(commentId: String) {
+        client.delete("$baseUrl/rest/v1/comments") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$commentId")
+        }.requireOkOrNoContent()
+    }
+
     override suspend fun deleteAccount() {
         client.post("$baseUrl/rest/v1/rpc/delete_my_account") {
             baseHeaders()
@@ -904,6 +931,41 @@ private data class AdminCronRunRow(
         startTime = startTime.parseInstant(),
         endTime = endTime?.parseInstant(),
         durationMs = durationMs,
+    )
+}
+
+@Serializable
+private data class AdminCommentUserProfileRow(
+    @SerialName("display_name") val displayName: String? = null,
+)
+
+@Serializable
+private data class AdminCommentEventRow(
+    val title: String? = null,
+)
+
+@Serializable
+private data class AdminCommentRow(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("event_id") val eventId: String,
+    val body: String,
+    @SerialName("is_approved") val isApproved: Boolean = false,
+    @SerialName("is_flagged") val isFlagged: Boolean = false,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("user_profiles") val userProfiles: AdminCommentUserProfileRow? = null,
+    val events: AdminCommentEventRow? = null,
+) {
+    fun toAdminDto() = AdminCommentDto(
+        id = id,
+        userId = UserId(userId),
+        eventId = EventId(eventId),
+        body = body,
+        isApproved = isApproved,
+        isFlagged = isFlagged,
+        createdAt = createdAt.parseInstant(),
+        authorDisplayName = userProfiles?.displayName,
+        eventTitle = events?.title,
     )
 }
 

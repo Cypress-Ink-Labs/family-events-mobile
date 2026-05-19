@@ -90,4 +90,6 @@ interface AdminRepository {
     suspend fun toggleCronJob(jobName: String, active: Boolean)
     suspend fun setCronSchedule(jobName: String, schedule: String)
     suspend fun runDueScrapes()
+    suspend fun listComments(filter: String = "all"): List<AdminCommentDto>
+    suspend fun deleteComment(commentId: String)
 }
