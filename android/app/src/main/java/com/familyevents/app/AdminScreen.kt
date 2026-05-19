@@ -206,18 +206,15 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
     Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
         Text("Events", style = FamilyTypography.TitleMedium)
 
-        // 1. Status filter chips
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-            eventStatuses.forEach { s ->
-                FilterChip(
-                    selected = status == s,
-                    onClick = { status = s; selected = emptySet() },
-                    label = { Text("$s (${facets?.statusCounts?.get(s) ?: 0})") },
-                )
-            }
-        }
+        EventStatusFilterChips(
+            status = status,
+            statusCounts = facets?.statusCounts.orEmpty(),
+            onStatusChange = { nextStatus ->
+                status = nextStatus
+                selected = emptySet()
+            },
+        )
 
-        // 2. Keyword search
         OutlinedTextField(
             value = keyword,
             onValueChange = { keyword = it },
@@ -226,114 +223,73 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
             singleLine = true,
         )
 
-        // 3. City filter chips (only when facets have cities)
-        val cities = facets?.cityCounts
-        if (!cities.isNullOrEmpty()) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-                FilterChip(
-                    selected = cityId == null,
-                    onClick = { cityId = null },
-                    label = { Text("All cities (${cities.values.sum()})") },
-                )
-                cities.forEach { (cId, count) ->
-                    FilterChip(
-                        selected = cityId == cId,
-                        onClick = { cityId = cId },
-                        label = { Text("$cId ($count)") },
-                    )
-                }
-            }
-        }
+        CityFilterChips(
+            cityId = cityId,
+            cityCounts = facets?.cityCounts.orEmpty(),
+            onCityChange = { cityId = it },
+        )
 
-        // 4. Bulk action bar
-        if (selected.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-                Text("${selected.size} selected", style = FamilyTypography.BodySmall)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
-                    listOf("published" to "Publish", "rejected" to "Reject", "archived" to "Archive").forEach { (target, label) ->
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    bulkInFlight = true
-                                    try {
-                                        adminRepository.bulkUpdateEventStatus(selected.map { EventId(it) }, target)
-                                        selected = emptySet()
-                                        feedback = null
-                                        refreshKey++
-                                    } catch (e: Exception) {
-                                        feedback = e.message ?: "Bulk update failed"
-                                    } finally {
-                                        bulkInFlight = false
-                                    }
-                                }
-                            },
-                            enabled = !bulkInFlight,
-                        ) { Text(label, softWrap = false, maxLines = 1) }
+        EventBulkActionBar(
+            selected = selected,
+            bulkInFlight = bulkInFlight,
+            onBulkUpdate = { target ->
+                scope.launch {
+                    bulkInFlight = true
+                    try {
+                        adminRepository.bulkUpdateEventStatus(selected.map { EventId(it) }, target)
+                        selected = emptySet()
+                        feedback = null
+                        refreshKey++
+                    } catch (e: Exception) {
+                        feedback = e.message ?: "Bulk update failed"
+                    } finally {
+                        bulkInFlight = false
                     }
-                    OutlinedButton(
-                        onClick = { showDeleteConfirm = true },
-                        enabled = !bulkInFlight,
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.error,
-                        ),
-                    ) { Text("Delete", softWrap = false, maxLines = 1) }
-                    TextButton(onClick = { selected = emptySet() }) { Text("Clear") }
                 }
-            }
-        }
+            },
+            onShowDelete = { showDeleteConfirm = true },
+            onClearSelection = { selected = emptySet() },
+        )
 
-        // 5. Feedback
         feedback?.let {
             Text(it, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.error)
         }
 
-        // 6. Event list
-        when {
-            loading && events.isEmpty() -> LoadingState("Loading events")
-            !loading && events.isEmpty() -> EmptyState("No events for filter.")
-            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
-                events.forEach { event ->
-                    AdminEventCard(
-                        event = event,
-                        isSelected = event.id.rawValue in selected,
-                        onToggleSelect = {
-                            selected = if (event.id.rawValue in selected) {
-                                selected - event.id.rawValue
-                            } else {
-                                selected + event.id.rawValue
-                            }
-                        },
-                        onEdit = { editingEvent = event },
-                        onChangeStatus = { target ->
-                            scope.launch {
-                                try {
-                                    adminRepository.bulkUpdateEventStatus(listOf(event.id), target)
-                                    feedback = null
-                                    refreshKey++
-                                } catch (e: Exception) {
-                                    feedback = e.message ?: "Status update failed"
-                                }
-                            }
-                        },
-                        onDelete = {
-                            scope.launch {
-                                try {
-                                    adminRepository.deleteEvent(event.id)
-                                    feedback = null
-                                    refreshKey++
-                                } catch (e: Exception) {
-                                    feedback = e.message ?: "Delete failed"
-                                }
-                            }
-                        },
-                    )
+        EventListContent(
+            loading = loading,
+            events = events,
+            selected = selected,
+            onToggleSelect = { event ->
+                selected = if (event.id.rawValue in selected) {
+                    selected - event.id.rawValue
+                } else {
+                    selected + event.id.rawValue
                 }
-            }
-        }
+            },
+            onEdit = { editingEvent = it },
+            onChangeStatus = { event, target ->
+                scope.launch {
+                    try {
+                        adminRepository.bulkUpdateEventStatus(listOf(event.id), target)
+                        feedback = null
+                        refreshKey++
+                    } catch (e: Exception) {
+                        feedback = e.message ?: "Status update failed"
+                    }
+                }
+            },
+            onDelete = { event ->
+                scope.launch {
+                    try {
+                        adminRepository.deleteEvent(event.id)
+                        feedback = null
+                        refreshKey++
+                    } catch (e: Exception) {
+                        feedback = e.message ?: "Delete failed"
+                    }
+                }
+            },
+        )
     }
 
     // Bulk delete confirmation dialog
@@ -380,6 +336,110 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
             onDismiss = { editingEvent = null },
             onSaved = { editingEvent = null; refreshKey++ },
         )
+    }
+}
+
+@Composable
+private fun EventStatusFilterChips(
+    status: String,
+    statusCounts: Map<String, Int>,
+    onStatusChange: (String) -> Unit,
+) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        eventStatuses.forEach { s ->
+            FilterChip(
+                selected = status == s,
+                onClick = { onStatusChange(s) },
+                label = { Text("$s (${statusCounts[s] ?: 0})") },
+            )
+        }
+    }
+}
+
+@Composable
+private fun CityFilterChips(
+    cityId: String?,
+    cityCounts: Map<String, Int>,
+    onCityChange: (String?) -> Unit,
+) {
+    if (cityCounts.isEmpty()) return
+
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        FilterChip(
+            selected = cityId == null,
+            onClick = { onCityChange(null) },
+            label = { Text("All cities (${cityCounts.values.sum()})") },
+        )
+        cityCounts.forEach { (cId, count) ->
+            FilterChip(
+                selected = cityId == cId,
+                onClick = { onCityChange(cId) },
+                label = { Text("$cId ($count)") },
+            )
+        }
+    }
+}
+
+@Composable
+private fun EventBulkActionBar(
+    selected: Set<String>,
+    bulkInFlight: Boolean,
+    onBulkUpdate: (String) -> Unit,
+    onShowDelete: () -> Unit,
+    onClearSelection: () -> Unit,
+) {
+    if (selected.isEmpty()) return
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        Text("${selected.size} selected", style = FamilyTypography.BodySmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+            listOf("published" to "Publish", "rejected" to "Reject", "archived" to "Archive").forEach { (target, label) ->
+                Button(
+                    onClick = { onBulkUpdate(target) },
+                    enabled = !bulkInFlight,
+                ) { Text(label, softWrap = false, maxLines = 1) }
+            }
+            OutlinedButton(
+                onClick = onShowDelete,
+                enabled = !bulkInFlight,
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.error,
+                ),
+            ) { Text("Delete", softWrap = false, maxLines = 1) }
+            TextButton(onClick = onClearSelection) { Text("Clear") }
+        }
+    }
+}
+
+@Composable
+private fun EventListContent(
+    loading: Boolean,
+    events: List<AdminEventListItemDto>,
+    selected: Set<String>,
+    onToggleSelect: (AdminEventListItemDto) -> Unit,
+    onEdit: (AdminEventListItemDto) -> Unit,
+    onChangeStatus: (AdminEventListItemDto, String) -> Unit,
+    onDelete: (AdminEventListItemDto) -> Unit,
+) {
+    when {
+        loading && events.isEmpty() -> LoadingState("Loading events")
+        !loading && events.isEmpty() -> EmptyState("No events for filter.")
+        else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+            events.forEach { event ->
+                AdminEventCard(
+                    event = event,
+                    isSelected = event.id.rawValue in selected,
+                    onToggleSelect = { onToggleSelect(event) },
+                    onEdit = { onEdit(event) },
+                    onChangeStatus = { target -> onChangeStatus(event, target) },
+                    onDelete = { onDelete(event) },
+                )
+            }
+        }
     }
 }
 
