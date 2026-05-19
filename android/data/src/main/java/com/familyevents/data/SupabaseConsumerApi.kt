@@ -71,6 +71,7 @@ interface SupabaseConsumerApi {
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
+    suspend fun publicEvent(id: EventId): EventDto? = null
 }
 
 class KtorSupabaseConsumerApi(
@@ -417,6 +418,17 @@ class KtorSupabaseConsumerApi(
         return body.toBooleanStrictOrNull() ?: false
     }
 
+    override suspend fun publicEvent(id: EventId): EventDto? {
+        val response = client.get("$baseUrl/rest/v1/public_events") {
+            baseHeaders()
+            header(HttpHeaders.Authorization, "Bearer ${config.supabaseAnonKey}")
+            parameter("select", "*")
+            parameter("id", "eq.${id.rawValue}")
+            parameter("limit", "1")
+        }
+        return response.requireOk().decodeList<EventRow>().firstOrNull()?.toDto()
+    }
+
     private suspend fun eventsByIds(ids: List<EventId>): List<EventDto> {
         val uniqueIds = ids.distinctBy { it.rawValue }.filter { it.rawValue.isUuid() }
         if (uniqueIds.isEmpty()) return emptyList()
@@ -691,10 +703,4 @@ private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String
 
 private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: JsonElement?) {
     if (value == null) put(key, JsonNull) else put(key, value)
-}
-
-private fun String.parseInstant(): Instant = try {
-    Instant.parse(this)
-} catch (_: Exception) {
-    OffsetDateTime.parse(this).toInstant()
 }

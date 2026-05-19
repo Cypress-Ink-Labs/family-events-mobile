@@ -40,6 +40,7 @@ interface EventRepository {
     suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int? = null)
     suspend fun refreshEventList(query: EventQuery)
     suspend fun refreshEventDetail(id: EventId)
+    suspend fun publicEvent(id: EventId): EventDto? = null
 }
 
 interface FavoriteRepository {

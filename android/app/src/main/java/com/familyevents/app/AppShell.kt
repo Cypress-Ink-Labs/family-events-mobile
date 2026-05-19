@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,6 +43,7 @@ import com.familyevents.data.RepositoryGraph
 import com.familyevents.data.SessionState
 import com.familyevents.designsystem.AppThemePreference
 import com.familyevents.eventdetail.EventDetailScreen
+import com.familyevents.eventdetail.PublicSharePreviewScreen
 import com.familyevents.explore.ExploreScreen
 import com.familyevents.plan.PlanScreen
 import com.familyevents.platform.PlatformActions
@@ -77,21 +79,37 @@ fun FamilyEventsApp(
     var selectedTab by remember { mutableStateOf(AppTab.Plan) }
     var detailEventId by remember { mutableStateOf<EventId?>(null) }
     var showProfile by remember { mutableStateOf(false) }
+    var pendingShareEventId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         repositories.authRepository.restoreSession()
     }
 
     LaunchedEffect(initialUrl) {
+        val target = initialUrl?.let(DeepLinkPolicy::parse)
+        if (target is DeepLinkTarget.Share) {
+            pendingShareEventId = target.id.rawValue
+        }
         routeDeepLink(initialUrl, onTab = { selectedTab = it }, onEvent = { detailEventId = it })
     }
 
     when (val state = session) {
         SessionState.Restoring -> Box(Modifier.fillMaxSize())
-        SessionState.SignedOut -> AuthScreen(
-            authRepository = repositories.authRepository,
-            googleSignInEnabled = config.googleSignInEnabled,
-        )
+        SessionState.SignedOut -> {
+            val sharePreview = pendingShareEventId
+            if (sharePreview != null) {
+                PublicSharePreviewScreen(
+                    eventId = EventId(sharePreview),
+                    eventRepository = repositories.eventRepository,
+                    onSignIn = { pendingShareEventId = null },
+                )
+            } else {
+                AuthScreen(
+                    authRepository = repositories.authRepository,
+                    googleSignInEnabled = config.googleSignInEnabled,
+                )
+            }
+        }
         is SessionState.SignedIn -> {
             val userId = state.userId
             val profile by repositories.profileRepository.observeProfile(userId).collectAsState(initial = null)
@@ -100,7 +118,14 @@ fun FamilyEventsApp(
                 repositories.cityRepository.refreshCities()
                 repositories.profileRepository.currentContext(userId)
             }
-            AppScaffold(tabs = AppTab.entries, selectedTab = selectedTab, onSelectTab = { selectedTab = it }) { contentModifier ->
+            AppScaffold(
+                tabs = AppTab.entries,
+                selectedTab = selectedTab,
+                onSelectTab = {
+                    selectedTab = it
+                    detailEventId = null
+                },
+            ) { contentModifier ->
                 when (selectedTab) {
                     AppTab.Plan -> PlanScreen(
                         userId = userId,

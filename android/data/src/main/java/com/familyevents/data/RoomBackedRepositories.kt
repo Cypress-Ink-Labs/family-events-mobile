@@ -149,6 +149,8 @@ class RoomBackedEventRepository(
     override suspend fun refreshEventDetail(id: EventId) {
         (api?.event(id) ?: seedEvents().firstOrNull { it.id == id })?.let { eventDao.upsert(listOf(it.toEntity())) }
     }
+
+    override suspend fun publicEvent(id: EventId): EventDto? = api?.publicEvent(id)
 }
 
 class RoomBackedFavoriteRepository(
