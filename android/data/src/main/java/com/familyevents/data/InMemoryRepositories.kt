@@ -248,7 +248,7 @@ class InMemoryAdminRepository : AdminRepository {
             createdAt = java.time.Instant.now(),
         )
     override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean = true
-    override suspend fun revokeInvite(inviteId: String) = Unit
+    override suspend fun revokeInvite(inviteId: String): Boolean = true
     override suspend fun bulkSetAutoApprove(enable: Boolean) = Unit
     override suspend fun runSource(sourceId: String?) = Unit
     override suspend fun retryTagQueue(eventId: EventId): Boolean = true

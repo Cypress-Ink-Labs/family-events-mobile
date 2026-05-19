@@ -192,6 +192,7 @@ data class AdminInviteCodeListDto(
     val expiresAt: Instant?,
     val notes: String?,
     val createdAt: Instant,
+    val revokedAt: Instant?,
 )
 
 data class AdminInviteRequestDto(

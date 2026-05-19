@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -367,6 +368,7 @@ private fun AdminInviteCodesView(adminRepository: AdminRepository) {
     var loading by remember { mutableStateOf(true) }
     var refreshKey by remember { mutableStateOf(0) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var feedback by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(refreshKey) {
@@ -387,13 +389,20 @@ private fun AdminInviteCodesView(adminRepository: AdminRepository) {
             loading -> LoadingState("Loading codes")
             codes.isEmpty() -> EmptyState("No invite codes.")
             else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                if (feedback != null) {
+                    Text(
+                        text = feedback!!,
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 codes.forEach { code ->
                     AdminInviteCodeCard(
                         code = code,
                         onRevoke = {
                             scope.launch {
-                                runCatching { adminRepository.revokeInvite(code.id) }
-                                refreshKey++
+                                val ok = adminRepository.revokeInvite(code.id)
+                                if (ok) { refreshKey++ } else { feedback = "Revoke failed (not found or already revoked)." }
                             }
                         },
                     )
@@ -507,16 +516,23 @@ private fun AdminInviteCodeCard(
     code: AdminInviteCodeListDto,
     onRevoke: () -> Unit,
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    val isRevoked = code.revokedAt != null
+    Card(modifier = Modifier.fillMaxWidth().alpha(if (isRevoked) 0.5f else 1f)) {
         Column(
             modifier = Modifier.padding(Tokens.Space.S4),
             verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
         ) {
-            Text(
-                text = code.id.take(8) + "…",
-                style = FamilyTypography.BodySmall,
-                fontWeight = FontWeight.Bold,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = code.id.take(8) + "…",
+                    style = FamilyTypography.BodySmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                if (isRevoked) {
+                    TagPill("Revoked")
+                }
+            }
             Text(
                 text = "${code.usedCount} / ${code.maxUses} uses" +
                     if (code.expiresAt != null) " · expires ${code.expiresAt}" else "",
@@ -530,8 +546,8 @@ private fun AdminInviteCodeCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
             }
-            OutlinedButton(onClick = onRevoke) {
-                Text("Revoke", softWrap = false, maxLines = 1)
+            OutlinedButton(onClick = onRevoke, enabled = !isRevoked) {
+                Text(if (isRevoked) "Revoked" else "Revoke", softWrap = false, maxLines = 1)
             }
         }
     }

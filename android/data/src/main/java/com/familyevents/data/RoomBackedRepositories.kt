@@ -334,9 +334,8 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
     override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean =
         api?.adminRejectInviteRequest(requestId, notes) ?: false
 
-    override suspend fun revokeInvite(inviteId: String) {
-        api?.adminRevokeInvite(inviteId)
-    }
+    override suspend fun revokeInvite(inviteId: String): Boolean =
+        api?.adminRevokeInvite(inviteId) ?: false
 
     override suspend fun bulkSetAutoApprove(enable: Boolean) {
         api?.adminBulkSetAutoApprove(enable)

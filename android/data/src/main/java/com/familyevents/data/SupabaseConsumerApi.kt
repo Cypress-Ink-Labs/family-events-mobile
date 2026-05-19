@@ -74,7 +74,7 @@ interface SupabaseConsumerApi {
         throw AppError.Remote("Invite approval is unavailable.")
     suspend fun adminRejectInviteRequest(requestId: String, notes: String? = null): Boolean = false
     suspend fun adminBulkSetAutoApprove(enable: Boolean): Unit {}
-    suspend fun adminRevokeInvite(inviteId: String) {}
+    suspend fun adminRevokeInvite(inviteId: String): Boolean = false
     suspend fun adminRunSource(sourceId: String?) {}
     suspend fun adminRetryTagQueue(eventId: EventId): Boolean = false
     suspend fun adminListCronJobs(): List<AdminCronJobDto> = emptyList()
@@ -470,14 +470,15 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
-    override suspend fun adminRevokeInvite(inviteId: String) {
-        client.patch("$baseUrl/rest/v1/invite_codes") {
+    override suspend fun adminRevokeInvite(inviteId: String): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_revoke_invite_code") {
             baseHeaders()
             bearer()
-            parameter("id", "eq.$inviteId")
             contentType(ContentType.Application.Json)
-            setBody(buildJsonObject { put("is_active", false) }.toString())
-        }.requireOkOrNoContent()
+            setBody(buildJsonObject { put("p_id", inviteId) }.toString())
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: false
     }
 
     override suspend fun adminRunSource(sourceId: String?) {
@@ -610,7 +611,7 @@ class KtorSupabaseConsumerApi(
         val response = client.get("$baseUrl/rest/v1/invite_codes") {
             baseHeaders()
             bearer()
-            parameter("select", "id,max_uses,used_count,expires_at,notes,created_at")
+            parameter("select", "id,max_uses,used_count,expires_at,notes,created_at,revoked_at")
             parameter("order", "created_at.desc")
         }
         return response.requireOk().decodeList<AdminInviteCodeListRow>().map { it.toDto() }
@@ -1056,6 +1057,7 @@ private data class AdminInviteCodeListRow(
     @SerialName("expires_at") val expiresAt: String? = null,
     val notes: String? = null,
     @SerialName("created_at") val createdAt: String,
+    @SerialName("revoked_at") val revokedAt: String? = null,
 ) {
     fun toDto() = AdminInviteCodeListDto(
         id = id,
@@ -1064,6 +1066,7 @@ private data class AdminInviteCodeListRow(
         expiresAt = expiresAt?.parseInstant(),
         notes = notes,
         createdAt = createdAt.parseInstant(),
+        revokedAt = revokedAt?.parseInstant(),
     )
 }
 

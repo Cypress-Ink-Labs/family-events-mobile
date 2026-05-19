@@ -81,7 +81,7 @@ interface AdminRepository {
     suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto
     suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto
     suspend fun rejectInviteRequest(requestId: String, notes: String? = null): Boolean
-    suspend fun revokeInvite(inviteId: String)
+    suspend fun revokeInvite(inviteId: String): Boolean
     suspend fun bulkSetAutoApprove(enable: Boolean)
     suspend fun runSource(sourceId: String?)
     suspend fun retryTagQueue(eventId: EventId): Boolean
