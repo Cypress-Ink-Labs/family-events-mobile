@@ -83,6 +83,7 @@ fun AdminScreen(
     ) {
         Text("Admin", style = FamilyTypography.TitleLarge)
         AdminDashboardSection(adminRepository)
+        AdminEventsSection(adminRepository)
         AdminCommentsSection(adminRepository)
         AdminSourcesSection(adminRepository)
         AdminInvitesSection(adminRepository)

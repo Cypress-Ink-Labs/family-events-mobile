@@ -51,7 +51,7 @@ interface SupabaseAdminApi {
     suspend fun adminApproveInviteRequest(requestId: String): AdminInviteApprovalDto
     suspend fun adminRejectInviteRequest(requestId: String, notes: String? = null): Boolean
     suspend fun adminBulkSetAutoApprove(enable: Boolean)
-    suspend fun adminRevokeInvite(inviteId: String)
+    suspend fun adminRevokeInvite(inviteId: String): Boolean
     suspend fun adminRunSource(sourceId: String?)
     suspend fun adminRetryTagQueue(eventId: EventId): Boolean
     suspend fun adminListCronJobs(): List<AdminCronJobDto>
@@ -75,6 +75,18 @@ interface SupabaseAdminApi {
     suspend fun adminUpdateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String? = null)
     suspend fun adminListSourceRuns(limit: Int = 50): List<AdminSourceRunDto>
     suspend fun adminListTagQueueSummary(): List<AdminTagQueueSummaryRowDto>
+    suspend fun adminListEvents(
+        keyword: String? = null,
+        status: String? = null,
+        cityId: CityId? = null,
+        limit: Int = 50,
+        offset: Int = 0,
+    ): List<AdminEventListItemDto>
+    suspend fun adminListEventFacets(): AdminEventFacetsDto
+    suspend fun adminBulkUpdateEventStatus(eventIds: List<EventId>, status: String)
+    suspend fun adminBulkDeleteEvent(eventIds: List<EventId>)
+    suspend fun adminDeleteEvent(eventId: EventId)
+    suspend fun adminListEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto>
 }
 
 class KtorSupabaseAdminApi(
@@ -226,14 +238,15 @@ class KtorSupabaseAdminApi(
         }.requireOkOrNoContent()
     }
 
-    override suspend fun adminRevokeInvite(inviteId: String) {
-        client.patch("$baseUrl/rest/v1/invite_codes") {
+    override suspend fun adminRevokeInvite(inviteId: String): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_revoke_invite_code") {
             baseHeaders()
             bearer()
-            parameter("id", "eq.$inviteId")
             contentType(ContentType.Application.Json)
-            setBody(buildJsonObject { put("is_active", false) }.toString())
-        }.requireOkOrNoContent()
+            setBody(buildJsonObject { put("p_id", inviteId) }.toString())
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: false
     }
 
     override suspend fun adminRunSource(sourceId: String?) {
@@ -365,7 +378,7 @@ class KtorSupabaseAdminApi(
         val response = client.get("$baseUrl/rest/v1/invite_codes") {
             baseHeaders()
             bearer()
-            parameter("select", "id,max_uses,used_count,expires_at,notes,created_at")
+            parameter("select", "id,max_uses,used_count,expires_at,notes,created_at,revoked_at")
             parameter("order", "created_at.desc")
         }
         return response.requireOk().decodeList<AdminInviteCodeListRow>().map { it.toDto() }
@@ -492,6 +505,95 @@ class KtorSupabaseAdminApi(
             parameter("select", "status,row_count,oldest_enqueued_at,newest_enqueued_at,last_dead_letter_at,avg_attempts")
         }
         return response.requireOk().decodeList<AdminTagQueueSummaryRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListEvents(
+        keyword: String?,
+        status: String?,
+        cityId: CityId?,
+        limit: Int,
+        offset: Int,
+    ): List<AdminEventListItemDto> {
+        val escapedKeyword = keyword
+            ?.trim()
+            ?.let(::escapePostgrestIlike)
+            ?.takeIf { it.isNotBlank() }
+        val response = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,title,description,start_datetime,end_datetime,venue_name,city_id,status,ai_confidence,price,is_free,age_min,age_max,images,source_name,created_at,updated_at")
+            parameter("order", "start_datetime.desc")
+            parameter("limit", limit)
+            parameter("offset", offset)
+            if (escapedKeyword != null) parameter("or", "(title.ilike.%${escapedKeyword}%,description.ilike.%${escapedKeyword}%)")
+            if (status != null) parameter("status", "eq.$status")
+            if (cityId != null) parameter("city_id", "eq.${cityId.rawValue}")
+        }
+        return response.requireOk().decodeList<AdminEventListRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListEventFacets(): AdminEventFacetsDto {
+        val statusResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "status")
+        }
+        val cityResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "city_id")
+        }
+        val statusRows = statusResponse.requireOk().decodeList<AdminEventStatusRow>()
+        val cityRows = cityResponse.requireOk().decodeList<AdminEventCityRow>()
+        val statusCounts = statusRows.groupingBy { it.status }.eachCount()
+        val cityCounts = cityRows
+            .mapNotNull { it.cityId }
+            .filter { it.isNotBlank() }
+            .groupingBy { it }
+            .eachCount()
+        return AdminEventFacetsDto(statusCounts, cityCounts)
+    }
+
+    override suspend fun adminBulkUpdateEventStatus(eventIds: List<EventId>, status: String) {
+        if (eventIds.isEmpty()) return
+        val ids = eventIds.joinToString(",") { it.rawValue }
+        client.patch("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "in.($ids)")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("status", status) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminBulkDeleteEvent(eventIds: List<EventId>) {
+        if (eventIds.isEmpty()) return
+        val ids = eventIds.joinToString(",") { it.rawValue }
+        client.delete("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "in.($ids)")
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminDeleteEvent(eventId: EventId) {
+        client.delete("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.${eventId.rawValue}")
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> {
+        val response = client.get("$baseUrl/rest/v1/event_ai_traces") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,event_id,provider,model,created_at,input_title,input_description,reasoning_summary")
+            parameter("event_id", "eq.${eventId.rawValue}")
+            parameter("order", "created_at.desc")
+            parameter("limit", limit)
+        }
+        return response.requireOk().decodeList<AdminEventAiTraceRow>().map { it.toDto() }
     }
 
     private fun io.ktor.client.request.HttpRequestBuilder.baseHeaders() {
@@ -676,11 +778,13 @@ private data class AdminInviteCodeListRow(
     @SerialName("expires_at") val expiresAt: String? = null,
     val notes: String? = null,
     @SerialName("created_at") val createdAt: String,
+    @SerialName("revoked_at") val revokedAt: String? = null,
 ) {
     fun toDto() = AdminInviteCodeListDto(
         id = id, maxUses = maxUses, usedCount = usedCount,
         expiresAt = expiresAt?.parseInstant(), notes = notes,
         createdAt = createdAt.parseInstant(),
+        revokedAt = revokedAt?.parseInstant(),
     )
 }
 
@@ -909,4 +1013,88 @@ private fun JsonElement?.toTags(): List<com.familyevents.data.EventTagDto> = whe
 
 private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: String?) {
     if (value == null) put(key, JsonNull) else put(key, value)
+}
+
+private fun escapePostgrestIlike(keyword: String): String = buildString {
+    keyword.forEach { char ->
+        when (char) {
+            '\\', '%', '_' -> {
+                append('\\')
+                append(char)
+            }
+            '(', ')', ',' -> Unit
+            else -> append(char)
+        }
+    }
+}
+
+@Serializable
+private data class AdminEventListRow(
+    val id: String,
+    val title: String,
+    val description: String? = null,
+    @SerialName("start_datetime") val startDatetime: String,
+    @SerialName("end_datetime") val endDatetime: String? = null,
+    @SerialName("venue_name") val venueName: String? = null,
+    @SerialName("city_id") val cityId: String? = null,
+    val status: String,
+    @SerialName("ai_confidence") val aiConfidence: Double? = null,
+    val price: Double? = null,
+    @SerialName("is_free") val isFree: Boolean = false,
+    @SerialName("age_min") val ageMin: Int? = null,
+    @SerialName("age_max") val ageMax: Int? = null,
+    val images: JsonElement? = null,
+    @SerialName("source_name") val sourceName: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String,
+) {
+    fun toDto() = AdminEventListItemDto(
+        id = EventId(id),
+        title = title,
+        description = description,
+        startsAt = startDatetime.parseInstant(),
+        endsAt = endDatetime?.parseInstant(),
+        venueName = venueName,
+        cityId = cityId?.let { CityId(it) },
+        cityName = null,
+        status = status,
+        aiConfidence = aiConfidence,
+        price = price,
+        isFree = isFree,
+        ageMin = ageMin,
+        ageMax = ageMax,
+        imageUrl = images.firstImageUrl(),
+        sourceName = sourceName,
+        createdAt = createdAt.parseInstant(),
+        updatedAt = updatedAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminEventStatusRow(val status: String)
+
+@Serializable
+private data class AdminEventCityRow(@SerialName("city_id") val cityId: String? = null)
+
+@Serializable
+private data class AdminEventAiTraceRow(
+    val id: String,
+    @SerialName("event_id") val eventId: String,
+    val provider: String? = null,
+    val model: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("input_title") val inputTitle: String? = null,
+    @SerialName("input_description") val inputDescription: String? = null,
+    @SerialName("reasoning_summary") val reasoningSummary: String? = null,
+) {
+    fun toDto() = AdminEventAiTraceDto(
+        id = id,
+        eventId = EventId(eventId),
+        provider = provider,
+        model = model,
+        createdAt = createdAt.parseInstant(),
+        inputSummary = inputTitle,
+        outputSummary = reasoningSummary,
+        confidence = null,
+    )
 }

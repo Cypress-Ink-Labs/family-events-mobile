@@ -15,7 +15,7 @@ interface AdminRepository {
     suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto
     suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto
     suspend fun rejectInviteRequest(requestId: String, notes: String? = null): Boolean
-    suspend fun revokeInvite(inviteId: String)
+    suspend fun revokeInvite(inviteId: String): Boolean
     suspend fun bulkSetAutoApprove(enable: Boolean)
     suspend fun runSource(sourceId: String?)
     suspend fun retryTagQueue(eventId: EventId): Boolean
@@ -40,6 +40,12 @@ interface AdminRepository {
     suspend fun updateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String? = null)
     suspend fun listSourceRuns(limit: Int = 50): List<AdminSourceRunDto>
     suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto>
+    suspend fun listEvents(keyword: String? = null, status: String? = null, cityId: CityId? = null, limit: Int = 50, offset: Int = 0): List<AdminEventListItemDto>
+    suspend fun listEventFacets(): AdminEventFacetsDto
+    suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String)
+    suspend fun bulkDeleteEvent(eventIds: List<EventId>)
+    suspend fun deleteEvent(eventId: EventId)
+    suspend fun listEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto>
 }
 
 fun adminSections(): List<AdminSectionDto> = listOf(

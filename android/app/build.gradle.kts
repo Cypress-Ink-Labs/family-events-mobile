@@ -148,6 +148,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.security.crypto)
     implementation(libs.hilt.android)
+    implementation(libs.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     kapt(libs.hilt.compiler)
     testImplementation(libs.junit)

@@ -38,9 +38,8 @@ class SupabaseAdminRepository(private val api: SupabaseAdminApi? = null) : Admin
     override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean =
         api?.adminRejectInviteRequest(requestId, notes) ?: false
 
-    override suspend fun revokeInvite(inviteId: String) {
-        api?.adminRevokeInvite(inviteId)
-    }
+    override suspend fun revokeInvite(inviteId: String): Boolean =
+        api?.adminRevokeInvite(inviteId) ?: false
 
     override suspend fun bulkSetAutoApprove(enable: Boolean) {
         api?.adminBulkSetAutoApprove(enable)
@@ -125,4 +124,25 @@ class SupabaseAdminRepository(private val api: SupabaseAdminApi? = null) : Admin
 
     override suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto> =
         api?.adminListTagQueueSummary() ?: emptyList()
+
+    override suspend fun listEvents(keyword: String?, status: String?, cityId: CityId?, limit: Int, offset: Int): List<AdminEventListItemDto> =
+        api?.adminListEvents(keyword, status, cityId, limit, offset) ?: emptyList()
+
+    override suspend fun listEventFacets(): AdminEventFacetsDto =
+        api?.adminListEventFacets() ?: AdminEventFacetsDto(emptyMap(), emptyMap())
+
+    override suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String) {
+        api?.adminBulkUpdateEventStatus(eventIds, status)
+    }
+
+    override suspend fun bulkDeleteEvent(eventIds: List<EventId>) {
+        api?.adminBulkDeleteEvent(eventIds)
+    }
+
+    override suspend fun deleteEvent(eventId: EventId) {
+        api?.adminDeleteEvent(eventId)
+    }
+
+    override suspend fun listEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> =
+        api?.adminListEventAiTraces(eventId, limit) ?: emptyList()
 }

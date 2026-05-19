@@ -67,6 +67,19 @@ interface SupabaseConsumerApi {
     suspend fun publicEvent(id: EventId): EventDto? = null
 }
 
+internal fun escapePostgrestIlike(keyword: String): String = buildString {
+    keyword.forEach { char ->
+        when (char) {
+            '\\', '%', '_' -> {
+                append('\\')
+                append(char)
+            }
+            '(', ')', ',' -> Unit
+            else -> append(char)
+        }
+    }
+}
+
 class KtorSupabaseConsumerApi(
     private val config: EnvConfig,
     private val sessionStore: SessionStore,
