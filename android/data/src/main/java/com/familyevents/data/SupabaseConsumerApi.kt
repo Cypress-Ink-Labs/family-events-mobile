@@ -693,9 +693,10 @@ class KtorSupabaseConsumerApi(
         val cityRows = cityResponse.requireOk().decodeList<AdminEventCityRow>()
         val statusCounts = statusRows.groupingBy { it.status }.eachCount()
         val cityCounts = cityRows
-            .groupingBy { it.cityId ?: "_unknown" }
+            .mapNotNull { it.cityId }
+            .filter { it.isNotBlank() }
+            .groupingBy { it }
             .eachCount()
-            .let { it + ("_total" to cityRows.size) }
         return AdminEventFacetsDto(statusCounts, cityCounts)
     }
 

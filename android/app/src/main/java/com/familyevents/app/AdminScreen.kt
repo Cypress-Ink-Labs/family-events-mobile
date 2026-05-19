@@ -190,6 +190,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
     LaunchedEffect(keyword, status, cityId, refreshKey) {
         delay(300)
         try {
+            events = emptyList()
             loading = true
             events = adminRepository.listEvents(
                 keyword = keyword.trim().ifEmpty { null },
@@ -217,7 +218,10 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
 
         OutlinedTextField(
             value = keyword,
-            onValueChange = { keyword = it },
+            onValueChange = {
+                keyword = it
+                selected = emptySet()
+            },
             label = { Text("Search title or description") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -226,7 +230,10 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
         CityFilterChips(
             cityId = cityId,
             cityCounts = facets?.cityCounts.orEmpty(),
-            onCityChange = { cityId = it },
+            onCityChange = {
+                cityId = it
+                selected = emptySet()
+            },
         )
 
         EventBulkActionBar(
@@ -552,12 +559,24 @@ private fun AdminEventEditorDialog(
             return
         }
         val parsedPrice = price.toDoubleOrNull()
+        if (price.isNotBlank() && parsedPrice == null) {
+            feedback = "Price must be a number."
+            return
+        }
         if (parsedPrice != null && parsedPrice < 0) {
             feedback = "Price cannot be negative."
             return
         }
         val parsedAgeMin = ageMin.toIntOrNull()
         val parsedAgeMax = ageMax.toIntOrNull()
+        if (ageMin.isNotBlank() && parsedAgeMin == null) {
+            feedback = "Age min must be a whole number."
+            return
+        }
+        if (ageMax.isNotBlank() && parsedAgeMax == null) {
+            feedback = "Age max must be a whole number."
+            return
+        }
         if (parsedAgeMin != null && parsedAgeMax != null && parsedAgeMin > parsedAgeMax) {
             feedback = "Age min cannot exceed age max."
             return
@@ -571,7 +590,9 @@ private fun AdminEventEditorDialog(
                 if (venueName.isEmpty()) put("venue_name", JsonNull) else put("venue_name", venueName)
             }
             if (isFree != event.isFree) put("is_free", isFree)
-            if (parsedPrice != event.price) {
+            if (isFree && event.price != null) {
+                put("price", JsonNull)
+            } else if (parsedPrice != event.price) {
                 if (parsedPrice == null) put("price", JsonNull) else put("price", parsedPrice)
             }
             if (parsedAgeMin != event.ageMin) {
@@ -656,7 +677,13 @@ private fun AdminEventEditorDialog(
                     horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
                 ) {
                     Text("Free event", style = FamilyTypography.BodySmall, modifier = Modifier.weight(1f))
-                    Switch(checked = isFree, onCheckedChange = { isFree = it })
+                    Switch(
+                        checked = isFree,
+                        onCheckedChange = {
+                            isFree = it
+                            if (it) price = ""
+                        },
+                    )
                 }
                 OutlinedTextField(
                     value = price,
@@ -1017,8 +1044,17 @@ private fun AdminInviteCodesView(adminRepository: AdminRepository) {
                         code = code,
                         onRevoke = {
                             scope.launch {
-                                val ok = adminRepository.revokeInvite(code.id)
-                                if (ok) { refreshKey++ } else { feedback = "Revoke failed (not found or already revoked)." }
+                                try {
+                                    val ok = adminRepository.revokeInvite(code.id)
+                                    if (ok) {
+                                        feedback = null
+                                        refreshKey++
+                                    } else {
+                                        feedback = "Revoke failed (not found or already revoked)."
+                                    }
+                                } catch (e: Exception) {
+                                    feedback = "Revoke failed: ${e.message ?: "unknown error"}"
+                                }
                             }
                         },
                     )
