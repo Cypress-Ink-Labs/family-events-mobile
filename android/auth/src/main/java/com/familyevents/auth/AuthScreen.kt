@@ -295,54 +295,58 @@ private fun validateInviteRequest(email: String, message: String): String? = whe
     else -> null
 }
 
-/// Launches the Credential Manager bottom sheet to retrieve a Google ID token.
-/// Returns null when the user dismisses the sheet or no Google account is
-/// available on the device — callers should treat those as benign no-ops.
+/// Launches Credential Manager to retrieve a Google ID token.
+/// Returns null when the user dismisses the sheet, account reauth is cancelled,
+/// or no Google account is available on the device. Credential Manager reports
+/// those cases as `GetCredentialCancellationException` / `NoCredentialException`,
+/// so callers should treat them as benign no-ops rather than auth failures.
 private suspend fun requestGoogleIdToken(activity: Activity, webClientId: String): String? {
     val manager = CredentialManager.create(activity)
 
-    // First try the silent / one-tap path: only succeeds when the device
-    // already has a Google account signed in and authorized for this app.
-    val silentOption = GetGoogleIdOption.Builder()
+    // Prefer the recommended returning-user flow first. With filtering enabled,
+    // Credential Manager only offers accounts that have previously authorized
+    // this app and can auto-select when there is exactly one eligible account.
+    val returningUserOption = GetGoogleIdOption.Builder()
         .setServerClientId(webClientId)
-        .setFilterByAuthorizedAccounts(false)
+        .setFilterByAuthorizedAccounts(true)
+        .setAutoSelectEnabled(true)
         .build()
 
-    Log.d(TAG, "requestGoogleIdToken: trying silent GetGoogleIdOption")
-    val silent = runCatching {
-        manager.getCredential(activity, GetCredentialRequest.Builder().addCredentialOption(silentOption).build())
+    Log.d(TAG, "requestGoogleIdToken: trying authorized Google accounts")
+    val returningUser = runCatching {
+        manager.getCredential(activity, GetCredentialRequest.Builder().addCredentialOption(returningUserOption).build())
     }
-    silent.getOrNull()?.let { response ->
+    returningUser.getOrNull()?.let { response ->
         return extractIdToken(response.credential)
     }
-    val silentError = silent.exceptionOrNull()
-    when (silentError) {
+    val returningUserError = returningUser.exceptionOrNull()
+    when (returningUserError) {
         is GetCredentialCancellationException -> {
-            Log.w(TAG, "requestGoogleIdToken: user cancelled silent flow", silentError)
+            Log.i(TAG, "requestGoogleIdToken: Google sign-in dismissed during authorized-account flow")
             return null
         }
         is NoCredentialException -> {
-            Log.w(TAG, "requestGoogleIdToken: no silent credential, falling back to interactive sign-in")
+            Log.d(TAG, "requestGoogleIdToken: no authorized Google credential, falling back to Sign in with Google")
         }
         null -> Unit
         else -> {
-            Log.e(TAG, "requestGoogleIdToken: unexpected silent error", silentError)
-            throw silentError
+            Log.e(TAG, "requestGoogleIdToken: unexpected authorized-account error", returningUserError)
+            throw returningUserError
         }
     }
 
-    // Interactive fallback: forces the "Sign in with Google" sheet which
-    // includes an "Add account" affordance when none exists on the device.
+    // Button flow: allows choosing any Google account and handles add-account /
+    // reauth cases. A reauth cancellation is still an expected cancellation.
     val interactiveOption = GetSignInWithGoogleOption.Builder(webClientId).build()
-    Log.d(TAG, "requestGoogleIdToken: invoking interactive GetSignInWithGoogleOption")
+    Log.d(TAG, "requestGoogleIdToken: invoking Sign in with Google")
     return try {
         val response = manager.getCredential(activity, GetCredentialRequest.Builder().addCredentialOption(interactiveOption).build())
         extractIdToken(response.credential)
     } catch (e: GetCredentialCancellationException) {
-        Log.w(TAG, "requestGoogleIdToken: user cancelled interactive flow", e)
+        Log.i(TAG, "requestGoogleIdToken: Google sign-in dismissed or account reauth cancelled (${e.message})")
         null
     } catch (e: NoCredentialException) {
-        Log.w(TAG, "requestGoogleIdToken: interactive flow also reports no credential (Play Services missing or restricted)", e)
+        Log.i(TAG, "requestGoogleIdToken: no Google credential available (${e.message})")
         null
     } catch (e: GoogleIdTokenParsingException) {
         Log.e(TAG, "requestGoogleIdToken: failed to parse id_token", e)
