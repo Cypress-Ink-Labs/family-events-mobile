@@ -4,10 +4,14 @@ import com.familyevents.core.CityId
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
 import com.familyevents.data.EventDto
-import com.familyevents.data.EventTagDto
 
 class InMemoryAdminRepository : AdminRepository {
     private val cities = mutableListOf<AdminCityDto>()
+    private val tags = listOf(
+        AdminTagDto(id = "local-family", name = "Family", slug = "family"),
+        AdminTagDto(id = "local-outdoors", name = "Outdoors", slug = "outdoors"),
+        AdminTagDto(id = "local-free", name = "Free", slug = "free"),
+    )
 
     override suspend fun stats(): AdminStatsDto = AdminStatsDto(2, 0, 2, 0, 0)
     override suspend fun sections(): List<AdminSectionDto> = adminSections()
@@ -58,6 +62,8 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> = emptyList()
     override suspend fun listCities(): List<AdminCityDto> = cities.toList()
+    override suspend fun listTags(): List<AdminTagDto> = tags
+    override suspend fun listEventTagIds(eventId: EventId): List<String> = emptyList()
     override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto {
         val created = AdminCityDto(
             id = CityId("local-${java.time.Instant.now().toEpochMilli()}"),

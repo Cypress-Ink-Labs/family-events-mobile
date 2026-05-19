@@ -91,6 +91,12 @@ class SupabaseAdminRepository(private val api: SupabaseAdminApi) : AdminReposito
     override suspend fun listCities(): List<AdminCityDto> =
         api.adminListCities()
 
+    override suspend fun listTags(): List<AdminTagDto> =
+        api.adminListTags()
+
+    override suspend fun listEventTagIds(eventId: EventId): List<String> =
+        api.adminListEventTagIds(eventId)
+
     override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto =
         api.adminCreateCity(name, state, country, slug, timezone)
 

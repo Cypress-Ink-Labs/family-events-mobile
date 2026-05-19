@@ -162,6 +162,12 @@ data class AdminTagQueueSummaryRowDto(
     val avgAttempts: Double?,
 )
 
+data class AdminTagDto(
+    val id: String,
+    val name: String,
+    val slug: String?,
+)
+
 data class AdminEventListItemDto(
     val id: EventId,
     val title: String,

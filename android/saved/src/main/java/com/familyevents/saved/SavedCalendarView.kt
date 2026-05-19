@@ -188,7 +188,7 @@ fun SavedCalendarView(
     }
 }
 
-private fun getEventsForDay(
+internal fun getEventsForDay(
     date: LocalDate,
     favorites: List<FavoriteDto>,
     eventsById: Map<EventId, EventDto>,

@@ -75,6 +75,7 @@ private val eventStatuses = listOf("draft", "published", "rejected", "archived")
 @Composable
 internal fun AdminEventsSection(adminRepository: AdminRepository) {
     var facets by remember { mutableStateOf<AdminEventFacetsDto?>(null) }
+    var cityNamesById by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var events by remember { mutableStateOf<List<AdminEventListItemDto>>(emptyList()) }
     var keyword by rememberSaveable { mutableStateOf("") }
     var status by rememberSaveable { mutableStateOf("draft") }
@@ -92,6 +93,10 @@ internal fun AdminEventsSection(adminRepository: AdminRepository) {
     LaunchedEffect(Unit) {
         runCatching { adminRepository.listEventFacets() }
             .onSuccess { facets = it }
+        runCatching { adminRepository.listCities() }
+            .onSuccess { cities ->
+                cityNamesById = cities.associate { city -> city.id.rawValue to city.name }
+            }
     }
 
     // Debounced list reload
@@ -138,6 +143,7 @@ internal fun AdminEventsSection(adminRepository: AdminRepository) {
         CityFilterChips(
             cityId = cityId,
             cityCounts = facets?.cityCounts.orEmpty(),
+            cityNamesById = cityNamesById,
             onCityChange = {
                 cityId = it
                 selected = emptySet()
@@ -275,6 +281,7 @@ private fun EventStatusFilterChips(
 private fun CityFilterChips(
     cityId: String?,
     cityCounts: Map<String, Int>,
+    cityNamesById: Map<String, String>,
     onCityChange: (String?) -> Unit,
 ) {
     if (cityCounts.isEmpty()) return
@@ -286,10 +293,11 @@ private fun CityFilterChips(
             label = { Text("All cities (${cityCounts.values.sum()})") },
         )
         cityCounts.forEach { (cId, count) ->
+            val cityLabel = cityNamesById[cId] ?: cId
             FilterChip(
                 selected = cityId == cId,
                 onClick = { onCityChange(cId) },
-                label = { Text("$cId ($count)") },
+                label = { Text("$cityLabel ($count)") },
             )
         }
     }
@@ -454,10 +462,24 @@ private fun AdminEventEditorDialog(
     var ageMax by rememberSaveable { mutableStateOf(event.ageMax?.toString().orEmpty()) }
     var saving by remember { mutableStateOf(false) }
     var feedback by remember { mutableStateOf<String?>(null) }
+    var availableTags by remember(event.id.rawValue) { mutableStateOf<List<AdminTagDto>>(emptyList()) }
+    var selectedTagIds by rememberSaveable(event.id.rawValue) { mutableStateOf<List<String>>(emptyList()) }
+    var originalTagIds by remember(event.id.rawValue) { mutableStateOf<List<String>?>(null) }
+    var tagLoadError by remember(event.id.rawValue) { mutableStateOf<String?>(null) }
     var aiTraces by remember(event.id.rawValue) { mutableStateOf<List<AdminEventAiTraceDto>>(emptyList()) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(event.id.rawValue) {
+        availableTags = runCatching { adminRepository.listTags() }.getOrDefault(emptyList())
+        runCatching { adminRepository.listEventTagIds(event.id) }
+            .onSuccess { tagIds ->
+                selectedTagIds = tagIds
+                originalTagIds = tagIds
+                tagLoadError = null
+            }
+            .onFailure {
+                tagLoadError = "Tags failed to load; retry before saving."
+            }
         aiTraces = runCatching { adminRepository.listEventAiTraces(event.id, limit = 3) }.getOrDefault(emptyList())
     }
 
@@ -510,7 +532,13 @@ private fun AdminEventEditorDialog(
                 if (parsedAgeMax == null) put("age_max", JsonNull) else put("age_max", parsedAgeMax)
             }
         }
-        if (patch.isEmpty()) {
+        val currentOriginalTagIds = originalTagIds
+        if (currentOriginalTagIds == null) {
+            feedback = tagLoadError ?: "Tags are still loading."
+            return
+        }
+        val tagsChanged = selectedTagIds.toSet() != currentOriginalTagIds.toSet()
+        if (patch.isEmpty() && !tagsChanged) {
             feedback = "No changes."
             return
         }
@@ -521,7 +549,7 @@ private fun AdminEventEditorDialog(
                 adminRepository.updateEvent(
                     eventId = event.id,
                     patchJson = patch.toString(),
-                    tagIds = emptyList(),
+                    tagIds = selectedTagIds,
                     lockEditedFields = true,
                 )
                 onSaved()
@@ -623,6 +651,44 @@ private fun AdminEventEditorDialog(
                     )
                 }
 
+                Text("Tags", style = FamilyTypography.TitleMedium)
+                tagLoadError?.let {
+                    Text(
+                        it,
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                if (availableTags.isEmpty()) {
+                    Text(
+                        "No tags available.",
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                } else {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                        verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                    ) {
+                        availableTags.forEach { tag ->
+                            val isSelected = tag.id in selectedTagIds
+                            val tagAlpha = if (isSelected) 1f else 0.5f
+                            TagPill(
+                                label = tag.name,
+                                modifier = Modifier
+                                    .alpha(tagAlpha)
+                                    .clickable {
+                                        selectedTagIds = if (isSelected) {
+                                            selectedTagIds - tag.id
+                                        } else {
+                                            selectedTagIds + tag.id
+                                        }
+                                    },
+                            )
+                        }
+                    }
+                }
+
                 // Feedback
                 feedback?.let {
                     Text(it, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.error)
@@ -644,8 +710,10 @@ private fun AdminEventEditorDialog(
                                     modifier = Modifier.padding(Tokens.Space.S3),
                                     verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
                                 ) {
+                                    val providerLabel = trace.provider ?: "unknown"
+                                    val confidenceLabel = trace.confidence?.let { " · ${"%.2f".format(it)}" }.orEmpty()
                                     Text(
-                                        text = "${trace.provider ?: "unknown"} · ${DateFormatting.cardSubtitle(trace.createdAt)}",
+                                        text = "$providerLabel · ${DateFormatting.cardSubtitle(trace.createdAt)}$confidenceLabel",
                                         style = FamilyTypography.Caption,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                     )
@@ -695,4 +763,3 @@ private fun AdminEventEditorDialog(
         }
     }
 }
-

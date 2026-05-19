@@ -67,6 +67,8 @@ interface SupabaseAdminApi {
     suspend fun adminListInviteCodes(): List<AdminInviteCodeListDto>
     suspend fun adminListInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
     suspend fun adminListCities(): List<AdminCityDto>
+    suspend fun adminListTags(): List<AdminTagDto>
+    suspend fun adminListEventTagIds(eventId: EventId): List<String>
     suspend fun adminCreateCity(name: String, state: String?, country: String = "US", slug: String, timezone: String = "America/Chicago"): AdminCityDto
     suspend fun adminUpdateCity(cityId: CityId, patchJson: String)
     suspend fun adminListRatings(limit: Int = 100): List<AdminRatingDto>
@@ -416,6 +418,26 @@ class KtorSupabaseAdminApi(
         return response.requireOk().decodeList<AdminCityRow>().map { it.toDto() }
     }
 
+    override suspend fun adminListTags(): List<AdminTagDto> {
+        val response = client.get("$baseUrl/rest/v1/tags") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,name,slug")
+            parameter("order", "name.asc")
+        }
+        return response.requireOk().decodeList<AdminTagRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListEventTagIds(eventId: EventId): List<String> {
+        val response = client.get("$baseUrl/rest/v1/event_tags") {
+            baseHeaders()
+            bearer()
+            parameter("select", "tag_id")
+            parameter("event_id", "eq.${eventId.rawValue}")
+        }
+        return response.requireOk().decodeList<AdminEventTagRow>().map { it.tagId }
+    }
+
     override suspend fun adminCreateCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto {
         val response = client.post("$baseUrl/rest/v1/cities") {
             baseHeaders()
@@ -591,7 +613,7 @@ class KtorSupabaseAdminApi(
     }
 
     override suspend fun adminListEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> {
-        val response = client.get("$baseUrl/rest/v1/event_ai_traces") {
+        val tracesResponse = client.get("$baseUrl/rest/v1/event_ai_traces") {
             baseHeaders()
             bearer()
             parameter("select", "id,event_id,provider,model,created_at,input_title,input_description,reasoning_summary")
@@ -599,7 +621,19 @@ class KtorSupabaseAdminApi(
             parameter("order", "created_at.desc")
             parameter("limit", limit)
         }
-        return response.requireOk().decodeList<AdminEventAiTraceRow>().map { it.toDto() }
+        val confidenceResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "ai_confidence")
+            parameter("id", "eq.${eventId.rawValue}")
+            parameter("limit", 1)
+        }
+        val eventConfidence = confidenceResponse
+            .requireOk()
+            .decodeList<AdminEventConfidenceRow>()
+            .firstOrNull()
+            ?.aiConfidence
+        return tracesResponse.requireOk().decodeList<AdminEventAiTraceRow>().map { it.toDto(eventConfidence) }
     }
 
     private fun io.ktor.client.request.HttpRequestBuilder.baseHeaders() {
@@ -828,6 +862,19 @@ private data class AdminCityRow(
         id = CityId(id), name = name, state = state, country = country,
         slug = slug, isActive = isActive, timezone = timezone,
         latitude = latitude, longitude = longitude, createdAt = createdAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminTagRow(
+    val id: String,
+    val name: String,
+    val slug: String? = null,
+) {
+    fun toDto() = AdminTagDto(
+        id = id,
+        name = name,
+        slug = slug,
     )
 }
 
@@ -1083,6 +1130,14 @@ private data class AdminEventStatusRow(val status: String)
 private data class AdminEventCityRow(@SerialName("city_id") val cityId: String? = null)
 
 @Serializable
+private data class AdminEventTagRow(@SerialName("tag_id") val tagId: String)
+
+@Serializable
+private data class AdminEventConfidenceRow(
+    @SerialName("ai_confidence") val aiConfidence: Double? = null,
+)
+
+@Serializable
 private data class AdminEventAiTraceRow(
     val id: String,
     @SerialName("event_id") val eventId: String,
@@ -1093,7 +1148,7 @@ private data class AdminEventAiTraceRow(
     @SerialName("input_description") val inputDescription: String? = null,
     @SerialName("reasoning_summary") val reasoningSummary: String? = null,
 ) {
-    fun toDto() = AdminEventAiTraceDto(
+    fun toDto(confidence: Double?) = AdminEventAiTraceDto(
         id = id,
         eventId = EventId(eventId),
         provider = provider,
@@ -1101,6 +1156,6 @@ private data class AdminEventAiTraceRow(
         createdAt = createdAt.parseInstant(),
         inputSummary = inputTitle,
         outputSummary = reasoningSummary,
-        confidence = null,
+        confidence = confidence,
     )
 }

@@ -32,6 +32,8 @@ interface AdminRepository {
     suspend fun listInviteCodes(): List<AdminInviteCodeListDto>
     suspend fun listInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
     suspend fun listCities(): List<AdminCityDto>
+    suspend fun listTags(): List<AdminTagDto>
+    suspend fun listEventTagIds(eventId: EventId): List<String>
     suspend fun createCity(name: String, state: String?, country: String = "US", slug: String, timezone: String = "America/Chicago"): AdminCityDto
     suspend fun updateCity(cityId: CityId, patchJson: String)
     suspend fun listRatings(limit: Int = 100): List<AdminRatingDto>
