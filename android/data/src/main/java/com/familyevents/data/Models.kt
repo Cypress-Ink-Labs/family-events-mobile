@@ -122,3 +122,42 @@ data class AdminSectionDto(
     val title: String,
     val description: String,
 )
+
+data class AdminInviteCodeResultDto(
+    val id: String,
+    val code: String,
+    val maxUses: Int,
+    val expiresAt: Instant?,
+    val notes: String?,
+    val createdAt: Instant,
+)
+
+data class AdminInviteApprovalDto(
+    val requestId: String,
+    val code: String,
+    val inviteCodeId: String,
+    val email: String,
+    val createdAt: Instant,
+)
+
+data class AdminCronJobDto(
+    val jobid: Long,
+    val jobname: String,
+    val schedule: String,
+    val command: String,
+    val active: Boolean,
+    val lastRunStart: Instant?,
+    val lastRunEnd: Instant?,
+    val lastRunStatus: String?,
+    val lastRunMessage: String?,
+)
+
+data class AdminCronRunDto(
+    val runid: Long,
+    val jobname: String,
+    val status: String,
+    val returnMessage: String?,
+    val startTime: Instant,
+    val endTime: Instant?,
+    val durationMs: Double?,
+)

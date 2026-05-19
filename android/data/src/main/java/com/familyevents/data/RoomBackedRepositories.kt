@@ -1,5 +1,6 @@
 package com.familyevents.data
 
+import com.familyevents.core.AppError
 import com.familyevents.core.CityId
 import com.familyevents.core.EnvConfig
 import com.familyevents.core.EventId
@@ -307,27 +308,63 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
 
     override suspend fun sections(): List<AdminSectionDto> = adminSections()
 
-    override suspend fun updateEvent(eventId: EventId, patchJson: String) {
-        api?.adminUpdateEvent(eventId, patchJson)
-    }
+    override suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String>, lockEditedFields: Boolean): EventDto =
+        api?.adminUpdateEvent(eventId, patchJson, tagIds, lockEditedFields)
+            ?: throw AppError.Remote("Event management is unavailable.")
+
+    override suspend fun createEvent(patchJson: String, tagIds: List<String>): EventDto =
+        api?.adminCreateEvent(patchJson, tagIds)
+            ?: throw AppError.Remote("Event creation is unavailable.")
+
+    override suspend fun unlockEventFields(eventId: EventId): Boolean =
+        api?.adminUnlockEventFields(eventId) ?: false
 
     override suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean) {
         api?.adminModerateComment(commentId, approved, flagged)
     }
 
-    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String =
-        api?.adminCreateInvite(maxUses, expiresAtIso, note) ?: ""
+    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto =
+        api?.adminCreateInviteCode(maxUses ?: 1, expiresAtIso, note)
+            ?: throw AppError.Remote("Invite code creation is unavailable.")
+
+    override suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto =
+        api?.adminApproveInviteRequest(requestId)
+            ?: throw AppError.Remote("Invite approval is unavailable.")
+
+    override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean =
+        api?.adminRejectInviteRequest(requestId, notes) ?: false
 
     override suspend fun revokeInvite(inviteId: String) {
         api?.adminRevokeInvite(inviteId)
+    }
+
+    override suspend fun bulkSetAutoApprove(enable: Boolean) {
+        api?.adminBulkSetAutoApprove(enable)
     }
 
     override suspend fun runSource(sourceId: String?) {
         api?.adminRunSource(sourceId)
     }
 
-    override suspend fun runCron(jobName: String?) {
-        api?.adminRunCron(jobName)
+    override suspend fun retryTagQueue(eventId: EventId): Boolean =
+        api?.adminRetryTagQueue(eventId) ?: false
+
+    override suspend fun listCronJobs(): List<AdminCronJobDto> =
+        api?.adminListCronJobs() ?: emptyList()
+
+    override suspend fun cronRunHistory(jobName: String?, limit: Int): List<AdminCronRunDto> =
+        api?.adminCronRunHistory(jobName, limit) ?: emptyList()
+
+    override suspend fun toggleCronJob(jobName: String, active: Boolean) {
+        api?.adminToggleCronJob(jobName, active)
+    }
+
+    override suspend fun setCronSchedule(jobName: String, schedule: String) {
+        api?.adminSetCronSchedule(jobName, schedule)
+    }
+
+    override suspend fun runDueScrapes() {
+        api?.adminRunDueScrapes()
     }
 }
 

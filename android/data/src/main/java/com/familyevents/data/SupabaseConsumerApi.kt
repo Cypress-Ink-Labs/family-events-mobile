@@ -62,12 +62,26 @@ interface SupabaseConsumerApi {
     suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto =
         throw AppError.Remote("Comments are unavailable.")
     suspend fun adminStats(): AdminStatsDto = AdminStatsDto(0, 0, 0, 0, 0)
-    suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {}
+    suspend fun adminUpdateEvent(eventId: EventId, patchJson: String, tagIds: List<String> = emptyList(), lockEditedFields: Boolean = true): EventDto =
+        throw AppError.Remote("Event management is unavailable.")
+    suspend fun adminCreateEvent(patchJson: String, tagIds: List<String> = emptyList()): EventDto =
+        throw AppError.Remote("Event creation is unavailable.")
+    suspend fun adminUnlockEventFields(eventId: EventId): Boolean = false
     suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {}
-    suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String = ""
+    suspend fun adminCreateInviteCode(maxUses: Int = 1, expiresAtIso: String? = null, notes: String? = null): AdminInviteCodeResultDto =
+        throw AppError.Remote("Invite code creation is unavailable.")
+    suspend fun adminApproveInviteRequest(requestId: String): AdminInviteApprovalDto =
+        throw AppError.Remote("Invite approval is unavailable.")
+    suspend fun adminRejectInviteRequest(requestId: String, notes: String? = null): Boolean = false
+    suspend fun adminBulkSetAutoApprove(enable: Boolean): Unit {}
     suspend fun adminRevokeInvite(inviteId: String) {}
     suspend fun adminRunSource(sourceId: String?) {}
-    suspend fun adminRunCron(jobName: String?) {}
+    suspend fun adminRetryTagQueue(eventId: EventId): Boolean = false
+    suspend fun adminListCronJobs(): List<AdminCronJobDto> = emptyList()
+    suspend fun adminCronRunHistory(jobName: String? = null, limit: Int = 50): List<AdminCronRunDto> = emptyList()
+    suspend fun adminToggleCronJob(jobName: String, active: Boolean): Unit {}
+    suspend fun adminSetCronSchedule(jobName: String, schedule: String): Unit {}
+    suspend fun adminRunDueScrapes(): Unit {}
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
@@ -341,8 +355,50 @@ class KtorSupabaseConsumerApi(
         )
     }
 
-    override suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {
-        throw AppError.Remote("Event management is unavailable on Android.")
+    override suspend fun adminUpdateEvent(eventId: EventId, patchJson: String, tagIds: List<String>, lockEditedFields: Boolean): EventDto {
+        val tagArray = buildJsonArray { tagIds.forEach { add(JsonPrimitive(it)) } }
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_update_event") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_event_id", eventId.rawValue)
+                    put("p_patch", json.parseToJsonElement(patchJson))
+                    put("p_tag_ids", tagArray)
+                    put("p_lock_edited_fields", lockEditedFields)
+                }.toString(),
+            )
+        }
+        return response.requireOk().decodeList<EventRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Event update returned no data.")
+    }
+
+    override suspend fun adminCreateEvent(patchJson: String, tagIds: List<String>): EventDto {
+        val tagArray = buildJsonArray { tagIds.forEach { add(JsonPrimitive(it)) } }
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_create_event") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_patch", json.parseToJsonElement(patchJson))
+                    put("p_tag_ids", tagArray)
+                }.toString(),
+            )
+        }
+        return response.requireOk().decodeList<EventRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Event creation returned no data.")
+    }
+
+    override suspend fun adminUnlockEventFields(eventId: EventId): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_unlock_event_fields") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_event_id", eventId.rawValue) }.toString())
+        }
+        return response.requireOk().bodyAsText().trim().toBooleanStrictOrNull() ?: false
     }
 
     override suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {
@@ -355,8 +411,56 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
-    override suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String {
-        throw AppError.Remote("Invite management is unavailable on Android.")
+    override suspend fun adminCreateInviteCode(maxUses: Int, expiresAtIso: String?, notes: String?): AdminInviteCodeResultDto {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_create_invite_code") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_max_uses", maxUses)
+                    if (expiresAtIso != null) put("p_expires_at", expiresAtIso)
+                    if (notes != null) put("p_notes", notes)
+                }.toString(),
+            )
+        }
+        return response.requireOk().decodeList<AdminInviteCodeRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Invite code creation returned no data.")
+    }
+
+    override suspend fun adminApproveInviteRequest(requestId: String): AdminInviteApprovalDto {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_approve_invite_request") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_request_id", requestId) }.toString())
+        }
+        return response.requireOk().decodeList<AdminInviteApprovalRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("Invite approval returned no data.")
+    }
+
+    override suspend fun adminRejectInviteRequest(requestId: String, notes: String?): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_reject_invite_request") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_request_id", requestId)
+                    if (notes != null) put("p_notes", notes)
+                }.toString(),
+            )
+        }
+        return response.requireOk().bodyAsText().trim().toBooleanStrictOrNull() ?: false
+    }
+
+    override suspend fun adminBulkSetAutoApprove(enable: Boolean) {
+        client.post("$baseUrl/rest/v1/rpc/admin_bulk_set_auto_approve") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("enable", enable) }.toString())
+        }.requireOkOrNoContent()
     }
 
     override suspend fun adminRevokeInvite(inviteId: String) {
@@ -378,8 +482,66 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
-    override suspend fun adminRunCron(jobName: String?) {
-        throw AppError.Remote("Scheduled job controls are unavailable on Android.")
+    override suspend fun adminRetryTagQueue(eventId: EventId): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_retry_tag_queue") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_event_id", eventId.rawValue) }.toString())
+        }
+        return response.requireOk().bodyAsText().trim().toBooleanStrictOrNull() ?: false
+    }
+
+    override suspend fun adminListCronJobs(): List<AdminCronJobDto> {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_list_cron_jobs") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        return response.requireOk().decodeList<AdminCronJobRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminCronRunHistory(jobName: String?, limit: Int): List<AdminCronRunDto> {
+        val response = client.post("$baseUrl/rest/v1/rpc/admin_cron_run_history") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    if (jobName != null) put("p_job_name", jobName)
+                    put("p_limit", limit)
+                }.toString(),
+            )
+        }
+        return response.requireOk().decodeList<AdminCronRunRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminToggleCronJob(jobName: String, active: Boolean) {
+        client.post("$baseUrl/rest/v1/rpc/admin_toggle_cron_job") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_job_name", jobName); put("p_active", active) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminSetCronSchedule(jobName: String, schedule: String) {
+        client.post("$baseUrl/rest/v1/rpc/admin_set_cron_schedule") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_job_name", jobName); put("p_schedule", schedule) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminRunDueScrapes() {
+        client.post("$baseUrl/rest/v1/rpc/admin_run_due_scrapes") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }.requireOkOrNoContent()
     }
 
     override suspend fun deleteAccount() {
@@ -662,6 +824,88 @@ private data class AdminSourceStatsRow(
 
 @Serializable
 private data class InviteCodeRow(val code: String)
+
+@Serializable
+private data class AdminInviteCodeRow(
+    val id: String,
+    val code: String,
+    @SerialName("max_uses") val maxUses: Int,
+    @SerialName("expires_at") val expiresAt: String? = null,
+    val notes: String? = null,
+    @SerialName("created_at") val createdAt: String,
+) {
+    fun toDto() = AdminInviteCodeResultDto(
+        id = id,
+        code = code,
+        maxUses = maxUses,
+        expiresAt = expiresAt?.parseInstant(),
+        notes = notes,
+        createdAt = createdAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminInviteApprovalRow(
+    @SerialName("request_id") val requestId: String,
+    val code: String,
+    @SerialName("invite_code_id") val inviteCodeId: String,
+    val email: String,
+    @SerialName("created_at") val createdAt: String,
+) {
+    fun toDto() = AdminInviteApprovalDto(
+        requestId = requestId,
+        code = code,
+        inviteCodeId = inviteCodeId,
+        email = email,
+        createdAt = createdAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminCronJobRow(
+    val jobid: Long,
+    val jobname: String,
+    val schedule: String,
+    val command: String,
+    val active: Boolean,
+    @SerialName("last_run_start") val lastRunStart: String? = null,
+    @SerialName("last_run_end") val lastRunEnd: String? = null,
+    @SerialName("last_run_status") val lastRunStatus: String? = null,
+    @SerialName("last_run_message") val lastRunMessage: String? = null,
+) {
+    fun toDto() = AdminCronJobDto(
+        jobid = jobid,
+        jobname = jobname,
+        schedule = schedule,
+        command = command,
+        active = active,
+        lastRunStart = lastRunStart?.parseInstant(),
+        lastRunEnd = lastRunEnd?.parseInstant(),
+        lastRunStatus = lastRunStatus,
+        lastRunMessage = lastRunMessage,
+    )
+}
+
+@Serializable
+private data class AdminCronRunRow(
+    val runid: Long,
+    val jobname: String,
+    val status: String,
+    @SerialName("return_message") val returnMessage: String? = null,
+    @SerialName("start_time") val startTime: String,
+    @SerialName("end_time") val endTime: String? = null,
+    @SerialName("duration_ms") val durationMs: Double? = null,
+) {
+    fun toDto() = AdminCronRunDto(
+        runid = runid,
+        jobname = jobname,
+        status = status,
+        returnMessage = returnMessage,
+        startTime = startTime.parseInstant(),
+        endTime = endTime?.parseInstant(),
+        durationMs = durationMs,
+    )
+}
 
 private fun String.parseInstant(): Instant = try {
     Instant.parse(this)

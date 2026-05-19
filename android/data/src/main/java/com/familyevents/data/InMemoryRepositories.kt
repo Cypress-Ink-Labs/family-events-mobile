@@ -213,12 +213,50 @@ class InMemoryCommentRepository : CommentRepository {
 class InMemoryAdminRepository : AdminRepository {
     override suspend fun stats(): AdminStatsDto = AdminStatsDto(2, 0, 2, 0, 0)
     override suspend fun sections(): List<AdminSectionDto> = adminSections()
-    override suspend fun updateEvent(eventId: EventId, patchJson: String) = Unit
+    override suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String>, lockEditedFields: Boolean): EventDto =
+        EventDto(
+            id = eventId, title = "Updated Event", description = null,
+            startsAt = java.time.Instant.now(), endsAt = null,
+            venueName = null, address = null, imageUrl = null, sourceUrl = null,
+            cityId = com.familyevents.core.CityId("chicago"), coordinate = null,
+        )
+    override suspend fun createEvent(patchJson: String, tagIds: List<String>): EventDto =
+        EventDto(
+            id = com.familyevents.core.EventId("local-${java.time.Instant.now().toEpochMilli()}"),
+            title = "New Event", description = null,
+            startsAt = java.time.Instant.now(), endsAt = null,
+            venueName = null, address = null, imageUrl = null, sourceUrl = null,
+            cityId = com.familyevents.core.CityId("chicago"), coordinate = null,
+        )
+    override suspend fun unlockEventFields(eventId: EventId): Boolean = true
     override suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean) = Unit
-    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String = "LOCAL-CODE"
+    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto =
+        AdminInviteCodeResultDto(
+            id = "local-invite-id",
+            code = "LOCAL-CODE",
+            maxUses = maxUses ?: 1,
+            expiresAt = null,
+            notes = note,
+            createdAt = java.time.Instant.now(),
+        )
+    override suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto =
+        AdminInviteApprovalDto(
+            requestId = requestId,
+            code = "LOCAL-APPROVED-CODE",
+            inviteCodeId = "local-invite-code-id",
+            email = "local@example.com",
+            createdAt = java.time.Instant.now(),
+        )
+    override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean = true
     override suspend fun revokeInvite(inviteId: String) = Unit
+    override suspend fun bulkSetAutoApprove(enable: Boolean) = Unit
     override suspend fun runSource(sourceId: String?) = Unit
-    override suspend fun runCron(jobName: String?) = Unit
+    override suspend fun retryTagQueue(eventId: EventId): Boolean = true
+    override suspend fun listCronJobs(): List<AdminCronJobDto> = emptyList()
+    override suspend fun cronRunHistory(jobName: String?, limit: Int): List<AdminCronRunDto> = emptyList()
+    override suspend fun toggleCronJob(jobName: String, active: Boolean) = Unit
+    override suspend fun setCronSchedule(jobName: String, schedule: String) = Unit
+    override suspend fun runDueScrapes() = Unit
 }
 
 class RepositoryGraph(

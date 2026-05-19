@@ -74,10 +74,20 @@ interface CommentRepository {
 interface AdminRepository {
     suspend fun stats(): AdminStatsDto
     suspend fun sections(): List<AdminSectionDto>
-    suspend fun updateEvent(eventId: EventId, patchJson: String)
+    suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String> = emptyList(), lockEditedFields: Boolean = true): EventDto
+    suspend fun createEvent(patchJson: String, tagIds: List<String> = emptyList()): EventDto
+    suspend fun unlockEventFields(eventId: EventId): Boolean
     suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean)
-    suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String
+    suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto
+    suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto
+    suspend fun rejectInviteRequest(requestId: String, notes: String? = null): Boolean
     suspend fun revokeInvite(inviteId: String)
+    suspend fun bulkSetAutoApprove(enable: Boolean)
     suspend fun runSource(sourceId: String?)
-    suspend fun runCron(jobName: String?)
+    suspend fun retryTagQueue(eventId: EventId): Boolean
+    suspend fun listCronJobs(): List<AdminCronJobDto>
+    suspend fun cronRunHistory(jobName: String? = null, limit: Int = 50): List<AdminCronRunDto>
+    suspend fun toggleCronJob(jobName: String, active: Boolean)
+    suspend fun setCronSchedule(jobName: String, schedule: String)
+    suspend fun runDueScrapes()
 }
