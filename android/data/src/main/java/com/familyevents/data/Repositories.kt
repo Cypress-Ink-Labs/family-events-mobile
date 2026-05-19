@@ -97,4 +97,9 @@ interface AdminRepository {
     suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean)
     suspend fun listInviteCodes(): List<AdminInviteCodeListDto>
     suspend fun listInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
+    suspend fun listEvents(keyword: String? = null, status: String? = null, cityId: CityId? = null, limit: Int = 50, offset: Int = 0): List<AdminEventListItemDto>
+    suspend fun listEventFacets(): AdminEventFacetsDto
+    suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String)
+    suspend fun deleteEvent(eventId: EventId)
+    suspend fun listEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto>
 }

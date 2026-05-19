@@ -89,6 +89,17 @@ interface SupabaseConsumerApi {
     suspend fun adminUpdateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {}
     suspend fun adminListInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     suspend fun adminListInviteRequests(status: String = "pending"): List<AdminInviteRequestDto> = emptyList()
+    suspend fun adminListEvents(
+        keyword: String? = null,
+        status: String? = null,
+        cityId: CityId? = null,
+        limit: Int = 50,
+        offset: Int = 0,
+    ): List<AdminEventListItemDto> = emptyList()
+    suspend fun adminListEventFacets(): AdminEventFacetsDto = AdminEventFacetsDto(emptyMap(), emptyMap())
+    suspend fun adminBulkUpdateEventStatus(eventIds: List<EventId>, status: String) {}
+    suspend fun adminDeleteEvent(eventId: EventId) {}
+    suspend fun adminListEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto> = emptyList()
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
@@ -628,6 +639,80 @@ class KtorSupabaseConsumerApi(
         return response.requireOk().decodeList<AdminInviteRequestRow>().map { it.toDto() }
     }
 
+    override suspend fun adminListEvents(
+        keyword: String?,
+        status: String?,
+        cityId: CityId?,
+        limit: Int,
+        offset: Int,
+    ): List<AdminEventListItemDto> {
+        val response = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,title,description,start_datetime,end_datetime,venue_name,city_id,status,ai_confidence,price,is_free,age_min,age_max,images,source_name,created_at,updated_at")
+            parameter("order", "start_datetime.desc")
+            parameter("limit", limit)
+            parameter("offset", offset)
+            if (keyword != null) parameter("or", "(title.ilike.%${keyword}%,description.ilike.%${keyword}%)")
+            if (status != null) parameter("status", "eq.$status")
+            if (cityId != null) parameter("city_id", "eq.${cityId.rawValue}")
+        }
+        return response.requireOk().decodeList<AdminEventListRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListEventFacets(): AdminEventFacetsDto {
+        val statusResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "status")
+        }
+        val cityResponse = client.get("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("select", "city_id")
+        }
+        val statusRows = statusResponse.requireOk().decodeList<AdminEventStatusRow>()
+        val cityRows = cityResponse.requireOk().decodeList<AdminEventCityRow>()
+        val statusCounts = statusRows.groupingBy { it.status }.eachCount()
+        val cityCounts = cityRows
+            .groupingBy { it.cityId ?: "_unknown" }
+            .eachCount()
+            .let { it + ("_total" to cityRows.size) }
+        return AdminEventFacetsDto(statusCounts, cityCounts)
+    }
+
+    override suspend fun adminBulkUpdateEventStatus(eventIds: List<EventId>, status: String) {
+        if (eventIds.isEmpty()) return
+        val ids = eventIds.joinToString(",") { it.rawValue }
+        client.patch("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "in.($ids)")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("status", status) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminDeleteEvent(eventId: EventId) {
+        client.delete("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.${eventId.rawValue}")
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> {
+        val response = client.get("$baseUrl/rest/v1/event_ai_traces") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,event_id,provider,model,created_at,input_title,input_description,reasoning_summary")
+            parameter("event_id", "eq.${eventId.rawValue}")
+            parameter("order", "created_at.desc")
+            parameter("limit", limit)
+        }
+        return response.requireOk().decodeList<AdminEventAiTraceRow>().map { it.toDto() }
+    }
+
     override suspend fun deleteAccount() {
         client.post("$baseUrl/rest/v1/rpc/delete_my_account") {
             baseHeaders()
@@ -1088,6 +1173,77 @@ private data class AdminInviteRequestRow(
         createdAt = createdAt.parseInstant(),
         reviewedAt = reviewedAt?.parseInstant(),
         adminNotes = adminNotes,
+    )
+}
+
+@Serializable
+private data class AdminEventListRow(
+    val id: String,
+    val title: String,
+    val description: String? = null,
+    @SerialName("start_datetime") val startDatetime: String,
+    @SerialName("end_datetime") val endDatetime: String? = null,
+    @SerialName("venue_name") val venueName: String? = null,
+    @SerialName("city_id") val cityId: String? = null,
+    val status: String,
+    @SerialName("ai_confidence") val aiConfidence: Double? = null,
+    val price: Double? = null,
+    @SerialName("is_free") val isFree: Boolean = false,
+    @SerialName("age_min") val ageMin: Int? = null,
+    @SerialName("age_max") val ageMax: Int? = null,
+    val images: JsonElement? = null,
+    @SerialName("source_name") val sourceName: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String,
+) {
+    fun toDto() = AdminEventListItemDto(
+        id = EventId(id),
+        title = title,
+        description = description,
+        startsAt = startDatetime.parseInstant(),
+        endsAt = endDatetime?.parseInstant(),
+        venueName = venueName,
+        cityId = cityId?.let { CityId(it) },
+        cityName = null,
+        status = status,
+        aiConfidence = aiConfidence,
+        price = price,
+        isFree = isFree,
+        ageMin = ageMin,
+        ageMax = ageMax,
+        imageUrl = images.firstImageUrl(),
+        sourceName = sourceName,
+        createdAt = createdAt.parseInstant(),
+        updatedAt = updatedAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminEventStatusRow(val status: String)
+
+@Serializable
+private data class AdminEventCityRow(@SerialName("city_id") val cityId: String? = null)
+
+@Serializable
+private data class AdminEventAiTraceRow(
+    val id: String,
+    @SerialName("event_id") val eventId: String,
+    val provider: String? = null,
+    val model: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("input_title") val inputTitle: String? = null,
+    @SerialName("input_description") val inputDescription: String? = null,
+    @SerialName("reasoning_summary") val reasoningSummary: String? = null,
+) {
+    fun toDto() = AdminEventAiTraceDto(
+        id = id,
+        eventId = EventId(eventId),
+        provider = provider,
+        model = model,
+        createdAt = createdAt.parseInstant(),
+        inputSummary = inputTitle,
+        outputSummary = reasoningSummary,
+        confidence = null,
     )
 }
 

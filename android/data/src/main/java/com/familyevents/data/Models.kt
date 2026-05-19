@@ -204,3 +204,40 @@ data class AdminInviteRequestDto(
     val reviewedAt: Instant?,
     val adminNotes: String?,
 )
+
+data class AdminEventListItemDto(
+    val id: EventId,
+    val title: String,
+    val description: String?,
+    val startsAt: Instant,
+    val endsAt: Instant?,
+    val venueName: String?,
+    val cityId: CityId?,
+    val cityName: String?,
+    val status: String,
+    val aiConfidence: Double?,
+    val price: Double?,
+    val isFree: Boolean,
+    val ageMin: Int?,
+    val ageMax: Int?,
+    val imageUrl: String?,
+    val sourceName: String?,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+)
+
+data class AdminEventFacetsDto(
+    val statusCounts: Map<String, Int>,
+    val cityCounts: Map<String, Int>,
+)
+
+data class AdminEventAiTraceDto(
+    val id: String,
+    val eventId: EventId,
+    val provider: String?,
+    val model: String?,
+    val createdAt: Instant,
+    val inputSummary: String?,
+    val outputSummary: String?,
+    val confidence: Double?,
+)

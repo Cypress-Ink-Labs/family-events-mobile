@@ -389,6 +389,23 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
 
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> =
         api?.adminListInviteRequests(status) ?: emptyList()
+
+    override suspend fun listEvents(keyword: String?, status: String?, cityId: CityId?, limit: Int, offset: Int): List<AdminEventListItemDto> =
+        api?.adminListEvents(keyword, status, cityId, limit, offset) ?: emptyList()
+
+    override suspend fun listEventFacets(): AdminEventFacetsDto =
+        api?.adminListEventFacets() ?: AdminEventFacetsDto(emptyMap(), emptyMap())
+
+    override suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String) {
+        api?.adminBulkUpdateEventStatus(eventIds, status)
+    }
+
+    override suspend fun deleteEvent(eventId: EventId) {
+        api?.adminDeleteEvent(eventId)
+    }
+
+    override suspend fun listEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> =
+        api?.adminListEventAiTraces(eventId, limit) ?: emptyList()
 }
 
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =
