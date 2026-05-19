@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.annotation.RequiresApi
 import com.familyevents.core.EnvConfig
 import com.familyevents.data.RepositoryGraph
 import com.familyevents.designsystem.AppThemePreference
@@ -53,16 +54,21 @@ class MainActivity : ComponentActivity() {
 
     private fun publishShortcuts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
+        publishShortcutsApi25()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    private fun publishShortcutsApi25() {
         val manager = getSystemService(ShortcutManager::class.java) ?: return
         val icon = Icon.createWithResource(this, applicationInfo.icon)
         manager.dynamicShortcuts = listOf(
             shortcut("plan", "Plan", "Open Saturday Plan", "familyevents://tab/plan", icon),
             shortcut("explore", "Explore", "Search family events", "familyevents://tab/explore", icon),
             shortcut("saved", "Saved", "Open saved events", "familyevents://tab/saved", icon),
-            shortcut("admin", "Admin", "Open the admin dashboard", "familyevents://admin/dashboard", icon),
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     private fun shortcut(id: String, label: String, longLabel: String, uri: String, icon: Icon): ShortcutInfo =
         ShortcutInfo.Builder(this, id)
             .setShortLabel(label)

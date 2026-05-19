@@ -24,6 +24,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import java.time.Instant
+import java.time.OffsetDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -68,6 +69,8 @@ interface SupabaseConsumerApi {
     suspend fun adminRunSource(sourceId: String?) {}
     suspend fun adminRunCron(jobName: String?) {}
     suspend fun deleteAccount()
+    suspend fun invitesRequired(): Boolean = true
+    suspend fun requestInvite(email: String, message: String?): Boolean = false
 }
 
 class KtorSupabaseConsumerApi(
@@ -80,6 +83,15 @@ class KtorSupabaseConsumerApi(
         isLenient = true
     }
     private val baseUrl = config.supabaseUrl.trimEnd('/')
+
+    private val uuidRegex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    private fun String.isUuid(): Boolean = this.length == 36 && uuidRegex.matches(this)
+
+    private fun String.parseInstant(): Instant = try {
+        Instant.parse(this)
+    } catch (e: Exception) {
+        OffsetDateTime.parse(this).toInstant()
+    }
 
     override suspend fun signIn(email: String, password: String): PersistedSession {
         val response = client.post("$baseUrl/auth/v1/token") {
@@ -162,7 +174,7 @@ class KtorSupabaseConsumerApi(
     override suspend fun event(id: EventId): EventDto? = eventsByIds(listOf(id)).firstOrNull()
 
     override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> {
-        val response = client.post("$baseUrl/rest/v1/rpc/plan_events_for_user") {
+        val response = client.post("$baseUrl/rest/v1/rpc/plan_events_first_nonempty_window") {
             baseHeaders()
             bearer(optional = true)
             contentType(ContentType.Application.Json)
@@ -184,6 +196,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun profile(userId: UserId): UserProfile? {
+        if (!userId.rawValue.isUuid()) return null
         val response = client.get("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer(optional = true)
@@ -195,6 +208,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
+        if (!userId.rawValue.isUuid()) throw AppError.AuthRequired
         val response = client.patch("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer()
@@ -215,6 +229,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun favorite(userId: UserId, eventId: EventId) {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return
         client.post("$baseUrl/rest/v1/favorites") {
             baseHeaders()
             bearer()
@@ -230,6 +245,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun unfavorite(userId: UserId, eventId: EventId) {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return
         client.delete("$baseUrl/rest/v1/favorites") {
             baseHeaders()
             bearer()
@@ -239,6 +255,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return null
         val response = client.get("$baseUrl/rest/v1/ratings") {
             baseHeaders()
             bearer()
@@ -251,6 +268,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) throw AppError.Remote("Invalid identifiers")
         val response = client.post("$baseUrl/rest/v1/ratings") {
             baseHeaders()
             bearer()
@@ -271,6 +289,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun comments(eventId: EventId): List<CommentDto> {
+        if (!eventId.rawValue.isUuid()) return emptyList()
         val response = client.get("$baseUrl/rest/v1/comments") {
             baseHeaders()
             bearer(optional = true)
@@ -283,6 +302,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) throw AppError.Remote("Invalid identifiers")
         val response = client.post("$baseUrl/rest/v1/comments") {
             baseHeaders()
             bearer()
@@ -326,19 +346,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminUpdateEvent(eventId: EventId, patchJson: String) {
-        client.post("$baseUrl/rest/v1/rpc/admin_update_event") {
-            baseHeaders()
-            bearer()
-            contentType(ContentType.Application.Json)
-            setBody(
-                buildJsonObject {
-                    put("p_event_id", eventId.rawValue)
-                    put("p_patch", json.decodeFromString<JsonElement>(patchJson))
-                    put("p_tag_ids", JsonArray(emptyList()))
-                    put("p_lock_edited_fields", true)
-                }.toString(),
-            )
-        }.requireOkOrNoContent()
+        throw AppError.Remote("Event management is unavailable on Android.")
     }
 
     override suspend fun adminModerateComment(commentId: String, approved: Boolean, flagged: Boolean) {
@@ -352,20 +360,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminCreateInvite(maxUses: Int?, expiresAtIso: String?, note: String?): String {
-        val response = client.post("$baseUrl/rest/v1/rpc/admin_create_invite_code") {
-            baseHeaders()
-            bearer()
-            contentType(ContentType.Application.Json)
-            setBody(
-                buildJsonObject {
-                    putNullable("p_max_uses", maxUses)
-                    putNullable("p_expires_at", expiresAtIso)
-                    putNullable("p_note", note)
-                }.toString(),
-            )
-        }.requireOk()
-        return response.decodeList<InviteCodeRow>().firstOrNull()?.code
-            ?: throw AppError.Remote("Invite code was created but not returned.")
+        throw AppError.Remote("Invite management is unavailable on Android.")
     }
 
     override suspend fun adminRevokeInvite(inviteId: String) {
@@ -388,16 +383,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun adminRunCron(jobName: String?) {
-        if (jobName.isNullOrBlank() || jobName == "due-scrapes") {
-            client.post("$baseUrl/rest/v1/rpc/admin_run_due_scrapes") {
-                baseHeaders()
-                bearer()
-                contentType(ContentType.Application.Json)
-                setBody("{}")
-            }.requireOkOrNoContent()
-        } else {
-            throw AppError.Remote("Unsupported cron shortcut: $jobName")
-        }
+        throw AppError.Remote("Scheduled job controls are unavailable on Android.")
     }
 
     override suspend fun deleteAccount() {
@@ -409,8 +395,35 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
+    override suspend fun invitesRequired(): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/invites_required") {
+            baseHeaders()
+            bearer(optional = true)
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: true
+    }
+
+    override suspend fun requestInvite(email: String, message: String?): Boolean {
+        val response = client.post("$baseUrl/rest/v1/rpc/request_invite") {
+            baseHeaders()
+            bearer(optional = true)
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_email", email)
+                    if (message != null) put("p_message", message)
+                }.toString(),
+            )
+        }
+        val body = response.requireOk().bodyAsText().trim()
+        return body.toBooleanStrictOrNull() ?: false
+    }
+
     private suspend fun eventsByIds(ids: List<EventId>): List<EventDto> {
-        val uniqueIds = ids.distinctBy { it.rawValue }
+        val uniqueIds = ids.distinctBy { it.rawValue }.filter { it.rawValue.isUuid() }
         if (uniqueIds.isEmpty()) return emptyList()
         val response = client.post("$baseUrl/rest/v1/rpc/events_enriched") {
             baseHeaders()
@@ -446,12 +459,31 @@ class KtorSupabaseConsumerApi(
 
     private suspend fun HttpResponse.requireOk(): HttpResponse {
         if (status.value in 200..299) return this
-        throw AppError.Remote(bodyAsText().ifBlank { "Supabase request failed with HTTP ${status.value}" })
+        throw toAppError(status, bodyAsText())
     }
 
     private suspend fun HttpResponse.requireOkOrNoContent(): HttpResponse {
         if (status == HttpStatusCode.NoContent || status.value in 200..299) return this
-        throw AppError.Remote(bodyAsText().ifBlank { "Supabase request failed with HTTP ${status.value}" })
+        throw toAppError(status, bodyAsText())
+    }
+
+    private fun toAppError(status: HttpStatusCode, body: String): AppError {
+        val payload = runCatching { json.parseToJsonElement(body) as? JsonObject }.getOrNull()
+        val code = payload?.get("error_code")?.jsonPrimitive?.contentOrNull
+            ?: payload?.get("code")?.jsonPrimitive?.contentOrNull
+        val message = payload?.get("msg")?.jsonPrimitive?.contentOrNull
+            ?: payload?.get("message")?.jsonPrimitive?.contentOrNull
+            ?: body.ifBlank { "Supabase request failed with HTTP ${status.value}" }
+
+        return when (code) {
+            "invalid_credentials" -> AppError.InvalidCredentials
+            "email_not_confirmed" -> AppError.EmailNotConfirmed
+            "user_already_exists",
+            "email_exists",
+            -> AppError.EmailAlreadyInUse
+            "weak_password" -> AppError.WeakPassword(message)
+            else -> if (status == HttpStatusCode.Unauthorized) AppError.Unauthorized else AppError.Remote(message)
+        }
     }
 
     private suspend inline fun <reified T> HttpResponse.decode(): T =
@@ -539,14 +571,14 @@ private data class EventRow(
     fun toDto(): EventDto? {
         val parsedId = id?.takeIf { it.isNotBlank() } ?: return null
         val parsedTitle = title?.takeIf { it.isNotBlank() } ?: return null
-        val parsedStart = startDatetime?.let(Instant::parse) ?: return null
+        val parsedStart = startDatetime?.parseInstant() ?: return null
         val parsedCity = cityId?.takeIf { it.isNotBlank() } ?: "unknown"
         return EventDto(
             id = EventId(parsedId),
             title = parsedTitle,
             description = description,
             startsAt = parsedStart,
-            endsAt = endDatetime?.let(Instant::parse),
+            endsAt = endDatetime?.parseInstant(),
             venueName = venueName,
             address = address,
             ageMin = ageMin,
@@ -574,7 +606,7 @@ private data class RatingRow(
     val score: Int,
     @SerialName("created_at") val createdAt: String,
 ) {
-    fun toDto(): RatingDto = RatingDto(id, UserId(userId), EventId(eventId), score, Instant.parse(createdAt))
+    fun toDto(): RatingDto = RatingDto(id, UserId(userId), EventId(eventId), score, createdAt.parseInstant())
 }
 
 @Serializable
@@ -602,8 +634,8 @@ private data class CommentRow(
         body = body,
         isApproved = isApproved,
         isFlagged = isFlagged,
-        createdAt = Instant.parse(createdAt),
-        updatedAt = Instant.parse(updatedAt ?: createdAt),
+        createdAt = createdAt.parseInstant(),
+        updatedAt = (updatedAt ?: createdAt).parseInstant(),
         authorDisplayName = profile?.displayName,
         authorAvatarUrl = profile?.avatarUrl,
     )

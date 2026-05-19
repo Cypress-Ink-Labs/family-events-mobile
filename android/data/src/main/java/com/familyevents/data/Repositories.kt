@@ -19,6 +19,8 @@ interface AuthRepository {
     suspend fun resetPassword(email: String)
     suspend fun changePassword(email: String, currentPassword: String, newPassword: String)
     suspend fun signOut()
+    suspend fun invitesRequired(): Boolean
+    suspend fun requestInvite(email: String, message: String?): Boolean
 }
 
 interface ProfileRepository {

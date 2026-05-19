@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -19,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -33,6 +36,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.familyevents.designsystem.generated.Tokens
@@ -161,6 +165,135 @@ fun ErrorState(message: String, onRetry: (() -> Unit)? = null) {
             Text(message, style = FamilyTypography.Body)
             if (onRetry != null) {
                 Button(onClick = onRetry) { Text("Retry") }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// InfoGrid
+// ---------------------------------------------------------------------------
+
+data class InfoGridItem(
+    val label: String,
+    val value: String,
+    /** Emoji or short glyph; no icon dependency needed for v1. */
+    val icon: String,
+)
+
+/**
+ * Renders [items] in a 2-column card grid mirroring the web EventDetailInfoGrid.
+ * Uses [FlowRow] (stable in compose-bom ≥ 2024.06 / compose-foundation 1.6+;
+ * this project targets compose-bom 2026.05.00 so FlowRow is available).
+ */
+@Composable
+fun InfoGrid(
+    items: List<InfoGridItem>,
+    modifier: Modifier = Modifier,
+) {
+    if (items.isEmpty()) return
+
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+        verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+        maxItemsInEachRow = 2,
+    ) {
+        items.forEach { item ->
+            OutlinedCard(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(Tokens.Radius.Md),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+            ) {
+                Row(
+                    modifier = Modifier.padding(Tokens.Space.S4),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // 36dp icon square — mirrors web `size-9` (36px)
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(Tokens.Radius.Md))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(item.icon, style = FamilyTypography.TitleMedium)
+                    }
+                    Spacer(modifier = Modifier.size(Tokens.Space.S3))
+                    Column {
+                        Text(
+                            text = item.label,
+                            style = FamilyTypography.Caption,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        )
+                        Text(
+                            text = item.value,
+                            style = FamilyTypography.Body,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// AttendeeStepper
+// ---------------------------------------------------------------------------
+
+/**
+ * Decrement / count / increment row with 44dp touch targets, mirroring the
+ * web AttendeeStepper. Caller owns the value; buttons only guard emission.
+ */
+@Composable
+fun AttendeeStepper(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    min: Int = 1,
+    max: Int = 8,
+    label: String = "Attendees",
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            style = FamilyTypography.Body,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val atMin = value <= min
+            val atMax = value >= max
+            IconButton(
+                onClick = { onValueChange(value - 1) },
+                enabled = !atMin,
+                modifier = Modifier.size(Tokens.Touch.Min).semantics { contentDescription = "Decrease $label" },
+            ) {
+                Text(
+                    text = "−",
+                    style = FamilyTypography.TitleMedium,
+                )
+            }
+            Text(
+                text = "$value",
+                style = FamilyTypography.TitleMedium,
+                modifier = Modifier.widthIn(min = 24.dp),
+                textAlign = TextAlign.Center,
+            )
+            IconButton(
+                onClick = { onValueChange(value + 1) },
+                enabled = !atMax,
+                modifier = Modifier.size(Tokens.Touch.Min).semantics { contentDescription = "Increase $label" },
+            ) {
+                Text(
+                    text = "+",
+                    style = FamilyTypography.TitleMedium,
+                )
             }
         }
     }

@@ -76,6 +76,11 @@ class LocalAuthRepository(
         sessionStore.writeSession(null)
         state.value = SessionState.SignedOut
     }
+
+    override suspend fun invitesRequired(): Boolean = api?.invitesRequired() ?: true
+
+    override suspend fun requestInvite(email: String, message: String?): Boolean =
+        api?.requestInvite(email, message) ?: false
 }
 
 class RoomBackedEventRepository(
@@ -104,7 +109,7 @@ class RoomBackedEventRepository(
         eventDao.observeEvents(query.cityId?.rawValue, limit = 250, offset = 0)
             .map { rows ->
                 rows.map { it.toDto() }
-                    .ifEmpty { seedEvents().filterByCity(query.cityId) }
+                    .ifEmpty { seedEvents().filterByCity(query.cityId).ifEmpty { seedEvents() } }
                     .filter { event -> query.search.isNullOrBlank() || event.title.contains(query.search, ignoreCase = true) }
                     .filter { event -> query.tagIds.isEmpty() || event.tags.any { it.id in query.tagIds } }
                     .filter { event -> query.dateKey == null || event.startsAt.toString().startsWith(query.dateKey) }
@@ -327,7 +332,7 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =
     map { rows ->
         rows.ifEmpty {
-            seedEvents().filterByCity(cityId).take(6).mapIndexed { index, event ->
+            seedEvents().filterByCity(cityId).ifEmpty { seedEvents() }.take(6).mapIndexed { index, event ->
                 PlanEventRowDto(event, section = if (index == 0) "Hero" else "Saturday", rank = index)
             }
         }

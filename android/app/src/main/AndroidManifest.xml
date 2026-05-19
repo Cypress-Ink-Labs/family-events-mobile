@@ -23,7 +23,6 @@
                 <data android:scheme="familyevents" android:host="event" />
                 <data android:scheme="familyevents" android:host="city" />
                 <data android:scheme="familyevents" android:host="tab" />
-                <data android:scheme="familyevents" android:host="admin" />
                 <data android:scheme="familyevents" android:host="reset-password" />
             </intent-filter>
 
@@ -35,10 +34,6 @@
                     android:scheme="https"
                     android:host="familyevents.app"
                     android:pathPrefix="/share" />
-                <data
-                    android:scheme="https"
-                    android:host="familyevents.app"
-                    android:pathPrefix="/admin" />
             </intent-filter>
         </activity>
     </application>
