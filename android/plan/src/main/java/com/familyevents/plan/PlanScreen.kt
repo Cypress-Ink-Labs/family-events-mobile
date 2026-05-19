@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -52,6 +53,10 @@ fun PlanScreen(
     val scope = rememberCoroutineScope()
     var permissionAsked by rememberSaveable { mutableStateOf(false) }
 
+    val currentUserId by rememberUpdatedState(userId)
+    val currentCityId by rememberUpdatedState(cityId)
+    val currentKidAge by rememberUpdatedState(kidAge)
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
@@ -62,7 +67,7 @@ fun PlanScreen(
             grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         scope.launch {
             val coord = if (anyGranted) locationProvider.lastKnownLocation() else null
-            eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude)
+            eventRepository.refreshPlan(currentUserId, currentCityId, currentKidAge, coord?.latitude, coord?.longitude)
         }
     }
 
