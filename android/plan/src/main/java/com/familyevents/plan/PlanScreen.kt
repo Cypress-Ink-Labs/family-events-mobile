@@ -53,6 +53,10 @@ fun PlanScreen(
     val scope = rememberCoroutineScope()
     var permissionAsked by rememberSaveable { mutableStateOf(false) }
 
+    // Hold latest values for the permission callback. The launcher closure
+    // captures these once at composition; without rememberUpdatedState a profile
+    // change (e.g., kidAge loading after dialog opens) would refresh against
+    // stale args when the dialog returns.
     val currentUserId by rememberUpdatedState(userId)
     val currentCityId by rememberUpdatedState(cityId)
     val currentKidAge by rememberUpdatedState(kidAge)
