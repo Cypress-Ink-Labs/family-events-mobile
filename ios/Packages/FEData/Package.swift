@@ -28,7 +28,7 @@ let package = Package(
         ),
         .testTarget(
             name: "FEDataTests",
-            dependencies: ["FEData", "FEDataTesting"],
+            dependencies: ["FEData", "FEDataTesting", "FECore"],
             path: "Tests/FEDataTests"
         ),
     ]
