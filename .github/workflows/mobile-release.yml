@@ -121,6 +121,14 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/FamilyEvents.mobileprovision"
 
+      - name: Resolve build number
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_number=$(date +%s)
+          echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          echo "Using build number $build_number"
+
       - name: Archive
         shell: bash
         env:
@@ -142,7 +150,7 @@ jobs:
             -authenticationKeyIssuerID "$ASC_API_ISSUER_ID" \
             DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
             MARKETING_VERSION="$IOS_VERSION_NAME" \
-            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             SUPABASE_URL="${PROD_SUPABASE_URL}" \
             SUPABASE_ANON_KEY="${PROD_SUPABASE_ANON_KEY}"
 
