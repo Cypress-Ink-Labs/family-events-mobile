@@ -248,7 +248,7 @@ class InMemoryAdminRepository : AdminRepository {
             createdAt = java.time.Instant.now(),
         )
     override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean = true
-    override suspend fun revokeInvite(inviteId: String) = Unit
+    override suspend fun revokeInvite(inviteId: String): Boolean = true
     override suspend fun bulkSetAutoApprove(enable: Boolean) = Unit
     override suspend fun runSource(sourceId: String?) = Unit
     override suspend fun retryTagQueue(eventId: EventId): Boolean = true
@@ -264,6 +264,12 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) = Unit
     override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> = emptyList()
+    override suspend fun listEvents(keyword: String?, status: String?, cityId: CityId?, limit: Int, offset: Int): List<AdminEventListItemDto> = emptyList()
+    override suspend fun listEventFacets(): AdminEventFacetsDto = AdminEventFacetsDto(emptyMap(), emptyMap())
+    override suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String) = Unit
+    override suspend fun bulkDeleteEvent(eventIds: List<EventId>) = Unit
+    override suspend fun deleteEvent(eventId: EventId) = Unit
+    override suspend fun listEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> = emptyList()
 }
 
 class RepositoryGraph(
