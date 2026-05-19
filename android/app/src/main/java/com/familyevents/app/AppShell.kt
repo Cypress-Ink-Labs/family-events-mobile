@@ -158,6 +158,7 @@ fun FamilyEventsApp(
                     )
                     AppTab.Admin -> AdminScreen(
                         adminRepository = repositories.adminRepository,
+                        currentUserId = userId,
                         modifier = contentModifier,
                     )
                 }

@@ -1,6 +1,7 @@
 package com.familyevents.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.familyevents.core.CityId
 import com.familyevents.core.decodeHtmlEntities
 import com.familyevents.core.DateFormatting
+import com.familyevents.core.UserId
 import com.familyevents.data.AdminCityDto
 import com.familyevents.data.AdminCommentDto
 import com.familyevents.data.AdminCronJobDto
@@ -57,19 +62,25 @@ import com.familyevents.data.AdminInviteRequestDto
 import com.familyevents.data.AdminRatingDto
 import com.familyevents.data.AdminRepository
 import com.familyevents.data.AdminSourceDto
+import com.familyevents.data.AdminSourceRunDto
 import com.familyevents.data.AdminStatsDto
+import com.familyevents.data.AdminTagQueueSummaryRowDto
+import com.familyevents.data.AdminUserAccessDto
 import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.ErrorState
 import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.LoadingState
 import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
+import java.time.Duration
+import java.time.Instant
 
 private fun text(s: String?): String = decodeHtmlEntities(s ?: "")
 
 @Composable
 fun AdminScreen(
     adminRepository: AdminRepository,
+    currentUserId: UserId? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -87,6 +98,8 @@ fun AdminScreen(
         AdminCronsSection(adminRepository)
         AdminCitiesSection(adminRepository)
         AdminRatingsSection(adminRepository)
+        AdminAccessSection(currentUserId = currentUserId, adminRepository = adminRepository)
+        AdminLogsSection(adminRepository = adminRepository)
     }
 }
 
@@ -1339,7 +1352,7 @@ private fun AdminRatingCard(
                     )
                     TextButton(
                         onClick = { showDeleteDialog = true },
-                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                        colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.error,
                         ),
                     ) {
@@ -1358,7 +1371,7 @@ private fun AdminRatingCard(
             confirmButton = {
                 Button(
                     onClick = { showDeleteDialog = false; onDelete() },
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                     ),
                 ) { Text("Delete") }
@@ -1367,5 +1380,352 @@ private fun AdminRatingCard(
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
             },
         )
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Access
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun AdminAccessSection(
+    currentUserId: UserId?,
+    adminRepository: AdminRepository,
+) {
+    var users by remember { mutableStateOf<List<AdminUserAccessDto>>(emptyList()) }
+    var keyword by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(true) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var disableTarget by remember { mutableStateOf<AdminUserAccessDto?>(null) }
+    var disableReason by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(refreshKey) {
+        loading = true
+        runCatching { adminRepository.listUserAccess() }
+            .onSuccess { users = it; loading = false }
+            .onFailure { feedback = it.message ?: "Failed to load users"; loading = false }
+    }
+
+    val filtered = users.filter {
+        val q = keyword.trim().lowercase()
+        q.isEmpty() ||
+            (it.displayName?.lowercase()?.contains(q) == true) ||
+            (it.email?.lowercase()?.contains(q) == true) ||
+            it.role.lowercase().contains(q)
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("User access", style = FamilyTypography.TitleMedium)
+
+        OutlinedTextField(
+            value = keyword,
+            onValueChange = { keyword = it },
+            label = { Text("Search by name, email, or role") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        feedback?.let { msg ->
+            Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+        }
+
+        when {
+            loading && users.isEmpty() -> LoadingState("Loading users")
+            !loading && filtered.isEmpty() -> EmptyState("No users found.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                filtered.forEach { user ->
+                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(Tokens.Space.S4),
+                            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                            ) {
+                                Text(
+                                    text = decodeHtmlEntities(user.displayName ?: "Unknown"),
+                                    style = FamilyTypography.BodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                val roleColor = if (user.role.lowercase() == "admin")
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                TagPill(label = user.role)
+                            }
+                            Text(
+                                text = user.email ?: "—",
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                            ) {
+                                TagPill(label = if (user.isEnabled) "enabled" else "disabled")
+                                val reason = user.disabledReason
+                                if (!user.isEnabled && reason != null) {
+                                    Text(
+                                        text = decodeHtmlEntities(reason),
+                                        style = FamilyTypography.Caption,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                        maxLines = 2,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
+                            }
+                            if (user.isEnabled) {
+                                val isSelf = user.userId == currentUserId
+                                OutlinedButton(
+                                    onClick = { if (!isSelf) { disableTarget = user; disableReason = "" } },
+                                    enabled = !isSelf,
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.error,
+                                    ),
+                                ) {
+                                    Text(
+                                        if (isSelf) "Cannot disable self" else "Disable",
+                                        softWrap = false,
+                                        maxLines = 1,
+                                    )
+                                }
+                            } else {
+                                Button(onClick = {
+                                    scope.launch {
+                                        runCatching { adminRepository.updateUserAccess(user.userId, true, null) }
+                                            .onFailure { feedback = it.message ?: "Failed to enable user" }
+                                        refreshKey++
+                                    }
+                                }) {
+                                    Text("Enable", softWrap = false, maxLines = 1)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    val target = disableTarget
+    if (target != null) {
+        var inFlight by remember { mutableStateOf(false) }
+        AlertDialog(
+            onDismissRequest = { disableTarget = null },
+            title = { Text("Disable ${decodeHtmlEntities(target.displayName ?: "Unknown")}?") },
+            text = {
+                OutlinedTextField(
+                    value = disableReason,
+                    onValueChange = { disableReason = it },
+                    label = { Text("Reason") },
+                    supportingText = { Text("Why is this account being disabled?") },
+                    minLines = 2,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            inFlight = true
+                            runCatching { adminRepository.updateUserAccess(target.userId, false, disableReason.trim()) }
+                                .onFailure { feedback = it.message ?: "Failed to disable user" }
+                            inFlight = false
+                            disableTarget = null
+                            refreshKey++
+                        }
+                    },
+                    enabled = !inFlight && disableReason.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                ) { Text("Disable") }
+            },
+            dismissButton = {
+                TextButton(onClick = { disableTarget = null }) { Text("Cancel") }
+            },
+        )
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Logs
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun AdminLogsSection(adminRepository: AdminRepository) {
+    var runs by remember { mutableStateOf<List<AdminSourceRunDto>>(emptyList()) }
+    var tagQueue by remember { mutableStateOf<List<AdminTagQueueSummaryRowDto>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var expandedRunId by remember { mutableStateOf<String?>(null) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(refreshKey) {
+        loading = true
+        runCatching {
+            runs = adminRepository.listSourceRuns(50)
+            tagQueue = adminRepository.listTagQueueSummary()
+            loading = false
+        }.onFailure { feedback = it.message ?: "Failed to load logs"; loading = false }
+
+        while (isActive && runs.any { it.status == "running" }) {
+            delay(3000)
+            runCatching {
+                runs = adminRepository.listSourceRuns(50)
+                tagQueue = adminRepository.listTagQueueSummary()
+            }.onFailure { /* silently ignore poll errors */ }
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("Logs", style = FamilyTypography.TitleMedium)
+
+        // Tag queue panel
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(Tokens.Space.S4),
+                verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            ) {
+                Text("Tag queue", style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+                if (tagQueue.isEmpty()) {
+                    Text(
+                        "Queue is idle.",
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                } else {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                        tagQueue.forEach { row ->
+                            TagPill(label = "${row.status}: ${row.rowCount}")
+                        }
+                    }
+                    val oldest = tagQueue.firstNotNullOfOrNull { it.oldestEnqueuedAt }
+                    oldest?.let {
+                        Text(
+                            "Oldest pending: ${formatInstant(it)}",
+                            style = FamilyTypography.Caption,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        )
+                    }
+                    val lastDead = tagQueue.firstNotNullOfOrNull { it.lastDeadLetterAt }
+                    lastDead?.let {
+                        Text(
+                            "Last dead-letter: ${formatInstant(it)}",
+                            style = FamilyTypography.Caption,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            }
+        }
+
+        // Source runs panel
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Source runs",
+                style = FamilyTypography.BodySmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = { refreshKey++ }) { Text("Refresh") }
+        }
+
+        feedback?.let { msg ->
+            Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+        }
+
+        when {
+            loading && runs.isEmpty() -> LoadingState("Loading source runs")
+            !loading && runs.isEmpty() -> EmptyState("No source runs.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                runs.forEach { run ->
+                    val isExpanded = expandedRunId == run.id
+                    val now = Instant.now()
+                    val elapsedMs = Duration.between(run.startedAt, now).toMillis()
+                    val isStale = run.status == "running" && Duration.between(run.startedAt, now).toMinutes() > 15
+
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expandedRunId = if (isExpanded) null else run.id },
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(Tokens.Space.S3),
+                            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                            ) {
+                                Text(
+                                    text = decodeHtmlEntities(run.sourceName ?: "(unknown)"),
+                                    style = FamilyTypography.BodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                val statusColor = when (run.status.lowercase()) {
+                                    "success", "completed" -> MaterialTheme.colorScheme.primary
+                                    "error", "failed" -> MaterialTheme.colorScheme.error
+                                    "running" -> MaterialTheme.colorScheme.secondary
+                                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                }
+                                TagPill(label = run.status)
+                            }
+                            val caption = buildString {
+                                append("started ${formatInstant(run.startedAt)}")
+                                if (run.completedAt != null) {
+                                    val ms = Duration.between(run.startedAt, run.completedAt).toMillis()
+                                    append(" · ${formatDuration(ms.toDouble())}")
+                                } else if (run.status == "running") {
+                                    append(" · ${formatDuration(elapsedMs.toDouble())} elapsed")
+                                }
+                            }
+                            Text(
+                                text = caption,
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                            Text(
+                                text = "${run.eventsImported} imported · ${run.eventsSkipped} skipped" +
+                                    if (run.eventsFound > 0) " (of ${run.eventsFound})" else "",
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                            if (isStale) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    TagPill(label = "timed out?")
+                                    Text(
+                                        "Has been running over 15 minutes.",
+                                        style = FamilyTypography.Caption,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            }
+                            val errorLog = run.errorLog
+                            if (isExpanded && errorLog != null) {
+                                Text(
+                                    text = decodeHtmlEntities(errorLog),
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f))
+                                        .padding(Tokens.Space.S2),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
