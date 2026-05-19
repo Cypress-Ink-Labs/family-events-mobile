@@ -1,6 +1,7 @@
 package com.familyevents.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -36,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +50,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.familyevents.core.decodeHtmlEntities
@@ -52,6 +59,7 @@ import com.familyevents.core.CityId
 import com.familyevents.core.DateFormatting
 import com.familyevents.core.EventId
 import com.familyevents.data.AdminCommentDto
+import com.familyevents.data.AdminEventAiTraceDto
 import com.familyevents.data.AdminEventFacetsDto
 import com.familyevents.data.AdminEventListItemDto
 import com.familyevents.data.AdminInviteCodeListDto
@@ -60,6 +68,9 @@ import com.familyevents.data.AdminRepository
 import com.familyevents.data.AdminSourceDto
 import com.familyevents.data.AdminStatsDto
 import kotlinx.coroutines.delay
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.ErrorState
 import com.familyevents.designsystem.FamilyTypography
@@ -166,6 +177,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
     var feedback by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var editingEvent by remember { mutableStateOf<AdminEventListItemDto?>(null) }
     val scope = rememberCoroutineScope()
 
     // Initial facets load
@@ -294,6 +306,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
                                 selected + event.id.rawValue
                             }
                         },
+                        onEdit = { editingEvent = event },
                         onChangeStatus = { target ->
                             scope.launch {
                                 try {
@@ -354,6 +367,16 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
             },
         )
     }
+
+    // Event editor dialog
+    editingEvent?.let { current ->
+        AdminEventEditorDialog(
+            event = current,
+            adminRepository = adminRepository,
+            onDismiss = { editingEvent = null },
+            onSaved = { editingEvent = null; refreshKey++ },
+        )
+    }
 }
 
 @Composable
@@ -361,6 +384,7 @@ private fun AdminEventCard(
     event: AdminEventListItemDto,
     isSelected: Boolean,
     onToggleSelect: () -> Unit,
+    onEdit: () -> Unit,
     onChangeStatus: (String) -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -377,7 +401,11 @@ private fun AdminEventCard(
                     onCheckedChange = { onToggleSelect() },
                     modifier = Modifier.size(Tokens.Touch.Min),
                 )
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onEdit() },
+                ) {
                     Text(
                         text = text(event.title),
                         style = FamilyTypography.BodySmall,
@@ -427,6 +455,226 @@ private fun AdminEventCard(
                 TextButton(onClick = { showDelete = false }) { Text("Cancel") }
             },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdminEventEditorDialog(
+    event: AdminEventListItemDto,
+    adminRepository: AdminRepository,
+    onDismiss: () -> Unit,
+    onSaved: () -> Unit,
+) {
+    var title by rememberSaveable { mutableStateOf(event.title) }
+    var description by rememberSaveable { mutableStateOf(event.description.orEmpty()) }
+    var venueName by rememberSaveable { mutableStateOf(event.venueName.orEmpty()) }
+    var isFree by rememberSaveable { mutableStateOf(event.isFree) }
+    var price by rememberSaveable { mutableStateOf(event.price?.toString().orEmpty()) }
+    var ageMin by rememberSaveable { mutableStateOf(event.ageMin?.toString().orEmpty()) }
+    var ageMax by rememberSaveable { mutableStateOf(event.ageMax?.toString().orEmpty()) }
+    var saving by remember { mutableStateOf(false) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var aiTraces by remember(event.id.rawValue) { mutableStateOf<List<AdminEventAiTraceDto>>(emptyList()) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(event.id.rawValue) {
+        aiTraces = runCatching { adminRepository.listEventAiTraces(event.id, limit = 3) }.getOrDefault(emptyList())
+    }
+
+    fun saveEdits() {
+        val patch = buildJsonObject {
+            if (title != event.title) put("title", title)
+            if (description != event.description.orEmpty()) {
+                if (description.isEmpty()) put("description", JsonNull) else put("description", description)
+            }
+            if (venueName != event.venueName.orEmpty()) {
+                if (venueName.isEmpty()) put("venue_name", JsonNull) else put("venue_name", venueName)
+            }
+            if (isFree != event.isFree) put("is_free", isFree)
+            val parsedPrice = price.toDoubleOrNull()
+            if (parsedPrice != event.price) {
+                if (parsedPrice == null) put("price", JsonNull) else put("price", parsedPrice)
+            }
+            val parsedAgeMin = ageMin.toIntOrNull()
+            if (parsedAgeMin != event.ageMin) {
+                if (parsedAgeMin == null) put("age_min", JsonNull) else put("age_min", parsedAgeMin)
+            }
+            val parsedAgeMax = ageMax.toIntOrNull()
+            if (parsedAgeMax != event.ageMax) {
+                if (parsedAgeMax == null) put("age_max", JsonNull) else put("age_max", parsedAgeMax)
+            }
+        }
+        if (patch.isEmpty()) {
+            feedback = "No changes."
+            return
+        }
+        saving = true
+        scope.launch {
+            try {
+                adminRepository.updateEvent(
+                    eventId = event.id,
+                    patchJson = patch.toString(),
+                    tagIds = emptyList(),
+                    lockEditedFields = true,
+                )
+                onSaved()
+            } catch (e: Throwable) {
+                feedback = "Save failed: ${e.message ?: "unknown error"}"
+            } finally {
+                saving = false
+            }
+        }
+    }
+
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            shape = RoundedCornerShape(Tokens.Radius.Lg),
+            modifier = Modifier.fillMaxWidth(0.95f),
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(Tokens.Space.S5),
+                verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+            ) {
+                // Header
+                Text("Edit event", style = FamilyTypography.TitleLarge)
+                TagPill(label = event.status)
+                if (event.aiConfidence != null) {
+                    Text(
+                        "Locked fields: tap Unlock to clear",
+                        style = FamilyTypography.Caption,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                }
+
+                // Editable fields
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Title") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4,
+                )
+                OutlinedTextField(
+                    value = venueName,
+                    onValueChange = { venueName = it },
+                    label = { Text("Venue") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+                ) {
+                    Text("Free event", style = FamilyTypography.BodySmall, modifier = Modifier.weight(1f))
+                    Switch(checked = isFree, onCheckedChange = { isFree = it })
+                }
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text("Price") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isFree,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                    OutlinedTextField(
+                        value = ageMin,
+                        onValueChange = { ageMin = it },
+                        label = { Text("Age min") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                    OutlinedTextField(
+                        value = ageMax,
+                        onValueChange = { ageMax = it },
+                        label = { Text("Age max") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                }
+
+                // Feedback
+                feedback?.let {
+                    Text(it, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.error)
+                }
+
+                // AI trace panel
+                Text("AI traces", style = FamilyTypography.TitleMedium)
+                if (aiTraces.isEmpty()) {
+                    Text(
+                        "No AI traces recorded.",
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                        aiTraces.forEach { trace ->
+                            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                                Column(
+                                    modifier = Modifier.padding(Tokens.Space.S3),
+                                    verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                                ) {
+                                    Text(
+                                        text = "${trace.provider ?: "unknown"} · ${DateFormatting.cardSubtitle(trace.createdAt)}",
+                                        style = FamilyTypography.Caption,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    )
+                                    trace.inputSummary?.let { summary ->
+                                        Text(
+                                            text = decodeHtmlEntities(summary),
+                                            style = FamilyTypography.BodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                                            maxLines = 3,
+                                        )
+                                    }
+                                    trace.outputSummary?.let { summary ->
+                                        Text(
+                                            text = decodeHtmlEntities(summary),
+                                            style = FamilyTypography.BodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                                            maxLines = 3,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Action row
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                    OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+                    OutlinedButton(
+                        onClick = {
+                            scope.launch {
+                                val ok = adminRepository.unlockEventFields(event.id)
+                                feedback = if (ok) "Unlocked." else "Already unlocked."
+                            }
+                        },
+                        enabled = !saving,
+                    ) { Text("Unlock fields") }
+                    Button(onClick = { saveEdits() }, enabled = !saving) {
+                        Text(if (saving) "Saving…" else "Save")
+                    }
+                }
+            }
+        }
     }
 }
 
