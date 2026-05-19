@@ -214,8 +214,13 @@ jobs:
           ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
           : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
 
-          app_id=$(asc apps list --bundle-id "$IOS_BUNDLE_ID" --output json | jq -r '.[0].id // empty')
-          : "${app_id:?App Store Connect record missing for bundle $IOS_BUNDLE_ID. Create the app at https://appstoreconnect.apple.com/apps before re-running.}"
+          app_list_json=$(asc apps list --bundle-id "$IOS_BUNDLE_ID" --output json)
+          app_id=$(printf '%s' "$app_list_json" | jq -r 'if type=="array" then .[0].id elif .data then .data[0].id else empty end // empty')
+          if [ -z "$app_id" ]; then
+            echo "asc apps list response: $app_list_json"
+            echo "App Store Connect record missing for bundle $IOS_BUNDLE_ID. Create the app at https://appstoreconnect.apple.com/apps before re-running."
+            exit 1
+          fi
 
           asc builds upload --app "$app_id" --ipa "$ipa_path"
 
