@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../FECore"),
-        .package(url: "https://github.com/supabase/supabase-swift", exact: "2.20.0"),
+        .package(url: "https://github.com/supabase/supabase-swift", exact: "2.46.0"),
     ],
     targets: [
         .target(

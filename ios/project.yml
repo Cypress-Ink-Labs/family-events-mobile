@@ -3,6 +3,17 @@ options:
   minimumXcodeGenVersion: 2.38.0
   xcodeVersion: "15.4"
   projectFormat: xcode15_3
+# Three build configurations:
+#   Debug      → local Supabase (127.0.0.1:55321). Requires `supabase start`.
+#   DebugCloud → cloud Supabase. Use when Docker is off / you want hosted dev.
+#   Release    → cloud Supabase. Used for TestFlight + App Store.
+# Switch in Xcode via the scheme picker:
+#   FamilyEvents       → Debug
+#   FamilyEvents-Cloud → DebugCloud
+configs:
+  Debug: debug
+  DebugCloud: debug
+  Release: release
 settings:
   base:
     CURRENT_PROJECT_VERSION: 2
@@ -14,6 +25,12 @@ settings:
       SUPABASE_URL: http://127.0.0.1:55321
       SUPABASE_ANON_KEY: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
       APP_WEB_URL: http://localhost:5173
+      IOS_GOOGLE_CLIENT_ID: 545014101545-in1qudtusha5kqlf5cben5oljjhmha6o.apps.googleusercontent.com
+      IOS_GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.545014101545-in1qudtusha5kqlf5cben5oljjhmha6o
+    DebugCloud:
+      SUPABASE_URL: https://ufrjcnozcapskjtoakvf.supabase.co
+      SUPABASE_ANON_KEY: sb_publishable_5SvbRT9MxYeLxn9lBAkSdA_xGVy430_
+      APP_WEB_URL: https://family-events.up.railway.app
       IOS_GOOGLE_CLIENT_ID: 545014101545-in1qudtusha5kqlf5cben5oljjhmha6o.apps.googleusercontent.com
       IOS_GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.545014101545-in1qudtusha5kqlf5cben5oljjhmha6o
     Release:
@@ -31,7 +48,7 @@ packages:
     path: Packages/FEDesignSystem
   swift-snapshot-testing:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    from: 1.18.0
+    from: 1.19.2
   FEAuth:
     path: Packages/FEAuth
   FEPlan:
@@ -119,3 +136,24 @@ targets:
     scheme:
       testTargets:
         - FEDesignSystemTests
+schemes:
+  # Picks DebugCloud config so the app talks to hosted Supabase instead of
+  # the local 127.0.0.1:55321 stack. Use this scheme when Docker is off or
+  # you want to dogfood against prod data. Archive still uses Release.
+  FamilyEvents-Cloud:
+    build:
+      targets:
+        FamilyEvents: all
+    run:
+      config: DebugCloud
+    test:
+      config: DebugCloud
+      targets:
+        - FamilyEventsTests
+        - FEDesignSystemTests
+    profile:
+      config: DebugCloud
+    analyze:
+      config: DebugCloud
+    archive:
+      config: Release

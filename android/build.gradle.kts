@@ -4,4 +4,5 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.legacy.kapt) apply false
     alias(libs.plugins.hilt) apply false
+    id("com.github.ben-manes.versions") version "0.54.0"
 }
