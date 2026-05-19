@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.annotation.RequiresApi
+import com.familyevents.admin.AdminRepository
 import com.familyevents.core.EnvConfig
 import com.familyevents.data.RepositoryGraph
 import com.familyevents.designsystem.AppThemePreference
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject lateinit var config: EnvConfig
     @Inject lateinit var repositories: RepositoryGraph
+    @Inject lateinit var adminRepository: AdminRepository
     @Inject lateinit var platformActions: PlatformActions
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
                 FamilyEventsApp(
                     config = config,
                     repositories = repositories,
+                    adminRepository = adminRepository,
                     platformActions = platformActions,
                     initialUrl = intent?.data?.toString(),
                     themePreference = themePreference,

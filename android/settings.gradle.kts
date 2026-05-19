@@ -31,4 +31,5 @@ include(
     ":saved",
     ":eventdetail",
     ":platform",
+    ":admin",
 )

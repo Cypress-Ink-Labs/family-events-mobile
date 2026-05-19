@@ -94,6 +94,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/app-store-connect"
           echo "$ASC_API_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+          chmod 600 "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
 
       - name: Install signing assets
         shell: bash
@@ -120,12 +121,19 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/FamilyEvents.mobileprovision"
 
+      - name: Resolve build number
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_number=$(date +%s)
+          echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          echo "Using build number $build_number"
+
       - name: Archive
         shell: bash
         env:
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
-          IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
           PROD_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
           PROD_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
         run: |
@@ -141,31 +149,26 @@ jobs:
             -authenticationKeyID "$ASC_API_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_API_ISSUER_ID" \
             DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROVISIONING_PROFILE_SPECIFIER" \
             MARKETING_VERSION="$IOS_VERSION_NAME" \
-            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             SUPABASE_URL="${PROD_SUPABASE_URL}" \
             SUPABASE_ANON_KEY="${PROD_SUPABASE_ANON_KEY}"
 
-      - name: Upload to TestFlight
+      - name: Export IPA
         shell: bash
         env:
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
           IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
-          IOS_INTERNAL_ONLY_INPUT: ${{ inputs.ios_internal_only }}
         run: |
           set -euo pipefail
-          internal_only="${IOS_INTERNAL_ONLY_INPUT:-true}"
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>destination</key>
-            <string>upload</string>
+            <string>export</string>
             <key>method</key>
             <string>app-store-connect</string>
             <key>signingStyle</key>
@@ -181,8 +184,6 @@ jobs:
             </dict>
             <key>manageAppVersionAndBuildNumber</key>
             <false/>
-            <key>testFlightInternalTestingOnly</key>
-            <${internal_only}/>
             <key>uploadSymbols</key>
             <true/>
           </dict>
@@ -197,6 +198,39 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_API_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_API_ISSUER_ID"
+
+      - name: Install asc CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install asc
+          asc --version
+
+      - name: Upload to TestFlight via asc
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          asc auth login \
+            --name "ci" \
+            --key-id "$ASC_API_KEY_ID" \
+            --issuer-id "$ASC_API_ISSUER_ID" \
+            --private-key "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+
+          ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
+          : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
+
+          app_list_json=$(asc apps list --bundle-id "$IOS_BUNDLE_ID" --output json)
+          app_id=$(printf '%s' "$app_list_json" | jq -r 'if type=="array" then .[0].id elif .data then .data[0].id else empty end // empty')
+          if [ -z "$app_id" ]; then
+            echo "asc apps list response: $app_list_json"
+            echo "App Store Connect record missing for bundle $IOS_BUNDLE_ID. Create the app at https://appstoreconnect.apple.com/apps before re-running."
+            exit 1
+          fi
+
+          asc builds upload --app "$app_id" --ipa "$ipa_path"
 
       - name: Upload archive artifact
         if: always()

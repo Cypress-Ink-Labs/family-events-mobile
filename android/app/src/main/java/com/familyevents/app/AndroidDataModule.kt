@@ -5,6 +5,9 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.familyevents.BuildConfig
+import com.familyevents.admin.AdminRepository
+import com.familyevents.admin.SupabaseAdminRepository
+import com.familyevents.admin.createSupabaseAdminApi
 import com.familyevents.core.EnvConfig
 import com.familyevents.data.FamilyEventsDatabase
 import com.familyevents.data.RepositoryGraph
@@ -48,6 +51,13 @@ object AndroidDataModule {
         config: EnvConfig,
         sessionStore: SessionStore,
     ): RepositoryGraph = RepositoryGraph.roomBacked(database, config, sessionStore)
+
+    @Provides
+    @Singleton
+    fun provideAdminRepository(
+        config: EnvConfig,
+        sessionStore: SessionStore,
+    ): AdminRepository = SupabaseAdminRepository(createSupabaseAdminApi(config, sessionStore))
 
     @Provides
     @Singleton

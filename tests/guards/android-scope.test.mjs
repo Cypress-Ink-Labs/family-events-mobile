@@ -36,7 +36,7 @@ test("android Gradle project and consumer endpoint policy exist", () => {
   assert.equal(existsSync(settingsPath), true)
   assert.equal(existsSync(pathPolicyPath), true)
   const settings = readFileSync(settingsPath, "utf8")
-  for (const moduleName of [":app", ":core", ":data", ":designsystem", ":auth", ":plan", ":explore", ":saved", ":eventdetail", ":platform"]) {
+  for (const moduleName of [":app", ":core", ":data", ":designsystem", ":auth", ":plan", ":explore", ":saved", ":eventdetail", ":platform", ":admin"]) {
     assert.match(settings, new RegExp(moduleName.replace(":", "\\:")))
   }
 })

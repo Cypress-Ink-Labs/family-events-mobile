@@ -35,6 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import com.familyevents.admin.AdminRepository
+import com.familyevents.admin.AdminScreen
 import com.familyevents.core.CityId
 import com.familyevents.auth.AuthScreen
 import com.familyevents.core.DeepLinkPolicy
@@ -73,6 +75,7 @@ private enum class AppTab(val title: String) {
 fun FamilyEventsApp(
     config: EnvConfig,
     repositories: RepositoryGraph,
+    adminRepository: AdminRepository,
     platformActions: PlatformActions,
     initialUrl: String?,
     themePreference: AppThemePreference,
@@ -157,7 +160,8 @@ fun FamilyEventsApp(
                         onOpenProfile = { showProfile = true },
                     )
                     AppTab.Admin -> AdminScreen(
-                        adminRepository = repositories.adminRepository,
+                        adminRepository = adminRepository,
+                        currentUserId = userId,
                         modifier = contentModifier,
                     )
                 }

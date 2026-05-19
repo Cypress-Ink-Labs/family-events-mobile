@@ -302,116 +302,6 @@ class SupabaseCommentRepository(private val api: SupabaseConsumerApi? = null) : 
             )
 }
 
-class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : AdminRepository {
-    override suspend fun stats(): AdminStatsDto =
-        api?.adminStats() ?: AdminStatsDto(0, 0, 0, 0, 0)
-
-    override suspend fun sections(): List<AdminSectionDto> = adminSections()
-
-    override suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String>, lockEditedFields: Boolean): EventDto =
-        api?.adminUpdateEvent(eventId, patchJson, tagIds, lockEditedFields)
-            ?: throw AppError.Remote("Event management is unavailable.")
-
-    override suspend fun createEvent(patchJson: String, tagIds: List<String>): EventDto =
-        api?.adminCreateEvent(patchJson, tagIds)
-            ?: throw AppError.Remote("Event creation is unavailable.")
-
-    override suspend fun unlockEventFields(eventId: EventId): Boolean =
-        api?.adminUnlockEventFields(eventId) ?: false
-
-    override suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean) {
-        api?.adminModerateComment(commentId, approved, flagged)
-    }
-
-    override suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto =
-        api?.adminCreateInviteCode(maxUses ?: 1, expiresAtIso, note)
-            ?: throw AppError.Remote("Invite code creation is unavailable.")
-
-    override suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto =
-        api?.adminApproveInviteRequest(requestId)
-            ?: throw AppError.Remote("Invite approval is unavailable.")
-
-    override suspend fun rejectInviteRequest(requestId: String, notes: String?): Boolean =
-        api?.adminRejectInviteRequest(requestId, notes) ?: false
-
-    override suspend fun revokeInvite(inviteId: String): Boolean =
-        api?.adminRevokeInvite(inviteId) ?: false
-
-    override suspend fun bulkSetAutoApprove(enable: Boolean) {
-        api?.adminBulkSetAutoApprove(enable)
-    }
-
-    override suspend fun runSource(sourceId: String?) {
-        api?.adminRunSource(sourceId)
-    }
-
-    override suspend fun retryTagQueue(eventId: EventId): Boolean =
-        api?.adminRetryTagQueue(eventId) ?: false
-
-    override suspend fun listCronJobs(): List<AdminCronJobDto> =
-        api?.adminListCronJobs() ?: emptyList()
-
-    override suspend fun cronRunHistory(jobName: String?, limit: Int): List<AdminCronRunDto> =
-        api?.adminCronRunHistory(jobName, limit) ?: emptyList()
-
-    override suspend fun toggleCronJob(jobName: String, active: Boolean) {
-        api?.adminToggleCronJob(jobName, active)
-    }
-
-    override suspend fun setCronSchedule(jobName: String, schedule: String) {
-        api?.adminSetCronSchedule(jobName, schedule)
-    }
-
-    override suspend fun runDueScrapes() {
-        api?.adminRunDueScrapes()
-    }
-
-    override suspend fun listComments(filter: String): List<AdminCommentDto> =
-        api?.adminListComments(filter) ?: emptyList()
-
-    override suspend fun deleteComment(commentId: String) {
-        api?.adminDeleteComment(commentId)
-    }
-
-    override suspend fun listSources(): List<AdminSourceDto> =
-        api?.adminListSources() ?: emptyList()
-
-    override suspend fun updateSourceActive(sourceId: String, active: Boolean) {
-        api?.adminUpdateSourceActive(sourceId, active)
-    }
-
-    override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {
-        api?.adminUpdateSourceAutoApprove(sourceId, autoApprove)
-    }
-
-    override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> =
-        api?.adminListInviteCodes() ?: emptyList()
-
-    override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> =
-        api?.adminListInviteRequests(status) ?: emptyList()
-
-    override suspend fun listEvents(keyword: String?, status: String?, cityId: CityId?, limit: Int, offset: Int): List<AdminEventListItemDto> =
-        api?.adminListEvents(keyword, status, cityId, limit, offset) ?: emptyList()
-
-    override suspend fun listEventFacets(): AdminEventFacetsDto =
-        api?.adminListEventFacets() ?: AdminEventFacetsDto(emptyMap(), emptyMap())
-
-    override suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String) {
-        api?.adminBulkUpdateEventStatus(eventIds, status)
-    }
-
-    override suspend fun bulkDeleteEvent(eventIds: List<EventId>) {
-        api?.adminBulkDeleteEvent(eventIds)
-    }
-
-    override suspend fun deleteEvent(eventId: EventId) {
-        api?.adminDeleteEvent(eventId)
-    }
-
-    override suspend fun listEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> =
-        api?.adminListEventAiTraces(eventId, limit) ?: emptyList()
-}
-
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =
     map { rows ->
         rows.ifEmpty {
@@ -493,19 +383,6 @@ private fun defaultProfile(userId: UserId): UserProfile =
         notificationsEnabled = false,
         role = "user",
     )
-
-fun adminSections(): List<AdminSectionDto> = listOf(
-    AdminSectionDto("dashboard", "Dashboard", "Events, sources, review load, and AI confidence."),
-    AdminSectionDto("sources", "Sources", "Scrape sources, runs, errors, and refresh actions."),
-    AdminSectionDto("events", "Events", "Search, edit, publish, lock, and delete events."),
-    AdminSectionDto("cities", "Cities", "Markets, active status, timezone, and source coverage."),
-    AdminSectionDto("comments", "Comments", "Approve, flag, and moderate event comments."),
-    AdminSectionDto("ratings", "Ratings", "Review and remove event ratings."),
-    AdminSectionDto("access", "Access", "User access, role, and account enablement."),
-    AdminSectionDto("invites", "Invites", "Invite requests, codes, approval, and revocation."),
-    AdminSectionDto("logs", "Logs", "Source run logs, tag queue, and audit history."),
-    AdminSectionDto("crons", "Crons", "Scheduled jobs, run history, and manual triggers."),
-)
 
 private fun CachedCityEntity.toDto(): CityDto = CityDto(CityId(id), name, region)
 
