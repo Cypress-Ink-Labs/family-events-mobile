@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -47,12 +48,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.familyevents.core.decodeHtmlEntities
+import com.familyevents.core.CityId
+import com.familyevents.core.DateFormatting
+import com.familyevents.core.EventId
 import com.familyevents.data.AdminCommentDto
+import com.familyevents.data.AdminEventFacetsDto
+import com.familyevents.data.AdminEventListItemDto
 import com.familyevents.data.AdminInviteCodeListDto
 import com.familyevents.data.AdminInviteRequestDto
 import com.familyevents.data.AdminRepository
 import com.familyevents.data.AdminSourceDto
 import com.familyevents.data.AdminStatsDto
+import kotlinx.coroutines.delay
 import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.ErrorState
 import com.familyevents.designsystem.FamilyTypography
@@ -76,6 +83,7 @@ fun AdminScreen(
     ) {
         Text("Admin", style = FamilyTypography.TitleLarge)
         AdminDashboardSection(adminRepository)
+        AdminEventsSection(adminRepository)
         AdminCommentsSection(adminRepository)
         AdminSourcesSection(adminRepository)
         AdminInvitesSection(adminRepository)
@@ -136,6 +144,289 @@ private fun StatTile(label: String, value: String, modifier: Modifier = Modifier
                 fontWeight = FontWeight.Medium,
             )
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+private val eventStatuses = listOf("draft", "published", "rejected", "archived")
+
+@Composable
+private fun AdminEventsSection(adminRepository: AdminRepository) {
+    var facets by remember { mutableStateOf<AdminEventFacetsDto?>(null) }
+    var events by remember { mutableStateOf<List<AdminEventListItemDto>>(emptyList()) }
+    var keyword by rememberSaveable { mutableStateOf("") }
+    var status by rememberSaveable { mutableStateOf("draft") }
+    var cityId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var bulkInFlight by remember { mutableStateOf(false) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    // Initial facets load
+    LaunchedEffect(Unit) {
+        runCatching { adminRepository.listEventFacets() }
+            .onSuccess { facets = it }
+    }
+
+    // Debounced list reload
+    LaunchedEffect(keyword, status, cityId, refreshKey) {
+        delay(300)
+        try {
+            loading = true
+            events = adminRepository.listEvents(
+                keyword = keyword.trim().ifEmpty { null },
+                status = status,
+                cityId = cityId?.let { CityId(it) },
+            )
+        } catch (e: Exception) {
+            feedback = e.message ?: "Failed to load events"
+        } finally {
+            loading = false
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("Events", style = FamilyTypography.TitleMedium)
+
+        // 1. Status filter chips
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+            eventStatuses.forEach { s ->
+                FilterChip(
+                    selected = status == s,
+                    onClick = { status = s; selected = emptySet() },
+                    label = { Text("$s (${facets?.statusCounts?.get(s) ?: 0})") },
+                )
+            }
+        }
+
+        // 2. Keyword search
+        OutlinedTextField(
+            value = keyword,
+            onValueChange = { keyword = it },
+            label = { Text("Search title or description") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+        )
+
+        // 3. City filter chips (only when facets have cities)
+        val cities = facets?.cityCounts
+        if (!cities.isNullOrEmpty()) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                FilterChip(
+                    selected = cityId == null,
+                    onClick = { cityId = null },
+                    label = { Text("All cities (${cities.values.sum()})") },
+                )
+                cities.forEach { (cId, count) ->
+                    FilterChip(
+                        selected = cityId == cId,
+                        onClick = { cityId = cId },
+                        label = { Text("$cId ($count)") },
+                    )
+                }
+            }
+        }
+
+        // 4. Bulk action bar
+        if (selected.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                Text("${selected.size} selected", style = FamilyTypography.BodySmall)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                    listOf("published" to "Publish", "rejected" to "Reject", "archived" to "Archive").forEach { (target, label) ->
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    bulkInFlight = true
+                                    try {
+                                        adminRepository.bulkUpdateEventStatus(selected.map { EventId(it) }, target)
+                                        selected = emptySet()
+                                        refreshKey++
+                                    } catch (e: Exception) {
+                                        feedback = e.message ?: "Bulk update failed"
+                                    } finally {
+                                        bulkInFlight = false
+                                    }
+                                }
+                            },
+                            enabled = !bulkInFlight,
+                        ) { Text(label, softWrap = false, maxLines = 1) }
+                    }
+                    OutlinedButton(
+                        onClick = { showDeleteConfirm = true },
+                        enabled = !bulkInFlight,
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.error,
+                        ),
+                    ) { Text("Delete", softWrap = false, maxLines = 1) }
+                    TextButton(onClick = { selected = emptySet() }) { Text("Clear") }
+                }
+            }
+        }
+
+        // 5. Feedback
+        feedback?.let {
+            Text(it, style = FamilyTypography.BodySmall, color = MaterialTheme.colorScheme.error)
+        }
+
+        // 6. Event list
+        when {
+            loading && events.isEmpty() -> LoadingState("Loading events")
+            !loading && events.isEmpty() -> EmptyState("No events for filter.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                events.forEach { event ->
+                    AdminEventCard(
+                        event = event,
+                        isSelected = event.id.rawValue in selected,
+                        onToggleSelect = {
+                            selected = if (event.id.rawValue in selected) {
+                                selected - event.id.rawValue
+                            } else {
+                                selected + event.id.rawValue
+                            }
+                        },
+                        onChangeStatus = { target ->
+                            scope.launch {
+                                try {
+                                    adminRepository.bulkUpdateEventStatus(listOf(event.id), target)
+                                    refreshKey++
+                                } catch (e: Exception) {
+                                    feedback = e.message ?: "Status update failed"
+                                }
+                            }
+                        },
+                        onDelete = {
+                            scope.launch {
+                                try {
+                                    adminRepository.deleteEvent(event.id)
+                                    refreshKey++
+                                } catch (e: Exception) {
+                                    feedback = e.message ?: "Delete failed"
+                                }
+                            }
+                        },
+                    )
+                }
+            }
+        }
+    }
+
+    // Bulk delete confirmation dialog
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete ${selected.size} events permanently?") },
+            text = { Text("This cannot be undone.", style = FamilyTypography.BodySmall) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val toDelete = selected.toSet()
+                        showDeleteConfirm = false
+                        scope.launch {
+                            bulkInFlight = true
+                            try {
+                                toDelete.forEach { id -> adminRepository.deleteEvent(EventId(id)) }
+                                selected = emptySet()
+                                refreshKey++
+                            } catch (e: Exception) {
+                                feedback = e.message ?: "Delete failed"
+                            } finally {
+                                bulkInFlight = false
+                            }
+                        }
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+            },
+        )
+    }
+}
+
+@Composable
+private fun AdminEventCard(
+    event: AdminEventListItemDto,
+    isSelected: Boolean,
+    onToggleSelect: () -> Unit,
+    onChangeStatus: (String) -> Unit,
+    onDelete: () -> Unit,
+) {
+    var showDelete by remember { mutableStateOf(false) }
+
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(Tokens.Space.S3),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+        ) {
+            Row(verticalAlignment = Alignment.Top) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onToggleSelect() },
+                    modifier = Modifier.size(Tokens.Touch.Min),
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = text(event.title),
+                        style = FamilyTypography.BodySmall,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                    )
+                    Text(
+                        text = "${DateFormatting.cardSubtitle(event.startsAt)} • ${text(event.venueName ?: "Venue TBA")}",
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                    )
+                    TagPill(label = event.status)
+                }
+            }
+
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
+                listOf("published" to "Publish", "rejected" to "Reject", "archived" to "Archive").forEach { (target, label) ->
+                    TextButton(
+                        onClick = { onChangeStatus(target) },
+                        enabled = event.status != target,
+                    ) { Text(label, softWrap = false, maxLines = 1) }
+                }
+                TextButton(
+                    onClick = { showDelete = true },
+                    colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Delete", softWrap = false, maxLines = 1) }
+            }
+        }
+    }
+
+    if (showDelete) {
+        AlertDialog(
+            onDismissRequest = { showDelete = false },
+            title = { Text("Delete event permanently?") },
+            text = { Text("This cannot be undone.", style = FamilyTypography.BodySmall) },
+            confirmButton = {
+                Button(
+                    onClick = { showDelete = false; onDelete() },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDelete = false }) { Text("Cancel") }
+            },
+        )
     }
 }
 
