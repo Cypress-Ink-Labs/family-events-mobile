@@ -14,6 +14,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,10 @@ fun ExploreScreen(
     var query by remember { mutableStateOf("") }
     var mode by remember { mutableStateOf(ExploreMode.List) }
     val events by eventRepository.observeEventList(EventQuery(cityId = cityId, search = query)).collectAsState(initial = emptyList())
+
+    LaunchedEffect(cityId, query) {
+        runCatching { eventRepository.refreshEventList(EventQuery(cityId = cityId, search = query)) }
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),

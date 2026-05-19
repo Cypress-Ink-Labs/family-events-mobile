@@ -24,6 +24,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import java.time.Instant
+import java.time.OffsetDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -82,6 +83,15 @@ class KtorSupabaseConsumerApi(
         isLenient = true
     }
     private val baseUrl = config.supabaseUrl.trimEnd('/')
+
+    private val uuidRegex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    private fun String.isUuid(): Boolean = this.length == 36 && uuidRegex.matches(this)
+
+    private fun String.parseInstant(): Instant = try {
+        Instant.parse(this)
+    } catch (e: Exception) {
+        OffsetDateTime.parse(this).toInstant()
+    }
 
     override suspend fun signIn(email: String, password: String): PersistedSession {
         val response = client.post("$baseUrl/auth/v1/token") {
@@ -186,6 +196,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun profile(userId: UserId): UserProfile? {
+        if (!userId.rawValue.isUuid()) return null
         val response = client.get("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer(optional = true)
@@ -197,6 +208,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile {
+        if (!userId.rawValue.isUuid()) throw AppError.AuthRequired
         val response = client.patch("$baseUrl/rest/v1/user_profiles") {
             baseHeaders()
             bearer()
@@ -217,6 +229,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun favorite(userId: UserId, eventId: EventId) {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return
         client.post("$baseUrl/rest/v1/favorites") {
             baseHeaders()
             bearer()
@@ -232,6 +245,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun unfavorite(userId: UserId, eventId: EventId) {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return
         client.delete("$baseUrl/rest/v1/favorites") {
             baseHeaders()
             bearer()
@@ -241,6 +255,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) return null
         val response = client.get("$baseUrl/rest/v1/ratings") {
             baseHeaders()
             bearer()
@@ -253,6 +268,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun upsertRating(userId: UserId, eventId: EventId, score: Int): RatingDto {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) throw AppError.Remote("Invalid identifiers")
         val response = client.post("$baseUrl/rest/v1/ratings") {
             baseHeaders()
             bearer()
@@ -273,6 +289,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun comments(eventId: EventId): List<CommentDto> {
+        if (!eventId.rawValue.isUuid()) return emptyList()
         val response = client.get("$baseUrl/rest/v1/comments") {
             baseHeaders()
             bearer(optional = true)
@@ -285,6 +302,7 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto {
+        if (!userId.rawValue.isUuid() || !eventId.rawValue.isUuid()) throw AppError.Remote("Invalid identifiers")
         val response = client.post("$baseUrl/rest/v1/comments") {
             baseHeaders()
             bearer()
@@ -405,7 +423,7 @@ class KtorSupabaseConsumerApi(
     }
 
     private suspend fun eventsByIds(ids: List<EventId>): List<EventDto> {
-        val uniqueIds = ids.distinctBy { it.rawValue }
+        val uniqueIds = ids.distinctBy { it.rawValue }.filter { it.rawValue.isUuid() }
         if (uniqueIds.isEmpty()) return emptyList()
         val response = client.post("$baseUrl/rest/v1/rpc/events_enriched") {
             baseHeaders()
@@ -553,14 +571,14 @@ private data class EventRow(
     fun toDto(): EventDto? {
         val parsedId = id?.takeIf { it.isNotBlank() } ?: return null
         val parsedTitle = title?.takeIf { it.isNotBlank() } ?: return null
-        val parsedStart = startDatetime?.let(Instant::parse) ?: return null
+        val parsedStart = startDatetime?.parseInstant() ?: return null
         val parsedCity = cityId?.takeIf { it.isNotBlank() } ?: "unknown"
         return EventDto(
             id = EventId(parsedId),
             title = parsedTitle,
             description = description,
             startsAt = parsedStart,
-            endsAt = endDatetime?.let(Instant::parse),
+            endsAt = endDatetime?.parseInstant(),
             venueName = venueName,
             address = address,
             ageMin = ageMin,
@@ -588,7 +606,7 @@ private data class RatingRow(
     val score: Int,
     @SerialName("created_at") val createdAt: String,
 ) {
-    fun toDto(): RatingDto = RatingDto(id, UserId(userId), EventId(eventId), score, Instant.parse(createdAt))
+    fun toDto(): RatingDto = RatingDto(id, UserId(userId), EventId(eventId), score, createdAt.parseInstant())
 }
 
 @Serializable
@@ -616,8 +634,8 @@ private data class CommentRow(
         body = body,
         isApproved = isApproved,
         isFlagged = isFlagged,
-        createdAt = Instant.parse(createdAt),
-        updatedAt = Instant.parse(updatedAt ?: createdAt),
+        createdAt = createdAt.parseInstant(),
+        updatedAt = (updatedAt ?: createdAt).parseInstant(),
         authorDisplayName = profile?.displayName,
         authorAvatarUrl = profile?.avatarUrl,
     )
