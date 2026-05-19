@@ -105,6 +105,7 @@ fun FamilyEventsApp(
                     AppTab.Plan -> PlanScreen(
                         userId = userId,
                         cityId = activeCityId,
+                        kidAge = profile?.kidAge,
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
                         weatherRepository = repositories.weatherRepository,

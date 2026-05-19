@@ -50,7 +50,7 @@ interface SupabaseConsumerApi {
     suspend fun cities(): List<CityDto>
     suspend fun events(query: EventQuery): List<EventDto>
     suspend fun event(id: EventId): EventDto?
-    suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto>
+    suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int? = null): List<PlanEventRowDto>
     suspend fun profile(userId: UserId): UserProfile?
     suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun favorite(userId: UserId, eventId: EventId)
@@ -86,12 +86,6 @@ class KtorSupabaseConsumerApi(
 
     private val uuidRegex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
     private fun String.isUuid(): Boolean = this.length == 36 && uuidRegex.matches(this)
-
-    private fun String.parseInstant(): Instant = try {
-        Instant.parse(this)
-    } catch (e: Exception) {
-        OffsetDateTime.parse(this).toInstant()
-    }
 
     override suspend fun signIn(email: String, password: String): PersistedSession {
         val response = client.post("$baseUrl/auth/v1/token") {
@@ -173,7 +167,7 @@ class KtorSupabaseConsumerApi(
 
     override suspend fun event(id: EventId): EventDto? = eventsByIds(listOf(id)).firstOrNull()
 
-    override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> {
+    override suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int?): List<PlanEventRowDto> {
         val response = client.post("$baseUrl/rest/v1/rpc/plan_events_first_nonempty_window") {
             baseHeaders()
             bearer(optional = true)
@@ -183,6 +177,7 @@ class KtorSupabaseConsumerApi(
                     put("p_user_id", userId.rawValue)
                     cityId?.let { put("p_city_id", it.rawValue) }
                     put("p_limit", 6)
+                    kidAge?.let { put("p_kid_age", it) }
                 }.toString(),
             )
         }
@@ -656,6 +651,12 @@ private data class AdminSourceStatsRow(
 @Serializable
 private data class InviteCodeRow(val code: String)
 
+private fun String.parseInstant(): Instant = try {
+    Instant.parse(this)
+} catch (e: Exception) {
+    OffsetDateTime.parse(this).toInstant()
+}
+
 private fun JsonElement?.firstImageUrl(): String? = when (this) {
     null, JsonNull -> null
     is JsonPrimitive -> contentOrNull?.takeIf { it.startsWith("http") }
@@ -690,4 +691,10 @@ private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String
 
 private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(key: String, value: JsonElement?) {
     if (value == null) put(key, JsonNull) else put(key, value)
+}
+
+private fun String.parseInstant(): Instant = try {
+    Instant.parse(this)
+} catch (_: Exception) {
+    OffsetDateTime.parse(this).toInstant()
 }

@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 fun PlanScreen(
     userId: UserId,
     cityId: CityId?,
+    kidAge: Int? = null,
     eventRepository: EventRepository,
     favoriteRepository: FavoriteRepository,
     weatherRepository: WeatherRepository,
@@ -52,7 +53,7 @@ fun PlanScreen(
             Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
                 Text("Saturday Plan", style = FamilyTypography.TitleLarge)
                 Text(forecast.firstOrNull()?.summary ?: "Pick a few easy events for this weekend.", style = FamilyTypography.BodySmall)
-                Button(onClick = { scope.launch { eventRepository.refreshPlan(userId, cityId) } }) {
+                Button(onClick = { scope.launch { eventRepository.refreshPlan(userId, cityId, kidAge) } }) {
                     Text("Refresh")
                 }
             }

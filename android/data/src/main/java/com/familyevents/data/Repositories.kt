@@ -37,7 +37,7 @@ interface EventRepository {
     fun observePlanEvents(userId: UserId, cityId: CityId?): Flow<List<PlanEventRowDto>>
     fun observeEventList(query: EventQuery): Flow<List<EventDto>>
     fun observeEventDetail(id: EventId): Flow<EventDto?>
-    suspend fun refreshPlan(userId: UserId, cityId: CityId?)
+    suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int? = null)
     suspend fun refreshEventList(query: EventQuery)
     suspend fun refreshEventDetail(id: EventId)
 }

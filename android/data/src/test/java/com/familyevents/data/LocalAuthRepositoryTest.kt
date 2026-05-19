@@ -129,7 +129,7 @@ private open class FakeConsumerApi : SupabaseConsumerApi {
     override suspend fun cities(): List<CityDto> = unsupported()
     override suspend fun events(query: EventQuery): List<EventDto> = unsupported()
     override suspend fun event(id: EventId): EventDto? = unsupported()
-    override suspend fun planEvents(userId: UserId, cityId: CityId?): List<PlanEventRowDto> = unsupported()
+    override suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int?): List<PlanEventRowDto> = unsupported()
     override suspend fun profile(userId: UserId): UserProfile? = unsupported()
     override suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile = unsupported()
     override suspend fun favorite(userId: UserId, eventId: EventId) = unsupported<Unit>()
