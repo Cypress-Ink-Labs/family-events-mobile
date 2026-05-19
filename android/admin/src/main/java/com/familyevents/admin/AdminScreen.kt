@@ -1,4 +1,4 @@
-package com.familyevents.app
+package com.familyevents.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,19 +54,6 @@ import com.familyevents.core.CityId
 import com.familyevents.core.decodeHtmlEntities
 import com.familyevents.core.DateFormatting
 import com.familyevents.core.UserId
-import com.familyevents.data.AdminCityDto
-import com.familyevents.data.AdminCommentDto
-import com.familyevents.data.AdminCronJobDto
-import com.familyevents.data.AdminCronRunDto
-import com.familyevents.data.AdminInviteCodeListDto
-import com.familyevents.data.AdminInviteRequestDto
-import com.familyevents.data.AdminRatingDto
-import com.familyevents.data.AdminRepository
-import com.familyevents.data.AdminSourceDto
-import com.familyevents.data.AdminSourceRunDto
-import com.familyevents.data.AdminStatsDto
-import com.familyevents.data.AdminTagQueueSummaryRowDto
-import com.familyevents.data.AdminUserAccessDto
 import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.ErrorState
 import com.familyevents.designsystem.FamilyTypography

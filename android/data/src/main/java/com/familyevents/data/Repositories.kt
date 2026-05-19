@@ -71,39 +71,3 @@ interface CommentRepository {
     suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto
 }
 
-interface AdminRepository {
-    suspend fun stats(): AdminStatsDto
-    suspend fun sections(): List<AdminSectionDto>
-    suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String> = emptyList(), lockEditedFields: Boolean = true): EventDto
-    suspend fun createEvent(patchJson: String, tagIds: List<String> = emptyList()): EventDto
-    suspend fun unlockEventFields(eventId: EventId): Boolean
-    suspend fun moderateComment(commentId: String, approved: Boolean, flagged: Boolean)
-    suspend fun upsertInvite(maxUses: Int?, expiresAtIso: String?, note: String?): AdminInviteCodeResultDto
-    suspend fun approveInviteRequest(requestId: String): AdminInviteApprovalDto
-    suspend fun rejectInviteRequest(requestId: String, notes: String? = null): Boolean
-    suspend fun revokeInvite(inviteId: String)
-    suspend fun bulkSetAutoApprove(enable: Boolean)
-    suspend fun runSource(sourceId: String?)
-    suspend fun retryTagQueue(eventId: EventId): Boolean
-    suspend fun listCronJobs(): List<AdminCronJobDto>
-    suspend fun cronRunHistory(jobName: String? = null, limit: Int = 50): List<AdminCronRunDto>
-    suspend fun toggleCronJob(jobName: String, active: Boolean)
-    suspend fun setCronSchedule(jobName: String, schedule: String)
-    suspend fun runDueScrapes()
-    suspend fun listComments(filter: String = "all"): List<AdminCommentDto>
-    suspend fun deleteComment(commentId: String)
-    suspend fun listSources(): List<AdminSourceDto>
-    suspend fun updateSourceActive(sourceId: String, active: Boolean)
-    suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean)
-    suspend fun listInviteCodes(): List<AdminInviteCodeListDto>
-    suspend fun listInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
-    suspend fun listCities(): List<AdminCityDto>
-    suspend fun createCity(name: String, state: String?, country: String = "US", slug: String, timezone: String = "America/Chicago"): AdminCityDto
-    suspend fun updateCity(cityId: CityId, patchJson: String)
-    suspend fun listRatings(limit: Int = 100): List<AdminRatingDto>
-    suspend fun deleteRating(ratingId: String)
-    suspend fun listUserAccess(): List<AdminUserAccessDto>
-    suspend fun updateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String? = null)
-    suspend fun listSourceRuns(limit: Int = 50): List<AdminSourceRunDto>
-    suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto>
-}
