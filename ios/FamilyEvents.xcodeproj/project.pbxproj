@@ -12,7 +12,6 @@
 		19BCE47C6893926E53962577 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F71FCF3E0F318AFA91B50660 /* FEAuth */; };
 		19E15B92ECB194A960E4D120 /* FontRegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46653127FE9DEE5A70C852B /* FontRegistrationTests.swift */; };
 		1A7123A8480347823FF4A737 /* EndpointPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59E23778BBA9A8B215CC79D0 /* EndpointPolicyTests.swift */; };
-		1BC2C1D0A67E4C62B283CF8A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BC2C1D0A67E4C62B283CF89 /* Assets.xcassets */; };
 		1E7EE2C7260AB2D3F9AF2A7B /* testFavoriteButtonUnfavoritedState.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 81B839F68A145A193E5ADE61 /* testFavoriteButtonUnfavoritedState.xxl-type.png */; };
 		21B9B24A491F16DAAC02486A /* FEAuthTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 65E2409342315B807311D9F6 /* FEAuthTesting */; };
 		22D37D3A3B20CBC64E57751E /* testEventCardWithImageAndBadge.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */; };
@@ -39,6 +38,7 @@
 		A034794A8267646650C4048E /* TabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0418216EB1C821D23D4966 /* TabTests.swift */; };
 		A28526807EACBF5EA0B88544 /* testEventCardWithoutBadge.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BF6FBC26FDA39DF5BCEC4F2 /* testEventCardWithoutBadge.xxl-type.png */; };
 		A2AA8448CCB37D518CA39E2A /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141BE55DA40D69FD31C2BE54 /* AppRoute.swift */; };
+		A3FD49B838028C540CE85EC6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 193D7451B5C59074C05083A2 /* Assets.xcassets */; };
 		AB632FC4CA1F2C9471378860 /* EventCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E36C996074657288512C6 /* EventCardTests.swift */; };
 		ABC3BD78E511A887AD5FA0ED /* testEventCardWithoutBadge.light.png in Resources */ = {isa = PBXBuildFile; fileRef = FFC98CCA96F6CA9A0617A550 /* testEventCardWithoutBadge.light.png */; };
 		ADDE2706CD1FD170C32BF919 /* FamilyEventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431723C943DADC1F0E18FD68 /* FamilyEventsTests.swift */; };
@@ -77,8 +77,8 @@
 		0ED7E52CA65CBCCB4FA2D33F /* FEAppIntents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAppIntents; path = Packages/FEAppIntents; sourceTree = SOURCE_ROOT; };
 		141BE55DA40D69FD31C2BE54 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		188C8EDD19850302A039CA4F /* FamilyEvents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FamilyEvents.entitlements; sourceTree = "<group>"; };
+		193D7451B5C59074C05083A2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SNAPSHOTS.md; sourceTree = "<group>"; };
-		1BC2C1D0A67E4C62B283CF89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2730E4B6201A36BB8AE2AB51 /* testFavoriteButtonFavoritedState.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testFavoriteButtonFavoritedState.xxl-type.png"; sourceTree = "<group>"; };
 		2970B6037618A85B61BB7ADC /* FEEventDetail */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEEventDetail; path = Packages/FEEventDetail; sourceTree = SOURCE_ROOT; };
 		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,7 +113,7 @@
 		DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButtonTests.swift; sourceTree = "<group>"; };
 		DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.light.png; sourceTree = "<group>"; };
 		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
-		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F30DD56DC40DC5C679F79DC8 /* FEExplore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEExplore; path = Packages/FEExplore; sourceTree = SOURCE_ROOT; };
 		F6288D8480EB0B4748EB77C8 /* FEDesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEDesignSystem; path = Packages/FEDesignSystem; sourceTree = SOURCE_ROOT; };
 		F956075831CCA7450ADD1D45 /* testFavoriteButtonUnfavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonUnfavoritedState.light.png; sourceTree = "<group>"; };
@@ -225,7 +225,7 @@
 		AEEBCB3A48E672316FCD3A17 /* FamilyEvents */ = {
 			isa = PBXGroup;
 			children = (
-				1BC2C1D0A67E4C62B283CF89 /* Assets.xcassets */,
+				193D7451B5C59074C05083A2 /* Assets.xcassets */,
 				B60EBADC23A6A8EB851EF92E /* Info.plist */,
 				B6E2E75BB5FC8B9FA445BE95 /* App */,
 			);
@@ -298,8 +298,8 @@
 			buildConfigurationList = F8773063EFDAAA665F2FF4E6 /* Build configuration list for PBXNativeTarget "FamilyEvents" */;
 			buildPhases = (
 				58ACC121B5E66CE98E272F46 /* Sources */,
+				D6D2179C37F5AD59C1975BA5 /* Resources */,
 				0D05DEE8E62D458F6983D036 /* Frameworks */,
-				1BC2C1D0A67E4C62B283CF8B /* Resources */,
 			);
 			buildRules = (
 			);
@@ -374,10 +374,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = FCC7E55DDA9D7FA440B4C754 /* Build configuration list for PBXProject "FamilyEvents" */;
-			compatibilityVersion = "Xcode 15.0";
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -410,14 +412,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1BC2C1D0A67E4C62B283CF8B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1BC2C1D0A67E4C62B283CF8A /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		60B777BE26204C6C5FAB88DA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -438,6 +432,14 @@
 				C396CFFD1C3111B998332BE7 /* testFavoriteButtonUnfavoritedState.dark.png in Resources */,
 				49A9E128562DF3D5208C35F6 /* testFavoriteButtonUnfavoritedState.light.png in Resources */,
 				1E7EE2C7260AB2D3F9AF2A7B /* testFavoriteButtonUnfavoritedState.xxl-type.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D2179C37F5AD59C1975BA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3FD49B838028C540CE85EC6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,7 +501,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -551,7 +552,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -611,6 +611,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IOS_GOOGLE_CLIENT_ID = "545014101545-in1qudtusha5kqlf5cben5oljjhmha6o.apps.googleusercontent.com";
+				IOS_GOOGLE_REVERSED_CLIENT_ID = "com.googleusercontent.apps.545014101545-in1qudtusha5kqlf5cben5oljjhmha6o";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -711,6 +713,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IOS_GOOGLE_CLIENT_ID = "545014101545-in1qudtusha5kqlf5cben5oljjhmha6o.apps.googleusercontent.com";
+				IOS_GOOGLE_REVERSED_CLIENT_ID = "com.googleusercontent.apps.545014101545-in1qudtusha5kqlf5cben5oljjhmha6o";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;

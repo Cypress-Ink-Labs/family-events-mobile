@@ -4,6 +4,7 @@ import FECore
 public enum IdentityProvider: String, Sendable, Equatable {
     case password
     case apple
+    case google
 }
 
 public struct AuthSession: Equatable, Sendable {
@@ -32,6 +33,7 @@ public protocol AuthService: Sendable {
     func signIn(email: String, password: String) async throws -> AuthSession
     func signUp(email: String, password: String) async throws -> AuthSession
     func signInWithApple(idToken: String, nonce: String) async throws -> AuthSession
+    func signInWithGoogle(idToken: String, nonce: String?) async throws -> AuthSession
     func signOut() async throws
     func sendPasswordResetEmail(_ email: String) async throws
     func resetPassword(accessToken: String, newPassword: String) async throws -> AuthSession

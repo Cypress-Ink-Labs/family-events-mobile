@@ -16,6 +16,7 @@ interface AuthRepository {
     suspend fun restoreSession()
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String)
+    suspend fun signInWithGoogle(idToken: String, nonce: String? = null)
     suspend fun resetPassword(email: String)
     suspend fun changePassword(email: String, currentPassword: String, newPassword: String)
     suspend fun signOut()

@@ -11,9 +11,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +47,9 @@ fun PlanScreen(
     onOpenEvent: (EventId) -> Unit,
     onSetCity: () -> Unit,
 ) {
-    val rows by eventRepository.observePlanEvents(userId, cityId).collectAsState(initial = emptyList())
+    val rows by eventRepository.observePlanEvents(userId, cityId).collectAsStateWithLifecycle(initialValue = emptyList())
     val emptyForecast = remember { mutableStateOf(emptyList<com.familyevents.data.WeatherSnapshotDto>()) }
-    val forecast by cityId?.let { weatherRepository.observeForecast(it).collectAsState(initial = emptyList()) } ?: emptyForecast
+    val forecast by cityId?.let { weatherRepository.observeForecast(it).collectAsStateWithLifecycle(initialValue = emptyList()) } ?: emptyForecast
     val scope = rememberCoroutineScope()
     var permissionAsked by rememberSaveable { mutableStateOf(false) }
 
@@ -71,23 +71,13 @@ fun PlanScreen(
             grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         scope.launch {
             val coord = if (anyGranted) locationProvider.lastKnownLocation() else null
-            eventRepository.refreshPlan(currentUserId, currentCityId, currentKidAge, coord?.latitude, coord?.longitude)
+            runCatching { eventRepository.refreshPlan(currentUserId, currentCityId, currentKidAge, coord?.latitude, coord?.longitude) }
         }
     }
 
     LaunchedEffect(userId, cityId, kidAge) {
         val coord = locationProvider.lastKnownLocation()
-        if (coord == null && !permissionAsked) {
-            permissionAsked = true
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                ),
-            )
-        } else {
-            eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude)
-        }
+        runCatching { eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude) }
     }
 
     LazyColumn(
@@ -103,7 +93,17 @@ fun PlanScreen(
                 Button(onClick = {
                     scope.launch {
                         val coord = locationProvider.lastKnownLocation()
-                        eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude)
+                        if (coord == null && !permissionAsked) {
+                            permissionAsked = true
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                ),
+                            )
+                        } else {
+                            runCatching { eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude) }
+                        }
                     }
                 }) {
                     Text("Refresh")

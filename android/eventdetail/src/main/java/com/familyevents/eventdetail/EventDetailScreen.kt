@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +40,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
 import com.familyevents.core.decodeHtmlEntities
@@ -76,7 +76,7 @@ fun EventDetailScreen(
     onDirections: (String) -> Unit,
     onAddToCalendar: (String, Long, Long?) -> Unit,
 ) {
-    val event by eventRepository.observeEventDetail(eventId).collectAsState(initial = null)
+    val event by eventRepository.observeEventDetail(eventId).collectAsStateWithLifecycle(initialValue = null)
     val scope = rememberCoroutineScope()
     var userRating by rememberSaveable(eventId.rawValue, userId?.rawValue) { mutableIntStateOf(0) }
     var comments by remember(eventId.rawValue) { mutableStateOf(emptyList<CommentDto>()) }
@@ -88,7 +88,7 @@ fun EventDetailScreen(
     BackHandler(onBack = onBack)
 
     LaunchedEffect(eventId.rawValue) {
-        eventRepository.refreshEventDetail(eventId)
+        runCatching { eventRepository.refreshEventDetail(eventId) }
     }
 
     LaunchedEffect(eventId.rawValue, userId?.rawValue) {
@@ -179,7 +179,7 @@ fun EventDetailScreen(
             verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
         ) {
             if (userId != null) {
-                Button(onClick = { scope.launch { favoriteRepository.favorite(userId, eventId) } }) {
+                Button(onClick = { scope.launch { runCatching { favoriteRepository.favorite(userId, eventId) } } }) {
                     Text("Save", softWrap = false, maxLines = 1)
                 }
             }

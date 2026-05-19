@@ -7,17 +7,23 @@ public struct SignInScreen: View {
     let onForgotPassword: () -> Void
     let onSignUp: () -> Void
     let onAppleSignIn: () -> Void
+    let onGoogleSignIn: () -> Void
+    let googleSignInEnabled: Bool
 
     public init(
         viewModel: SignInViewModel,
         onForgotPassword: @escaping () -> Void,
         onSignUp: @escaping () -> Void,
-        onAppleSignIn: @escaping () -> Void
+        onAppleSignIn: @escaping () -> Void,
+        onGoogleSignIn: @escaping () -> Void,
+        googleSignInEnabled: Bool
     ) {
         self.viewModel = viewModel
         self.onForgotPassword = onForgotPassword
         self.onSignUp = onSignUp
         self.onAppleSignIn = onAppleSignIn
+        self.onGoogleSignIn = onGoogleSignIn
+        self.googleSignInEnabled = googleSignInEnabled
     }
 
     public var body: some View {
@@ -29,6 +35,10 @@ public struct SignInScreen: View {
 
                 AppleSignInButton(action: onAppleSignIn)
                     .frame(height: 48)
+
+                if googleSignInEnabled {
+                    GoogleSignInButton(action: onGoogleSignIn)
+                }
 
                 Divider()
 

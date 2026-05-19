@@ -123,6 +123,7 @@ private class RecordingConsumerApi : FakeConsumerApi() {
 private open class FakeConsumerApi : SupabaseConsumerApi {
     override suspend fun signIn(email: String, password: String): PersistedSession = unsupported()
     override suspend fun signUp(email: String, password: String): PersistedSession = unsupported()
+    override suspend fun signInWithIdToken(provider: String, idToken: String, nonce: String?): PersistedSession = unsupported()
     override suspend fun resetPassword(email: String) = unsupported<Unit>()
     override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) = unsupported<Unit>()
     override suspend fun signOut() = Unit

@@ -71,4 +71,15 @@ extension SessionStore {
             throw error
         }
     }
+
+    public func completeGoogleSignIn(idToken: String, nonce: String?) async throws {
+        do {
+            let session = try await authService.signInWithGoogle(idToken: idToken, nonce: nonce)
+            try await adopt(session)
+        } catch AppError.googleSignInCancelled {
+            return
+        } catch {
+            throw error
+        }
+    }
 }

@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.familyevents.core.GeoCoordinate
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -36,11 +34,7 @@ class FusedLocationProvider(private val application: Application) : LocationProv
     override suspend fun lastKnownLocation(): GeoCoordinate? {
         if (!hasPermission()) return null
         return suspendCancellableCoroutine { cont ->
-            val cts = CancellationTokenSource()
-            cont.invokeOnCancellation { cts.cancel() }
-            // getCurrentLocation is more robust than getLastLocation; it returns a fresh
-            // single fix when the cache is stale, falling back to cached if available.
-            client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cts.token)
+            client.lastLocation
                 .addOnSuccessListener { loc ->
                     cont.resume(loc?.let { GeoCoordinate(it.latitude, it.longitude) })
                 }

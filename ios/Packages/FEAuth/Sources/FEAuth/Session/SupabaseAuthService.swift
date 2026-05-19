@@ -43,6 +43,17 @@ public final class SupabaseAuthService: AuthService, Sendable {
         }
     }
 
+    public func signInWithGoogle(idToken: String, nonce: String?) async throws -> AuthSession {
+        do {
+            let session = try await supabase.client.auth.signInWithIdToken(
+                credentials: OpenIDConnectCredentials(provider: .google, idToken: idToken, nonce: nonce)
+            )
+            return Self.session(from: session, provider: .google)
+        } catch {
+            throw AppError.googleSignInFailed(error)
+        }
+    }
+
     public func signOut() async throws {
         try await supabase.client.auth.signOut()
     }

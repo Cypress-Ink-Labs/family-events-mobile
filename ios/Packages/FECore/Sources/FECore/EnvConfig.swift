@@ -9,10 +9,17 @@ extension Bundle: InfoPlistReader {}
 public struct EnvConfig: Sendable {
     public let supabaseURL: URL
     public let supabaseAnonKey: String
+    public let iosGoogleClientID: String?
 
-    public init(supabaseURL: URL, supabaseAnonKey: String) {
+    public var googleSignInEnabled: Bool {
+        guard let id = iosGoogleClientID else { return false }
+        return !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    public init(supabaseURL: URL, supabaseAnonKey: String, iosGoogleClientID: String? = nil) {
         self.supabaseURL = supabaseURL
         self.supabaseAnonKey = supabaseAnonKey
+        self.iosGoogleClientID = iosGoogleClientID
     }
 
     public static func load(from reader: InfoPlistReader = Bundle.main) throws -> EnvConfig {
@@ -31,6 +38,11 @@ public struct EnvConfig: Sendable {
         guard !trimmedKey.isEmpty else {
             throw AppError.config("SupabaseAnonKey")
         }
-        return EnvConfig(supabaseURL: url, supabaseAnonKey: trimmedKey)
+        // Google client ID is optional — blank/missing disables the Google button
+        // without throwing, so a partially-configured build still launches.
+        let rawGoogleID = reader.object(forInfoDictionaryKey: "IOSGoogleClientID") as? String
+        let googleID = rawGoogleID?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedGoogleID = (googleID?.isEmpty == false) ? googleID : nil
+        return EnvConfig(supabaseURL: url, supabaseAnonKey: trimmedKey, iosGoogleClientID: trimmedGoogleID)
     }
 }

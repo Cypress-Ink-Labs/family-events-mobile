@@ -24,6 +24,9 @@ class InMemoryAuthRepository : AuthRepository {
     }
 
     override suspend fun signUp(email: String, password: String) = signIn(email, password)
+    override suspend fun signInWithGoogle(idToken: String, nonce: String?) {
+        state.value = SessionState.SignedIn(UserId("google-user"))
+    }
     override suspend fun resetPassword(email: String) = Unit
     override suspend fun changePassword(email: String, currentPassword: String, newPassword: String) = Unit
     override suspend fun signOut() {

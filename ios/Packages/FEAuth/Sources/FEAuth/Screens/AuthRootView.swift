@@ -6,10 +6,12 @@ public struct AuthRootView: View {
 
     @Environment(SessionStore.self) private var sessionStore
     private let authService: any AuthService
+    private let googleSignInEnabled: Bool
     @State private var path: [Screen] = []
 
-    public init(authService: any AuthService) {
+    public init(authService: any AuthService, googleSignInEnabled: Bool = false) {
         self.authService = authService
+        self.googleSignInEnabled = googleSignInEnabled
     }
 
     public var body: some View {
@@ -18,7 +20,9 @@ public struct AuthRootView: View {
                 viewModel: SignInViewModel(authService: authService, sessionStore: sessionStore),
                 onForgotPassword: { path.append(.forgotPassword) },
                 onSignUp: { path.append(.signUp) },
-                onAppleSignIn: { startAppleSignIn() }
+                onAppleSignIn: { startAppleSignIn() },
+                onGoogleSignIn: { startGoogleSignIn() },
+                googleSignInEnabled: googleSignInEnabled
             )
             .navigationDestination(for: Screen.self) { screen in
                 switch screen {
@@ -67,6 +71,28 @@ public struct AuthRootView: View {
                 let result = try await AppleSignInCoordinator.presentSignIn(from: anchor)
                 try await sessionStore.completeAppleSignIn(idToken: result.idToken, nonce: result.nonce, email: result.email)
             } catch AppError.appleSignInCancelled {
+                return
+            } catch {
+                // Future: surface via a top-level alert binding.
+            }
+        }
+        #endif
+    }
+
+    private func startGoogleSignIn() {
+        #if canImport(UIKit)
+        Task { @MainActor in
+            do {
+                let scenes = UIApplication.shared.connectedScenes
+                guard let windowScene = scenes.first as? UIWindowScene,
+                      let rootVC = windowScene.windows.first?.rootViewController else { return }
+                // Walk to the topmost presented controller so the Google sheet stacks
+                // on top of any modal that may already be showing.
+                var presenter = rootVC
+                while let next = presenter.presentedViewController { presenter = next }
+                let result = try await GoogleSignInCoordinator.presentSignIn(from: presenter)
+                try await sessionStore.completeGoogleSignIn(idToken: result.idToken, nonce: nil)
+            } catch AppError.googleSignInCancelled {
                 return
             } catch {
                 // Future: surface via a top-level alert binding.

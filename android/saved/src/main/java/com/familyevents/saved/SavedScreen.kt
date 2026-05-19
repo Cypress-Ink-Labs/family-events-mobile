@@ -12,13 +12,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
 import com.familyevents.data.EventQuery
@@ -43,8 +43,8 @@ fun SavedScreen(
     onOpenEvent: (EventId) -> Unit,
     onOpenProfile: () -> Unit,
 ) {
-    val favorites by favoriteRepository.observeFavorites(userId).collectAsState(initial = emptyList())
-    val events by eventRepository.observeEventList(EventQuery(cityId = null)).collectAsState(initial = emptyList())
+    val favorites by favoriteRepository.observeFavorites(userId).collectAsStateWithLifecycle(initialValue = emptyList())
+    val events by eventRepository.observeEventList(EventQuery(cityId = null)).collectAsStateWithLifecycle(initialValue = emptyList())
     val eventsById = events.associateBy { it.id }
     val scope = rememberCoroutineScope()
 
@@ -89,7 +89,7 @@ fun SavedScreen(
                             imageUrl = event?.imageUrl,
                             onClick = { onOpenEvent(fav.eventId) },
                         )
-                        Button(onClick = { scope.launch { favoriteRepository.unfavorite(userId, fav.eventId) } }) {
+                        Button(onClick = { scope.launch { runCatching { favoriteRepository.unfavorite(userId, fav.eventId) } } }) {
                             Text("Unsave")
                         }
                     }

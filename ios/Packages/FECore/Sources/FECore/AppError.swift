@@ -15,6 +15,8 @@ public enum AppError: Error, Sendable {
     case weakPassword(String)
     case appleSignInCancelled
     case appleSignInFailed(Error)
+    case googleSignInCancelled
+    case googleSignInFailed(Error)
     case passwordResetEmailSent
     case keychain(OSStatus)
     case unknown(Error)
@@ -41,6 +43,10 @@ public enum AppError: Error, Sendable {
             return ""
         case .appleSignInFailed:
             return "Apple sign-in didn't complete. Please try again."
+        case .googleSignInCancelled:
+            return ""
+        case .googleSignInFailed:
+            return "Google sign-in didn't complete. Please try again."
         case .passwordResetEmailSent:
             return "Check your email for a reset link."
         case .keychain:

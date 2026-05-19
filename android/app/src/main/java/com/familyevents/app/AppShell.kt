@@ -24,9 +24,9 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,7 +83,7 @@ fun FamilyEventsApp(
     themePreference: AppThemePreference,
     onThemePreferenceChange: (AppThemePreference) -> Unit,
 ) {
-    val session by repositories.authRepository.sessionState.collectAsState(initial = SessionState.Restoring)
+    val session by repositories.authRepository.sessionState.collectAsStateWithLifecycle(initialValue = SessionState.Restoring)
     val signedInUser = (session as? SessionState.SignedIn)?.userId
     var selectedTab by remember { mutableStateOf(AppTab.Plan) }
     var detailEventId by remember { mutableStateOf<EventId?>(null) }
@@ -116,17 +116,18 @@ fun FamilyEventsApp(
                 AuthScreen(
                     authRepository = repositories.authRepository,
                     googleSignInEnabled = config.googleSignInEnabled,
+                    googleWebClientId = config.googleWebClientId,
                 )
             }
         }
         is SessionState.SignedIn -> {
             val userId = state.userId
-            val profile by repositories.profileRepository.observeProfile(userId).collectAsState(initial = null)
+            val profile by repositories.profileRepository.observeProfile(userId).collectAsStateWithLifecycle(initialValue = null)
             val activeCityId = profile?.currentCityId ?: CityId("chicago")
             val showAdminTab = profile?.role == "admin"
             LaunchedEffect(userId) {
-                repositories.cityRepository.refreshCities()
-                repositories.profileRepository.currentContext(userId)
+                runCatching { repositories.cityRepository.refreshCities() }
+                runCatching { repositories.profileRepository.currentContext(userId) }
             }
             val visibleTabs = if (showAdminTab) AppTab.entries else AppTab.entries.filter { it != AppTab.Admin }
             AppScaffold(

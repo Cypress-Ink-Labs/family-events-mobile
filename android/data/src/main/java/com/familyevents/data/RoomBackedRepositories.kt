@@ -64,6 +64,13 @@ class LocalAuthRepository(
         state.value = SessionState.SignedIn(session.userId)
     }
 
+    override suspend fun signInWithGoogle(idToken: String, nonce: String?) {
+        val session = api?.signInWithIdToken("google", idToken, nonce)
+            ?: PersistedSession(UserId("00000000-0000-0000-0000-000000000000"))
+        sessionStore.writeSession(session)
+        state.value = SessionState.SignedIn(session.userId)
+    }
+
     override suspend fun resetPassword(email: String) {
         api?.resetPassword(email)
     }
@@ -122,9 +129,9 @@ class RoomBackedEventRepository(
         eventDao.observeEvent(id.rawValue).map { row -> row?.toDto() ?: seedEvents().firstOrNull { it.id == id } }
 
     override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?, lat: Double?, lng: Double?) {
-        val remotePlan = api?.planEvents(userId, cityId, kidAge, lat, lng)
+        val remotePlan = runCatching { api?.planEvents(userId, cityId, kidAge, lat, lng) }.getOrNull()
         val events = remotePlan?.map { it.event }.takeUnless { it.isNullOrEmpty() }
-            ?: api?.events(EventQuery(cityId = cityId, limit = 50)).takeUnless { it.isNullOrEmpty() }
+            ?: runCatching { api?.events(EventQuery(cityId = cityId, limit = 50)) }.getOrNull().takeUnless { it.isNullOrEmpty() }
             ?: seedEvents().filterByCity(cityId)
         eventDao.upsert(events.map { it.toEntity() })
         planDao.deleteForUser(userId.rawValue)
@@ -143,12 +150,14 @@ class RoomBackedEventRepository(
     }
 
     override suspend fun refreshEventList(query: EventQuery) {
-        val events = api?.events(query).takeUnless { it.isNullOrEmpty() } ?: seedEvents().filterByCity(query.cityId)
+        val events = runCatching { api?.events(query) }.getOrNull().takeUnless { it.isNullOrEmpty() }
+            ?: seedEvents().filterByCity(query.cityId)
         eventDao.upsert(events.map { it.toEntity() })
     }
 
     override suspend fun refreshEventDetail(id: EventId) {
-        (api?.event(id) ?: seedEvents().firstOrNull { it.id == id })?.let { eventDao.upsert(listOf(it.toEntity())) }
+        (runCatching { api?.event(id) }.getOrNull() ?: seedEvents().firstOrNull { it.id == id })
+            ?.let { eventDao.upsert(listOf(it.toEntity())) }
     }
 
     override suspend fun publicEvent(id: EventId): EventDto? = api?.publicEvent(id)
@@ -260,7 +269,12 @@ class RoomBackedCityRepository(
     override suspend fun cityName(id: CityId): String? = cityDao.cityName(id.rawValue) ?: if (id.rawValue == "chicago") "Chicago" else null
 
     override suspend fun refreshCities() {
-        cityDao.upsert(api?.cities()?.takeIf { it.isNotEmpty() }?.map { it.toEntity() } ?: listOf(CachedCityEntity("chicago", "Chicago", "IL")))
+        cityDao.upsert(
+            runCatching { api?.cities() }.getOrNull()
+                ?.takeIf { it.isNotEmpty() }
+                ?.map { it.toEntity() }
+                ?: listOf(CachedCityEntity("chicago", "Chicago", "IL")),
+        )
     }
 }
 

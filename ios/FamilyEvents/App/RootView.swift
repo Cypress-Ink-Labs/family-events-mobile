@@ -47,6 +47,7 @@ struct RootView: View {
     private let ratingRepo: (any RatingRepo)?
     private let commentRepo: (any CommentRepo)?
     private let modelContainer: ModelContainer?
+    private let googleSignInEnabled: Bool
 
     @Environment(SessionStore.self) private var sessionStore
     @State private var selectedTab: AppTab
@@ -66,6 +67,7 @@ struct RootView: View {
         ratingRepo: (any RatingRepo)? = nil,
         commentRepo: (any CommentRepo)? = nil,
         modelContainer: ModelContainer? = nil,
+        googleSignInEnabled: Bool = false,
         initialTab: AppTab = .plan
     ) {
         self.authService = authService
@@ -77,6 +79,7 @@ struct RootView: View {
         self.ratingRepo = ratingRepo
         self.commentRepo = commentRepo
         self.modelContainer = modelContainer
+        self.googleSignInEnabled = googleSignInEnabled
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
     }
@@ -87,12 +90,15 @@ struct RootView: View {
             case .hydrating:
                 ProgressView().controlSize(.large)
             case .signedOut, .linkRequired:
-                AuthRootView(authService: authService)
+                AuthRootView(authService: authService, googleSignInEnabled: googleSignInEnabled)
             case .signedIn(let userID):
                 signedInContent(userID: userID)
             }
         }
         .onOpenURL { url in
+            // GoogleSignIn must see the auth callback URL first; if it claims the
+            // URL (returns true), don't fall through to DeepLinkRouter.
+            if GoogleSignInCoordinator.handle(url: url) { return }
             if let result = DeepLinkRouter.route(from: url) {
                 selectedTab = result.tab
                 for route in result.routes {

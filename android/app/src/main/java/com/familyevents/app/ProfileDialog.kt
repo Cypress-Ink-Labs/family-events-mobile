@@ -20,9 +20,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +54,7 @@ fun ProfileDialog(
     onDismissRequest: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val cities by cityRepository.observeCities().collectAsState(initial = emptyList())
+    val cities by cityRepository.observeCities().collectAsStateWithLifecycle(initialValue = emptyList())
     var loading by remember(userId) { mutableStateOf(true) }
     var saving by remember(userId) { mutableStateOf(false) }
     var errorMessage by remember(userId) { mutableStateOf<String?>(null) }

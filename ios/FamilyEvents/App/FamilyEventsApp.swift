@@ -21,7 +21,8 @@ struct FamilyEventsApp: App {
             favoriteRepo: any FavoriteRepo,
             ratingRepo: any RatingRepo,
             commentRepo: any CommentRepo,
-            modelContainer: ModelContainer
+            modelContainer: ModelContainer,
+            googleSignInEnabled: Bool
         )
         case configError(String)
     }
@@ -47,6 +48,12 @@ struct FamilyEventsApp: App {
                 authService: svc,
                 storage: SecItemKeychainStorage(service: "com.familyevents.app.auth")
             )
+            // Configure GoogleSignIn singleton up-front so the Sign in button
+            // can present without a setup race. Safe to call even when disabled
+            // (we just won't surface the button).
+            if let clientID = env.iosGoogleClientID {
+                Task { @MainActor in GoogleSignInCoordinator.configure(iosClientID: clientID) }
+            }
             let container = try AppModelContainer.makePersistent()
             let composer = PlanModule.makeComposer(supabase: supa, modelContainer: container)
             let profileRepo = SupabaseProfileRepo(supabase: supa)
@@ -65,7 +72,8 @@ struct FamilyEventsApp: App {
                 favoriteRepo: favoriteRepo,
                 ratingRepo: ratingRepo,
                 commentRepo: commentRepo,
-                modelContainer: container
+                modelContainer: container,
+                googleSignInEnabled: env.googleSignInEnabled
             )
         } catch let error as AppError {
             return .configError(error.userMessage)
@@ -77,7 +85,7 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let modelContainer):
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let modelContainer, let googleSignInEnabled):
                 RootView(
                     authService: authService,
                     planComposer: composer,
@@ -87,7 +95,8 @@ struct FamilyEventsApp: App {
                     favoriteRepo: favoriteRepo,
                     ratingRepo: ratingRepo,
                     commentRepo: commentRepo,
-                    modelContainer: modelContainer
+                    modelContainer: modelContainer,
+                    googleSignInEnabled: googleSignInEnabled
                 )
                 .environment(sessionStore)
                 .modelContainer(modelContainer)   // D14b: same instance the composer holds

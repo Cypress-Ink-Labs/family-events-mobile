@@ -13,9 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +49,7 @@ fun ExploreScreen(
 ) {
     var query by remember { mutableStateOf("") }
     var mode by remember { mutableStateOf(ExploreMode.List) }
-    val events by eventRepository.observeEventList(EventQuery(cityId = cityId, search = query)).collectAsState(initial = emptyList())
+    val events by eventRepository.observeEventList(EventQuery(cityId = cityId, search = query)).collectAsStateWithLifecycle(initialValue = emptyList())
 
     LaunchedEffect(cityId, query) {
         runCatching { eventRepository.refreshEventList(EventQuery(cityId = cityId, search = query)) }

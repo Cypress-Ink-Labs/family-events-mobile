@@ -13,6 +13,7 @@ let package = Package(
         .package(path: "../FEData"),
         .package(path: "../FEDesignSystem"),
         .package(url: "https://github.com/supabase/supabase-swift", exact: "2.20.0"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "7.1.0"),
     ],
     targets: [
         .target(
@@ -23,6 +24,8 @@ let package = Package(
                 "FEDesignSystem",
                 .product(name: "Auth", package: "supabase-swift"),
                 .product(name: "Supabase", package: "supabase-swift"),
+                .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
+                .product(name: "GoogleSignInSwift", package: "GoogleSignIn-iOS"),
             ],
             path: "Sources/FEAuth"
         ),

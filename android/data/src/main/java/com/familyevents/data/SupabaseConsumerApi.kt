@@ -44,6 +44,7 @@ import kotlinx.serialization.serializer
 interface SupabaseConsumerApi {
     suspend fun signIn(email: String, password: String): PersistedSession
     suspend fun signUp(email: String, password: String): PersistedSession
+    suspend fun signInWithIdToken(provider: String, idToken: String, nonce: String? = null): PersistedSession
     suspend fun resetPassword(email: String)
     suspend fun changePassword(email: String, currentPassword: String, newPassword: String)
     suspend fun signOut()
@@ -115,6 +116,22 @@ class KtorSupabaseConsumerApi(
             baseHeaders()
             contentType(ContentType.Application.Json)
             setBody(json.encodeToString(AuthRequest.serializer(), AuthRequest(email, password)))
+        }
+        return response.requireOk().decode<AuthResponse>().toPersistedSession()
+    }
+
+    override suspend fun signInWithIdToken(provider: String, idToken: String, nonce: String?): PersistedSession {
+        val response = client.post("$baseUrl/auth/v1/token") {
+            parameter("grant_type", "id_token")
+            baseHeaders()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("provider", provider)
+                    put("id_token", idToken)
+                    nonce?.let { put("nonce", it) }
+                }.toString()
+            )
         }
         return response.requireOk().decode<AuthResponse>().toPersistedSession()
     }

@@ -1,5 +1,8 @@
 package com.familyevents.auth
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,9 +24,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.familyevents.data.AuthRepository
 import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.generated.Tokens
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 private const val MESSAGE_LIMIT = 500
@@ -32,8 +43,10 @@ private const val MESSAGE_LIMIT = 500
 fun AuthScreen(
     authRepository: AuthRepository,
     googleSignInEnabled: Boolean,
+    googleWebClientId: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val activity = LocalContext.current.findActivity()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -114,8 +127,18 @@ fun AuthScreen(
                 color = if (statusIsError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        if (googleSignInEnabled) {
-            OutlinedButton(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+        if (googleSignInEnabled && googleWebClientId != null && activity != null) {
+            OutlinedButton(
+                onClick = {
+                    submitAuth {
+                        val idToken = requestGoogleIdToken(activity, googleWebClientId)
+                            ?: return@submitAuth
+                        authRepository.signInWithGoogle(idToken, nonce = null)
+                    }
+                },
+                enabled = !isSubmitting,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text("Continue with Google")
             }
         }
@@ -249,8 +272,44 @@ private fun InviteRequestDialog(
     )
 }
 
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
 private fun validateInviteRequest(email: String, message: String): String? = when {
     email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Please enter a valid email address."
     message.length > MESSAGE_LIMIT -> "Message must be 500 characters or fewer."
     else -> null
+}
+
+/// Launches the Credential Manager bottom sheet to retrieve a Google ID token.
+/// Returns null when the user dismisses the sheet or no Google account is
+/// available on the device — callers should treat those as benign no-ops.
+private suspend fun requestGoogleIdToken(activity: Activity, webClientId: String): String? {
+    val option = GetGoogleIdOption.Builder()
+        .setServerClientId(webClientId)
+        // Allow both previously-authorized and brand-new Google accounts so a
+        // fresh device install doesn't dead-end on an empty bottom sheet.
+        .setFilterByAuthorizedAccounts(false)
+        .build()
+    val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
+    return try {
+        val response = CredentialManager.create(activity).getCredential(activity, request)
+        val credential = response.credential
+        if (credential is androidx.credentials.CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            GoogleIdTokenCredential.createFrom(credential.data).idToken
+        } else {
+            null
+        }
+    } catch (_: GetCredentialCancellationException) {
+        null
+    } catch (_: NoCredentialException) {
+        null
+    } catch (_: GoogleIdTokenParsingException) {
+        null
+    }
 }
