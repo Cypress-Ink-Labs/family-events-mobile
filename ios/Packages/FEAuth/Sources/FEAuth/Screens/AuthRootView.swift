@@ -1,6 +1,12 @@
 import SwiftUI
 import FECore
 
+#if DEBUG
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) { print(message()) }
+#else
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) {}
+#endif
+
 public struct AuthRootView: View {
     private enum Screen: Hashable { case signUp, forgotPassword }
 
@@ -65,22 +71,22 @@ public struct AuthRootView: View {
         #if canImport(UIKit) && canImport(AuthenticationServices)
         Task { @MainActor in
             do {
-                print("[AuthRootView] startAppleSignIn tapped")
+                authDebugLog("[AuthRootView] startAppleSignIn tapped")
                 let scenes = UIApplication.shared.connectedScenes
                 guard let windowScene = scenes.first as? UIWindowScene,
                       let anchor = windowScene.windows.first else {
-                    print("[AuthRootView] Apple: no window anchor available")
+                    authDebugLog("[AuthRootView] Apple: no window anchor available")
                     return
                 }
                 let result = try await AppleSignInCoordinator.presentSignIn(from: anchor)
-                print("[AuthRootView] Apple: got idToken, calling Supabase")
+                authDebugLog("[AuthRootView] Apple: got idToken, calling Supabase")
                 try await sessionStore.completeAppleSignIn(idToken: result.idToken, nonce: result.nonce, email: result.email)
-                print("[AuthRootView] Apple: Supabase sign-in OK")
+                authDebugLog("[AuthRootView] Apple: Supabase sign-in OK")
             } catch AppError.appleSignInCancelled {
-                print("[AuthRootView] Apple: cancelled")
+                authDebugLog("[AuthRootView] Apple: cancelled")
                 return
             } catch {
-                print("[AuthRootView] Apple: error: \(error)")
+                authDebugLog("[AuthRootView] Apple: error: \(error)")
             }
         }
         #endif
@@ -90,11 +96,11 @@ public struct AuthRootView: View {
         #if canImport(UIKit)
         Task { @MainActor in
             do {
-                print("[AuthRootView] startGoogleSignIn tapped")
+                authDebugLog("[AuthRootView] startGoogleSignIn tapped")
                 let scenes = UIApplication.shared.connectedScenes
                 guard let windowScene = scenes.first as? UIWindowScene,
                       let rootVC = windowScene.windows.first?.rootViewController else {
-                    print("[AuthRootView] no root VC available")
+                    authDebugLog("[AuthRootView] no root VC available")
                     return
                 }
                 // Walk to the topmost presented controller so the Google sheet stacks
@@ -102,14 +108,14 @@ public struct AuthRootView: View {
                 var presenter = rootVC
                 while let next = presenter.presentedViewController { presenter = next }
                 let result = try await GoogleSignInCoordinator.presentSignIn(from: presenter)
-                print("[AuthRootView] got idToken, calling Supabase")
+                authDebugLog("[AuthRootView] got idToken, calling Supabase")
                 try await sessionStore.completeGoogleSignIn(idToken: result.idToken, nonce: result.rawNonce)
-                print("[AuthRootView] Supabase sign-in OK")
+                authDebugLog("[AuthRootView] Supabase sign-in OK")
             } catch AppError.googleSignInCancelled {
-                print("[AuthRootView] cancelled")
+                authDebugLog("[AuthRootView] cancelled")
                 return
             } catch {
-                print("[AuthRootView] error: \(error)")
+                authDebugLog("[AuthRootView] error: \(error)")
             }
         }
         #endif

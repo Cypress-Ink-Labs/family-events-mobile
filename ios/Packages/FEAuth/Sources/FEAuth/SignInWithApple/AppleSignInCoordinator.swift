@@ -6,6 +6,12 @@ import UIKit
 #endif
 import FECore
 
+#if DEBUG
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) { print(message()) }
+#else
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) {}
+#endif
+
 public struct AppleSignInResult: Sendable, Equatable {
     public let idToken: String
     public let nonce: String
@@ -48,7 +54,7 @@ public enum AppleSignInCoordinator {
     #if canImport(AuthenticationServices) && canImport(UIKit)
     @MainActor
     public static func presentSignIn(from anchor: ASPresentationAnchor) async throws -> AppleSignInResult {
-        print("[AppleSignIn] presentSignIn start")
+        authDebugLog("[AppleSignIn] presentSignIn start")
         let nonce = generateNonce()
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
@@ -74,19 +80,19 @@ public enum AppleSignInCoordinator {
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
                   let tokenData = credential.identityToken,
                   let tokenString = String(data: tokenData, encoding: .utf8) else {
-                print("[AppleSignIn] missing idToken on credential")
+                authDebugLog("[AppleSignIn] missing idToken on credential")
                 continuation?.resume(throwing: AppError.appleSignInFailed(NSError(domain: "AppleSignIn", code: -1)))
                 return
             }
-            print("[AppleSignIn] success email=\(credential.email ?? "nil") tokenLen=\(tokenString.count)")
+            authDebugLog("[AppleSignIn] success email=\(credential.email ?? "nil") tokenLen=\(tokenString.count)")
             continuation?.resume(returning: AppleSignInResult(idToken: tokenString, nonce: rawNonce, email: credential.email))
         }
 
         func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
             let nsError = error as NSError
-            print("[AppleSignIn] error domain=\(nsError.domain) code=\(nsError.code) desc=\(nsError.localizedDescription)")
+            authDebugLog("[AppleSignIn] error domain=\(nsError.domain) code=\(nsError.code) desc=\(nsError.localizedDescription)")
             if let asError = error as? ASAuthorizationError, asError.code == .canceled {
-                print("[AppleSignIn] cancelled by user")
+                authDebugLog("[AppleSignIn] cancelled by user")
                 continuation?.resume(throwing: AppError.appleSignInCancelled)
             } else {
                 continuation?.resume(throwing: AppError.appleSignInFailed(error))

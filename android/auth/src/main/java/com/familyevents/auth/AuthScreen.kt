@@ -3,6 +3,7 @@ package com.familyevents.auth
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,11 +34,13 @@ import com.familyevents.data.AuthRepository
 import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.generated.Tokens
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 private const val MESSAGE_LIMIT = 500
+private const val TAG = "FEAuth"
 
 @Composable
 fun AuthScreen(
@@ -130,10 +133,16 @@ fun AuthScreen(
         if (googleSignInEnabled && googleWebClientId != null && activity != null) {
             OutlinedButton(
                 onClick = {
+                    Log.d(TAG, "Google button tapped (webClientId prefix=${googleWebClientId.take(20)}…)")
                     submitAuth {
                         val idToken = requestGoogleIdToken(activity, googleWebClientId)
-                            ?: return@submitAuth
+                        if (idToken == null) {
+                            Log.w(TAG, "Google sign-in returned null id_token (cancelled or no credential)")
+                            return@submitAuth
+                        }
+                        Log.d(TAG, "Google id_token received (len=${idToken.length}), calling Supabase")
                         authRepository.signInWithGoogle(idToken, nonce = null)
+                        Log.d(TAG, "Supabase signInWithGoogle OK")
                     }
                 },
                 enabled = !isSubmitting,
@@ -141,6 +150,8 @@ fun AuthScreen(
             ) {
                 Text("Continue with Google")
             }
+        } else {
+            Log.d(TAG, "Google button hidden — enabled=$googleSignInEnabled webClientId=${googleWebClientId?.take(8)}… activity=${activity != null}")
         }
         TextButton(
             onClick = { showInviteDialog = true },
@@ -288,28 +299,67 @@ private fun validateInviteRequest(email: String, message: String): String? = whe
 /// Returns null when the user dismisses the sheet or no Google account is
 /// available on the device — callers should treat those as benign no-ops.
 private suspend fun requestGoogleIdToken(activity: Activity, webClientId: String): String? {
-    val option = GetGoogleIdOption.Builder()
+    val manager = CredentialManager.create(activity)
+
+    // First try the silent / one-tap path: only succeeds when the device
+    // already has a Google account signed in and authorized for this app.
+    val silentOption = GetGoogleIdOption.Builder()
         .setServerClientId(webClientId)
-        // Allow both previously-authorized and brand-new Google accounts so a
-        // fresh device install doesn't dead-end on an empty bottom sheet.
         .setFilterByAuthorizedAccounts(false)
         .build()
-    val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
-    return try {
-        val response = CredentialManager.create(activity).getCredential(activity, request)
-        val credential = response.credential
-        if (credential is androidx.credentials.CustomCredential &&
-            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-        ) {
-            GoogleIdTokenCredential.createFrom(credential.data).idToken
-        } else {
-            null
-        }
-    } catch (_: GetCredentialCancellationException) {
-        null
-    } catch (_: NoCredentialException) {
-        null
-    } catch (_: GoogleIdTokenParsingException) {
-        null
+
+    Log.d(TAG, "requestGoogleIdToken: trying silent GetGoogleIdOption")
+    val silent = runCatching {
+        manager.getCredential(activity, GetCredentialRequest.Builder().addCredentialOption(silentOption).build())
     }
+    silent.getOrNull()?.let { response ->
+        return extractIdToken(response.credential)
+    }
+    val silentError = silent.exceptionOrNull()
+    when (silentError) {
+        is GetCredentialCancellationException -> {
+            Log.w(TAG, "requestGoogleIdToken: user cancelled silent flow", silentError)
+            return null
+        }
+        is NoCredentialException -> {
+            Log.w(TAG, "requestGoogleIdToken: no silent credential, falling back to interactive sign-in")
+        }
+        null -> Unit
+        else -> {
+            Log.e(TAG, "requestGoogleIdToken: unexpected silent error", silentError)
+            throw silentError
+        }
+    }
+
+    // Interactive fallback: forces the "Sign in with Google" sheet which
+    // includes an "Add account" affordance when none exists on the device.
+    val interactiveOption = GetSignInWithGoogleOption.Builder(webClientId).build()
+    Log.d(TAG, "requestGoogleIdToken: invoking interactive GetSignInWithGoogleOption")
+    return try {
+        val response = manager.getCredential(activity, GetCredentialRequest.Builder().addCredentialOption(interactiveOption).build())
+        extractIdToken(response.credential)
+    } catch (e: GetCredentialCancellationException) {
+        Log.w(TAG, "requestGoogleIdToken: user cancelled interactive flow", e)
+        null
+    } catch (e: NoCredentialException) {
+        Log.w(TAG, "requestGoogleIdToken: interactive flow also reports no credential (Play Services missing or restricted)", e)
+        null
+    } catch (e: GoogleIdTokenParsingException) {
+        Log.e(TAG, "requestGoogleIdToken: failed to parse id_token", e)
+        null
+    } catch (e: Exception) {
+        Log.e(TAG, "requestGoogleIdToken: unexpected interactive error", e)
+        throw e
+    }
+}
+
+private fun extractIdToken(credential: androidx.credentials.Credential): String? {
+    if (credential is androidx.credentials.CustomCredential &&
+        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+    ) {
+        Log.d(TAG, "extractIdToken: got Google id_token credential")
+        return GoogleIdTokenCredential.createFrom(credential.data).idToken
+    }
+    Log.w(TAG, "extractIdToken: unexpected credential type=${credential::class.java.name}")
+    return null
 }

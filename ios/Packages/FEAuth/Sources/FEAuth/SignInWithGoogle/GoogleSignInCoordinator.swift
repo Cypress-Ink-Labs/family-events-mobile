@@ -5,6 +5,13 @@ import GoogleSignIn
 #endif
 import FECore
 
+// Debug-only logger so we don't leak OAuth instrumentation in Release builds.
+#if DEBUG
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) { print(message()) }
+#else
+@inline(__always) private func authDebugLog(_ message: @autoclosure () -> String) {}
+#endif
+
 public struct GoogleSignInResult: Sendable, Equatable {
     public let idToken: String
     public let rawNonce: String
@@ -23,7 +30,7 @@ public enum GoogleSignInCoordinator {
     @MainActor
     public static func configure(iosClientID: String) {
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: iosClientID)
-        print("[GoogleSignIn] configured clientID=\(iosClientID.prefix(20))…")
+        authDebugLog("[GoogleSignIn] configured clientID=\(iosClientID.prefix(20))…")
     }
 
     /// Handles the redirect URL returned via SceneDelegate / openURL. Returns true
@@ -42,7 +49,7 @@ public enum GoogleSignInCoordinator {
         // relying on Supabase's "Skip nonce checks" escape hatch.
         let rawNonce = AppleSignInCoordinator.generateNonce()
         let hashedNonce = AppleSignInCoordinator.sha256(rawNonce)
-        print("[GoogleSignIn] presentSignIn start — config=\(GIDSignIn.sharedInstance.configuration?.clientID ?? "nil")")
+        authDebugLog("[GoogleSignIn] presentSignIn start — config=\(GIDSignIn.sharedInstance.configuration?.clientID ?? "nil")")
         do {
             let result = try await GIDSignIn.sharedInstance.signIn(
                 withPresenting: presenter,
@@ -51,16 +58,16 @@ public enum GoogleSignInCoordinator {
                 nonce: hashedNonce
             )
             guard let idToken = result.user.idToken?.tokenString else {
-                print("[GoogleSignIn] missing idToken on result")
+                authDebugLog("[GoogleSignIn] missing idToken on result")
                 throw AppError.googleSignInFailed(NSError(domain: "GoogleSignIn", code: -1))
             }
-            print("[GoogleSignIn] success email=\(result.user.profile?.email ?? "nil") tokenLen=\(idToken.count)")
+            authDebugLog("[GoogleSignIn] success email=\(result.user.profile?.email ?? "nil") tokenLen=\(idToken.count)")
             return GoogleSignInResult(idToken: idToken, rawNonce: rawNonce, email: result.user.profile?.email)
         } catch let error as NSError where error.code == GIDSignInError.canceled.rawValue && error.domain == kGIDSignInErrorDomain {
-            print("[GoogleSignIn] cancelled by user")
+            authDebugLog("[GoogleSignIn] cancelled by user")
             throw AppError.googleSignInCancelled
         } catch {
-            print("[GoogleSignIn] error: \(error)")
+            authDebugLog("[GoogleSignIn] error: \(error)")
             throw AppError.googleSignInFailed(error)
         }
     }
