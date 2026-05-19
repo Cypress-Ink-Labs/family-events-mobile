@@ -267,6 +267,7 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun listEvents(keyword: String?, status: String?, cityId: CityId?, limit: Int, offset: Int): List<AdminEventListItemDto> = emptyList()
     override suspend fun listEventFacets(): AdminEventFacetsDto = AdminEventFacetsDto(emptyMap(), emptyMap())
     override suspend fun bulkUpdateEventStatus(eventIds: List<EventId>, status: String) = Unit
+    override suspend fun bulkDeleteEvent(eventIds: List<EventId>) = Unit
     override suspend fun deleteEvent(eventId: EventId) = Unit
     override suspend fun listEventAiTraces(eventId: EventId, limit: Int): List<AdminEventAiTraceDto> = emptyList()
 }

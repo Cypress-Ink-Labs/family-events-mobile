@@ -98,12 +98,26 @@ interface SupabaseConsumerApi {
     ): List<AdminEventListItemDto> = emptyList()
     suspend fun adminListEventFacets(): AdminEventFacetsDto = AdminEventFacetsDto(emptyMap(), emptyMap())
     suspend fun adminBulkUpdateEventStatus(eventIds: List<EventId>, status: String) {}
+    suspend fun adminBulkDeleteEvent(eventIds: List<EventId>) {}
     suspend fun adminDeleteEvent(eventId: EventId) {}
     suspend fun adminListEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto> = emptyList()
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
     suspend fun publicEvent(id: EventId): EventDto? = null
+}
+
+internal fun escapePostgrestIlike(keyword: String): String = buildString {
+    keyword.forEach { char ->
+        when (char) {
+            '\\', '%', '_' -> {
+                append('\\')
+                append(char)
+            }
+            '(', ')', ',' -> Unit
+            else -> append(char)
+        }
+    }
 }
 
 class KtorSupabaseConsumerApi(
@@ -646,6 +660,10 @@ class KtorSupabaseConsumerApi(
         limit: Int,
         offset: Int,
     ): List<AdminEventListItemDto> {
+        val escapedKeyword = keyword
+            ?.trim()
+            ?.let(::escapePostgrestIlike)
+            ?.takeIf { it.isNotBlank() }
         val response = client.get("$baseUrl/rest/v1/events") {
             baseHeaders()
             bearer()
@@ -653,7 +671,7 @@ class KtorSupabaseConsumerApi(
             parameter("order", "start_datetime.desc")
             parameter("limit", limit)
             parameter("offset", offset)
-            if (keyword != null) parameter("or", "(title.ilike.%${keyword}%,description.ilike.%${keyword}%)")
+            if (escapedKeyword != null) parameter("or", "(title.ilike.%${escapedKeyword}%,description.ilike.%${escapedKeyword}%)")
             if (status != null) parameter("status", "eq.$status")
             if (cityId != null) parameter("city_id", "eq.${cityId.rawValue}")
         }
@@ -690,6 +708,16 @@ class KtorSupabaseConsumerApi(
             parameter("id", "in.($ids)")
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject { put("status", status) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminBulkDeleteEvent(eventIds: List<EventId>) {
+        if (eventIds.isEmpty()) return
+        val ids = eventIds.joinToString(",") { it.rawValue }
+        client.delete("$baseUrl/rest/v1/events") {
+            baseHeaders()
+            bearer()
+            parameter("id", "in.($ids)")
         }.requireOkOrNoContent()
     }
 

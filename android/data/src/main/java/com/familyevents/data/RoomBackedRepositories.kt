@@ -400,6 +400,10 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
         api?.adminBulkUpdateEventStatus(eventIds, status)
     }
 
+    override suspend fun bulkDeleteEvent(eventIds: List<EventId>) {
+        api?.adminBulkDeleteEvent(eventIds)
+    }
+
     override suspend fun deleteEvent(eventId: EventId) {
         api?.adminDeleteEvent(eventId)
     }

@@ -258,6 +258,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
                                     try {
                                         adminRepository.bulkUpdateEventStatus(selected.map { EventId(it) }, target)
                                         selected = emptySet()
+                                        feedback = null
                                         refreshKey++
                                     } catch (e: Exception) {
                                         feedback = e.message ?: "Bulk update failed"
@@ -311,6 +312,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
                             scope.launch {
                                 try {
                                     adminRepository.bulkUpdateEventStatus(listOf(event.id), target)
+                                    feedback = null
                                     refreshKey++
                                 } catch (e: Exception) {
                                     feedback = e.message ?: "Status update failed"
@@ -321,6 +323,7 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
                             scope.launch {
                                 try {
                                     adminRepository.deleteEvent(event.id)
+                                    feedback = null
                                     refreshKey++
                                 } catch (e: Exception) {
                                     feedback = e.message ?: "Delete failed"
@@ -347,8 +350,9 @@ private fun AdminEventsSection(adminRepository: AdminRepository) {
                         scope.launch {
                             bulkInFlight = true
                             try {
-                                toDelete.forEach { id -> adminRepository.deleteEvent(EventId(id)) }
+                                adminRepository.bulkDeleteEvent(toDelete.map { EventId(it) })
                                 selected = emptySet()
+                                feedback = null
                                 refreshKey++
                             } catch (e: Exception) {
                                 feedback = e.message ?: "Delete failed"
@@ -483,6 +487,21 @@ private fun AdminEventEditorDialog(
     }
 
     fun saveEdits() {
+        if (title.trim().isEmpty()) {
+            feedback = "Title cannot be empty."
+            return
+        }
+        val parsedPrice = price.toDoubleOrNull()
+        if (parsedPrice != null && parsedPrice < 0) {
+            feedback = "Price cannot be negative."
+            return
+        }
+        val parsedAgeMin = ageMin.toIntOrNull()
+        val parsedAgeMax = ageMax.toIntOrNull()
+        if (parsedAgeMin != null && parsedAgeMax != null && parsedAgeMin > parsedAgeMax) {
+            feedback = "Age min cannot exceed age max."
+            return
+        }
         val patch = buildJsonObject {
             if (title != event.title) put("title", title)
             if (description != event.description.orEmpty()) {
@@ -492,15 +511,12 @@ private fun AdminEventEditorDialog(
                 if (venueName.isEmpty()) put("venue_name", JsonNull) else put("venue_name", venueName)
             }
             if (isFree != event.isFree) put("is_free", isFree)
-            val parsedPrice = price.toDoubleOrNull()
             if (parsedPrice != event.price) {
                 if (parsedPrice == null) put("price", JsonNull) else put("price", parsedPrice)
             }
-            val parsedAgeMin = ageMin.toIntOrNull()
             if (parsedAgeMin != event.ageMin) {
                 if (parsedAgeMin == null) put("age_min", JsonNull) else put("age_min", parsedAgeMin)
             }
-            val parsedAgeMax = ageMax.toIntOrNull()
             if (parsedAgeMax != event.ageMax) {
                 if (parsedAgeMax == null) put("age_max", JsonNull) else put("age_max", parsedAgeMax)
             }
@@ -510,6 +526,7 @@ private fun AdminEventEditorDialog(
             return
         }
         saving = true
+        feedback = null
         scope.launch {
             try {
                 adminRepository.updateEvent(
