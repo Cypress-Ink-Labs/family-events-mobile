@@ -767,8 +767,12 @@ private fun AdminEventEditorDialog(
                     OutlinedButton(
                         onClick = {
                             scope.launch {
-                                val ok = adminRepository.unlockEventFields(event.id)
-                                feedback = if (ok) "Unlocked." else "Already unlocked."
+                                try {
+                                    val ok = adminRepository.unlockEventFields(event.id)
+                                    feedback = if (ok) "Unlocked." else "Already unlocked."
+                                } catch (e: Exception) {
+                                    feedback = "Failed to unlock: ${e.message ?: "unknown error"}"
+                                }
                             }
                         },
                         enabled = !saving,
