@@ -89,6 +89,17 @@ interface SupabaseAdminApi {
     suspend fun adminListEventAiTraces(eventId: EventId, limit: Int = 5): List<AdminEventAiTraceDto>
 }
 
+/**
+ * Factory entry point for callers that should not depend on Ktor types directly
+ * (e.g. the `:app` Hilt module — see `tests/guards/domain-boundaries.test.mjs`).
+ * Returns a singleton-friendly admin API + matching repository pair; the
+ * underlying HttpClient lives for the lifetime of the returned instance.
+ */
+fun createSupabaseAdminApi(
+    config: EnvConfig,
+    sessionStore: SessionStore,
+): SupabaseAdminApi = KtorSupabaseAdminApi(config, sessionStore, HttpClient(OkHttp))
+
 class KtorSupabaseAdminApi(
     private val config: EnvConfig,
     private val sessionStore: SessionStore,

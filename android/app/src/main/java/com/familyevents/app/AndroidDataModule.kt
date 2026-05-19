@@ -6,8 +6,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.familyevents.BuildConfig
 import com.familyevents.admin.AdminRepository
-import com.familyevents.admin.KtorSupabaseAdminApi
 import com.familyevents.admin.SupabaseAdminRepository
+import com.familyevents.admin.createSupabaseAdminApi
 import com.familyevents.core.EnvConfig
 import com.familyevents.data.FamilyEventsDatabase
 import com.familyevents.data.RepositoryGraph
@@ -18,8 +18,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
 import javax.inject.Singleton
 
 @Module
@@ -56,15 +54,10 @@ object AndroidDataModule {
 
     @Provides
     @Singleton
-    fun provideAdminHttpClient(): HttpClient = HttpClient(OkHttp)
-
-    @Provides
-    @Singleton
     fun provideAdminRepository(
         config: EnvConfig,
         sessionStore: SessionStore,
-        httpClient: HttpClient,
-    ): AdminRepository = SupabaseAdminRepository(KtorSupabaseAdminApi(config, sessionStore, httpClient))
+    ): AdminRepository = SupabaseAdminRepository(createSupabaseAdminApi(config, sessionStore))
 
     @Provides
     @Singleton
