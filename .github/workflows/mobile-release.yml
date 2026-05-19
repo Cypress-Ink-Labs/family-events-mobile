@@ -209,7 +209,7 @@ jobs:
             --name "ci" \
             --key-id "$ASC_API_KEY_ID" \
             --issuer-id "$ASC_API_ISSUER_ID" \
-            --private-key-path "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+            --private-key "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
 
           ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
           : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
