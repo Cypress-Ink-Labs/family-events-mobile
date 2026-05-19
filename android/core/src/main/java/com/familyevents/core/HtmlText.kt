@@ -43,7 +43,7 @@ private fun decodeNamedEntity(entity: String): String? = when (entity) {
     "gt" -> ">"
     "quot" -> "\""
     "apos" -> "'"
-    "nbsp" -> " "
+    "nbsp" -> "\u00A0"
     else -> null
 }
 

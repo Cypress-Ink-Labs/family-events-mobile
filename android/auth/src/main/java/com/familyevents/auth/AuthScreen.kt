@@ -1,5 +1,6 @@
 package com.familyevents.auth
 
+import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +27,6 @@ import com.familyevents.designsystem.generated.Tokens
 import kotlinx.coroutines.launch
 
 private const val MESSAGE_LIMIT = 500
-private val EMAIL_PATTERN = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}".toRegex()
 
 @Composable
 fun AuthScreen(
@@ -51,7 +51,7 @@ fun AuthScreen(
             try {
                 action()
                 statusMessage = successMessage
-            } catch (error: Throwable) {
+            } catch (error: Exception) {
                 statusIsError = true
                 statusMessage = error.message ?: "Request failed. Please try again."
             } finally {
@@ -226,7 +226,7 @@ private fun InviteRequestDialog(
                                 } else {
                                     errorMessage = "Couldn't submit your request. If you've requested recently, please wait a few minutes and try again."
                                 }
-                            } catch (e: Throwable) {
+                            } catch (e: Exception) {
                                 errorMessage = "Couldn't submit your request. If you've requested recently, please wait a few minutes and try again."
                             } finally {
                                 isSubmitting = false
@@ -250,7 +250,7 @@ private fun InviteRequestDialog(
 }
 
 private fun validateInviteRequest(email: String, message: String): String? = when {
-    email.isBlank() || !EMAIL_PATTERN.matches(email) -> "Please enter a valid email address."
+    email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Please enter a valid email address."
     message.length > MESSAGE_LIMIT -> "Message must be 500 characters or fewer."
     else -> null
 }
