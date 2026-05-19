@@ -84,6 +84,11 @@ interface SupabaseConsumerApi {
     suspend fun adminRunDueScrapes(): Unit {}
     suspend fun adminListComments(filter: String = "all"): List<AdminCommentDto> = emptyList()
     suspend fun adminDeleteComment(commentId: String) {}
+    suspend fun adminListSources(): List<AdminSourceDto> = emptyList()
+    suspend fun adminUpdateSourceActive(sourceId: String, active: Boolean) {}
+    suspend fun adminUpdateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {}
+    suspend fun adminListInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
+    suspend fun adminListInviteRequests(status: String = "pending"): List<AdminInviteRequestDto> = emptyList()
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
@@ -571,6 +576,57 @@ class KtorSupabaseConsumerApi(
         }.requireOkOrNoContent()
     }
 
+    override suspend fun adminListSources(): List<AdminSourceDto> {
+        val response = client.get("$baseUrl/rest/v1/event_sources") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,name,city_id,url,is_active,auto_approve,last_status,last_scraped_at")
+            parameter("order", "name.asc")
+        }
+        return response.requireOk().decodeList<AdminSourceRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminUpdateSourceActive(sourceId: String, active: Boolean) {
+        client.patch("$baseUrl/rest/v1/event_sources") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$sourceId")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("is_active", active) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminUpdateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {
+        client.patch("$baseUrl/rest/v1/event_sources") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$sourceId")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("auto_approve", autoApprove) }.toString())
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListInviteCodes(): List<AdminInviteCodeListDto> {
+        val response = client.get("$baseUrl/rest/v1/invite_codes") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,max_uses,used_count,expires_at,notes,created_at")
+            parameter("order", "created_at.desc")
+        }
+        return response.requireOk().decodeList<AdminInviteCodeListRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListInviteRequests(status: String): List<AdminInviteRequestDto> {
+        val response = client.get("$baseUrl/rest/v1/invite_requests") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,email,message,status,created_at,reviewed_at,admin_notes")
+            if (status != "all") parameter("status", "eq.$status")
+            parameter("order", "created_at.desc")
+        }
+        return response.requireOk().decodeList<AdminInviteRequestRow>().map { it.toDto() }
+    }
+
     override suspend fun deleteAccount() {
         client.post("$baseUrl/rest/v1/rpc/delete_my_account") {
             baseHeaders()
@@ -966,6 +1022,69 @@ private data class AdminCommentRow(
         createdAt = createdAt.parseInstant(),
         authorDisplayName = userProfiles?.displayName,
         eventTitle = events?.title,
+    )
+}
+
+@Serializable
+private data class AdminSourceRow(
+    val id: String,
+    val name: String,
+    @SerialName("city_id") val cityId: String? = null,
+    val url: String? = null,
+    @SerialName("is_active") val isActive: Boolean = false,
+    @SerialName("auto_approve") val autoApprove: Boolean = false,
+    @SerialName("last_status") val lastStatus: String? = null,
+    @SerialName("last_scraped_at") val lastScrapedAt: String? = null,
+) {
+    fun toDto() = AdminSourceDto(
+        id = id,
+        name = name,
+        cityId = cityId?.let { CityId(it) },
+        url = url,
+        isActive = isActive,
+        autoApprove = autoApprove,
+        lastStatus = lastStatus,
+        lastScrapedAt = lastScrapedAt?.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminInviteCodeListRow(
+    val id: String,
+    @SerialName("max_uses") val maxUses: Int,
+    @SerialName("used_count") val usedCount: Int = 0,
+    @SerialName("expires_at") val expiresAt: String? = null,
+    val notes: String? = null,
+    @SerialName("created_at") val createdAt: String,
+) {
+    fun toDto() = AdminInviteCodeListDto(
+        id = id,
+        maxUses = maxUses,
+        usedCount = usedCount,
+        expiresAt = expiresAt?.parseInstant(),
+        notes = notes,
+        createdAt = createdAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminInviteRequestRow(
+    val id: String,
+    val email: String,
+    val message: String? = null,
+    val status: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("reviewed_at") val reviewedAt: String? = null,
+    @SerialName("admin_notes") val adminNotes: String? = null,
+) {
+    fun toDto() = AdminInviteRequestDto(
+        id = id,
+        email = email,
+        message = message,
+        status = status,
+        createdAt = createdAt.parseInstant(),
+        reviewedAt = reviewedAt?.parseInstant(),
+        adminNotes = adminNotes,
     )
 }
 

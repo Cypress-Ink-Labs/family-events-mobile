@@ -373,6 +373,23 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
     override suspend fun deleteComment(commentId: String) {
         api?.adminDeleteComment(commentId)
     }
+
+    override suspend fun listSources(): List<AdminSourceDto> =
+        api?.adminListSources() ?: emptyList()
+
+    override suspend fun updateSourceActive(sourceId: String, active: Boolean) {
+        api?.adminUpdateSourceActive(sourceId, active)
+    }
+
+    override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {
+        api?.adminUpdateSourceAutoApprove(sourceId, autoApprove)
+    }
+
+    override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> =
+        api?.adminListInviteCodes() ?: emptyList()
+
+    override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> =
+        api?.adminListInviteRequests(status) ?: emptyList()
 }
 
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =

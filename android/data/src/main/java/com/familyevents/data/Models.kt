@@ -173,3 +173,33 @@ data class AdminCronRunDto(
     val endTime: Instant?,
     val durationMs: Double?,
 )
+
+data class AdminSourceDto(
+    val id: String,
+    val name: String,
+    val cityId: CityId?,
+    val url: String?,
+    val isActive: Boolean,
+    val autoApprove: Boolean,
+    val lastStatus: String?,
+    val lastScrapedAt: Instant?,
+)
+
+data class AdminInviteCodeListDto(
+    val id: String,
+    val maxUses: Int,
+    val usedCount: Int,
+    val expiresAt: Instant?,
+    val notes: String?,
+    val createdAt: Instant,
+)
+
+data class AdminInviteRequestDto(
+    val id: String,
+    val email: String,
+    val message: String?,
+    val status: String,
+    val createdAt: Instant,
+    val reviewedAt: Instant?,
+    val adminNotes: String?,
+)

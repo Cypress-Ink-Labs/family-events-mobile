@@ -259,6 +259,11 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun runDueScrapes() = Unit
     override suspend fun listComments(filter: String): List<AdminCommentDto> = emptyList()
     override suspend fun deleteComment(commentId: String) = Unit
+    override suspend fun listSources(): List<AdminSourceDto> = emptyList()
+    override suspend fun updateSourceActive(sourceId: String, active: Boolean) = Unit
+    override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) = Unit
+    override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
+    override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> = emptyList()
 }
 
 class RepositoryGraph(

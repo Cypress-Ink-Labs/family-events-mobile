@@ -92,4 +92,9 @@ interface AdminRepository {
     suspend fun runDueScrapes()
     suspend fun listComments(filter: String = "all"): List<AdminCommentDto>
     suspend fun deleteComment(commentId: String)
+    suspend fun listSources(): List<AdminSourceDto>
+    suspend fun updateSourceActive(sourceId: String, active: Boolean)
+    suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean)
+    suspend fun listInviteCodes(): List<AdminInviteCodeListDto>
+    suspend fun listInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
 }
