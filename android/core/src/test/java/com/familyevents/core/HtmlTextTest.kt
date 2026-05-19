@@ -22,7 +22,7 @@ class HtmlTextTest {
 
     @Test
     fun nbspBecomesSpace() {
-        assertEquals(" trim", decodeHtmlEntities("&nbsp;trim"))
+        assertEquals(" trim", decodeHtmlEntities("&nbsp;trim"))
     }
 
     @Test

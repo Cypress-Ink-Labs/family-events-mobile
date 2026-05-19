@@ -12,7 +12,10 @@ object SupabaseClientFactory {
         supabaseUrl = config.supabaseUrl,
         supabaseKey = config.supabaseAnonKey,
     ) {
-        install(Auth)
+        install(Auth) {
+            autoLoadFromStorage = false
+            alwaysAutoRefresh = false
+        }
         install(Postgrest)
         install(Realtime)
         install(Functions)

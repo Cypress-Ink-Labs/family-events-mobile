@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.familyevents.core.EventId
@@ -58,6 +59,7 @@ fun SavedCalendarView(
     onOpenEvent: (EventId) -> Unit,
 ) {
     val zoneId = ZoneId.systemDefault()
+    val locale: Locale = LocalConfiguration.current.locales[0]
     val today = LocalDate.now(zoneId)
 
     // Build the 6-week grid window: start of week containing month-first (Sunday),
@@ -93,7 +95,7 @@ fun SavedCalendarView(
             }
             Text(
                 text = "%s %d".format(
-                    selectedMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                    selectedMonth.month.getDisplayName(TextStyle.FULL, locale),
                     selectedMonth.year,
                 ),
                 style = FamilyTypography.TitleMedium,
