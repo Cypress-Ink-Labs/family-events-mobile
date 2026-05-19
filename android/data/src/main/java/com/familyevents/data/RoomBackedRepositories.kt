@@ -390,6 +390,37 @@ class SupabaseAdminRepository(private val api: SupabaseConsumerApi? = null) : Ad
 
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> =
         api?.adminListInviteRequests(status) ?: emptyList()
+
+    override suspend fun listCities(): List<AdminCityDto> =
+        api?.adminListCities() ?: emptyList()
+
+    override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto =
+        api?.adminCreateCity(name, state, country, slug, timezone)
+            ?: throw AppError.Remote("City creation unavailable.")
+
+    override suspend fun updateCity(cityId: CityId, patchJson: String) {
+        api?.adminUpdateCity(cityId, patchJson)
+    }
+
+    override suspend fun listRatings(limit: Int): List<AdminRatingDto> =
+        api?.adminListRatings(limit) ?: emptyList()
+
+    override suspend fun deleteRating(ratingId: String) {
+        api?.adminDeleteRating(ratingId)
+    }
+
+    override suspend fun listUserAccess(): List<AdminUserAccessDto> =
+        api?.adminListUserAccess() ?: emptyList()
+
+    override suspend fun updateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String?) {
+        api?.adminUpdateUserAccess(userId, isEnabled, disabledReason)
+    }
+
+    override suspend fun listSourceRuns(limit: Int): List<AdminSourceRunDto> =
+        api?.adminListSourceRuns(limit) ?: emptyList()
+
+    override suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto> =
+        api?.adminListTagQueueSummary() ?: emptyList()
 }
 
 private fun Flow<List<PlanEventRowDto>>.withSeedPlan(cityId: CityId?): Flow<List<PlanEventRowDto>> =

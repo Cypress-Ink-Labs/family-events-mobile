@@ -264,6 +264,21 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) = Unit
     override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> = emptyList()
+    override suspend fun listCities(): List<AdminCityDto> = emptyList()
+    override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto =
+        AdminCityDto(
+            id = com.familyevents.core.CityId("local-${java.time.Instant.now().toEpochMilli()}"),
+            name = name, state = state, country = country, slug = slug,
+            isActive = true, timezone = timezone, latitude = null, longitude = null,
+            createdAt = java.time.Instant.now(),
+        )
+    override suspend fun updateCity(cityId: com.familyevents.core.CityId, patchJson: String) = Unit
+    override suspend fun listRatings(limit: Int): List<AdminRatingDto> = emptyList()
+    override suspend fun deleteRating(ratingId: String) = Unit
+    override suspend fun listUserAccess(): List<AdminUserAccessDto> = emptyList()
+    override suspend fun updateUserAccess(userId: com.familyevents.core.UserId, isEnabled: Boolean, disabledReason: String?) = Unit
+    override suspend fun listSourceRuns(limit: Int): List<AdminSourceRunDto> = emptyList()
+    override suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto> = emptyList()
 }
 
 class RepositoryGraph(

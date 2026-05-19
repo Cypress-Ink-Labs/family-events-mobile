@@ -89,6 +89,20 @@ interface SupabaseConsumerApi {
     suspend fun adminUpdateSourceAutoApprove(sourceId: String, autoApprove: Boolean) {}
     suspend fun adminListInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     suspend fun adminListInviteRequests(status: String = "pending"): List<AdminInviteRequestDto> = emptyList()
+    // Cities
+    suspend fun adminListCities(): List<AdminCityDto> = emptyList()
+    suspend fun adminCreateCity(name: String, state: String?, country: String = "US", slug: String, timezone: String = "America/Chicago"): AdminCityDto =
+        throw AppError.Remote("City creation unavailable.")
+    suspend fun adminUpdateCity(cityId: CityId, patchJson: String) {}
+    // Ratings
+    suspend fun adminListRatings(limit: Int = 100): List<AdminRatingDto> = emptyList()
+    suspend fun adminDeleteRating(ratingId: String) {}
+    // User access
+    suspend fun adminListUserAccess(): List<AdminUserAccessDto> = emptyList()
+    suspend fun adminUpdateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String? = null) {}
+    // Logs / source runs / tag queue
+    suspend fun adminListSourceRuns(limit: Int = 50): List<AdminSourceRunDto> = emptyList()
+    suspend fun adminListTagQueueSummary(): List<AdminTagQueueSummaryRowDto> = emptyList()
     suspend fun deleteAccount()
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
@@ -627,6 +641,118 @@ class KtorSupabaseConsumerApi(
         return response.requireOk().decodeList<AdminInviteRequestRow>().map { it.toDto() }
     }
 
+    override suspend fun adminListCities(): List<AdminCityDto> {
+        val response = client.get("$baseUrl/rest/v1/cities") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,name,state,country,slug,is_active,latitude,longitude,timezone,created_at")
+            parameter("order", "name.asc")
+        }
+        return response.requireOk().decodeList<AdminCityRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminCreateCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto {
+        val response = client.post("$baseUrl/rest/v1/cities") {
+            baseHeaders()
+            bearer()
+            header("Prefer", "return=representation")
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("name", name)
+                    putNullable("state", state)
+                    put("country", country)
+                    put("slug", slug)
+                    put("timezone", timezone)
+                    put("is_active", true)
+                }.toString(),
+            )
+        }
+        return response.requireOk().decodeList<AdminCityRow>().firstOrNull()?.toDto()
+            ?: throw AppError.Remote("City creation returned no data.")
+    }
+
+    override suspend fun adminUpdateCity(cityId: CityId, patchJson: String) {
+        client.patch("$baseUrl/rest/v1/cities") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.${cityId.rawValue}")
+            contentType(ContentType.Application.Json)
+            setBody(patchJson)
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListRatings(limit: Int): List<AdminRatingDto> {
+        val response = client.get("$baseUrl/rest/v1/ratings") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,user_id,event_id,score,created_at,user_profiles(display_name),events(title)")
+            parameter("order", "created_at.desc")
+            parameter("limit", limit.toString())
+        }
+        return response.requireOk().decodeList<AdminRatingRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminDeleteRating(ratingId: String) {
+        client.delete("$baseUrl/rest/v1/ratings") {
+            baseHeaders()
+            bearer()
+            parameter("id", "eq.$ratingId")
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListUserAccess(): List<AdminUserAccessDto> {
+        val response = client.get("$baseUrl/rest/v1/user_access") {
+            baseHeaders()
+            bearer()
+            parameter("select", "user_id,is_enabled,access_expires_at,enabled_at,disabled_at,disabled_reason,user_profiles(display_name,email,role)")
+            parameter("order", "enabled_at.desc.nullslast")
+        }
+        return response.requireOk().decodeList<AdminUserAccessRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminUpdateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String?) {
+        val nowIso = java.time.Instant.now().toString()
+        client.patch("$baseUrl/rest/v1/user_access") {
+            baseHeaders()
+            bearer()
+            parameter("user_id", "eq.${userId.rawValue}")
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("is_enabled", isEnabled)
+                    putNullable("disabled_reason", disabledReason)
+                    if (isEnabled) {
+                        put("enabled_at", nowIso)
+                        put("disabled_at", JsonNull)
+                    } else {
+                        put("disabled_at", nowIso)
+                    }
+                }.toString(),
+            )
+        }.requireOkOrNoContent()
+    }
+
+    override suspend fun adminListSourceRuns(limit: Int): List<AdminSourceRunDto> {
+        val response = client.get("$baseUrl/rest/v1/source_runs") {
+            baseHeaders()
+            bearer()
+            parameter("select", "id,source_id,started_at,completed_at,status,events_found,events_imported,events_skipped,error_log,event_sources(name)")
+            parameter("order", "started_at.desc")
+            parameter("limit", limit.toString())
+        }
+        return response.requireOk().decodeList<AdminSourceRunRow>().map { it.toDto() }
+    }
+
+    override suspend fun adminListTagQueueSummary(): List<AdminTagQueueSummaryRowDto> {
+        val response = client.get("$baseUrl/rest/v1/event_tag_queue_summary") {
+            baseHeaders()
+            bearer()
+            parameter("select", "status,row_count,oldest_enqueued_at,newest_enqueued_at,last_dead_letter_at,avg_attempts")
+        }
+        return response.requireOk().decodeList<AdminTagQueueSummaryRow>().map { it.toDto() }
+    }
+
     override suspend fun deleteAccount() {
         client.post("$baseUrl/rest/v1/rpc/delete_my_account") {
             baseHeaders()
@@ -1085,6 +1211,145 @@ private data class AdminInviteRequestRow(
         createdAt = createdAt.parseInstant(),
         reviewedAt = reviewedAt?.parseInstant(),
         adminNotes = adminNotes,
+    )
+}
+
+@Serializable
+private data class AdminCityRow(
+    val id: String,
+    val name: String,
+    val state: String? = null,
+    val country: String = "US",
+    val slug: String,
+    @SerialName("is_active") val isActive: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val timezone: String = "America/Chicago",
+    @SerialName("created_at") val createdAt: String,
+) {
+    fun toDto() = AdminCityDto(
+        id = CityId(id),
+        name = name,
+        state = state,
+        country = country,
+        slug = slug,
+        isActive = isActive,
+        timezone = timezone,
+        latitude = latitude,
+        longitude = longitude,
+        createdAt = createdAt.parseInstant(),
+    )
+}
+
+@Serializable
+private data class AdminRatingUserProfileRow(
+    @SerialName("display_name") val displayName: String? = null,
+)
+
+@Serializable
+private data class AdminRatingEventRow(
+    val title: String? = null,
+)
+
+@Serializable
+private data class AdminRatingRow(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("event_id") val eventId: String,
+    val score: Int,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("user_profiles") val userProfiles: AdminRatingUserProfileRow? = null,
+    val events: AdminRatingEventRow? = null,
+) {
+    fun toDto() = AdminRatingDto(
+        id = id,
+        userId = UserId(userId),
+        eventId = EventId(eventId),
+        score = score,
+        createdAt = createdAt.parseInstant(),
+        authorDisplayName = userProfiles?.displayName,
+        eventTitle = events?.title,
+    )
+}
+
+@Serializable
+private data class AdminUserProfileAccessRow(
+    @SerialName("display_name") val displayName: String? = null,
+    val email: String? = null,
+    val role: String? = null,
+)
+
+@Serializable
+private data class AdminUserAccessRow(
+    @SerialName("user_id") val userId: String,
+    @SerialName("is_enabled") val isEnabled: Boolean = false,
+    @SerialName("access_expires_at") val accessExpiresAt: String? = null,
+    @SerialName("enabled_at") val enabledAt: String? = null,
+    @SerialName("disabled_at") val disabledAt: String? = null,
+    @SerialName("disabled_reason") val disabledReason: String? = null,
+    @SerialName("user_profiles") val userProfiles: AdminUserProfileAccessRow? = null,
+) {
+    fun toDto() = AdminUserAccessDto(
+        userId = UserId(userId),
+        isEnabled = isEnabled,
+        accessExpiresAt = accessExpiresAt?.parseInstant(),
+        enabledAt = enabledAt?.parseInstant(),
+        disabledAt = disabledAt?.parseInstant(),
+        disabledReason = disabledReason,
+        displayName = userProfiles?.displayName,
+        email = userProfiles?.email,
+        role = userProfiles?.role ?: "user",
+    )
+}
+
+@Serializable
+private data class AdminSourceRunSourceRow(
+    val name: String? = null,
+)
+
+@Serializable
+private data class AdminSourceRunRow(
+    val id: String,
+    @SerialName("source_id") val sourceId: String? = null,
+    @SerialName("started_at") val startedAt: String,
+    @SerialName("completed_at") val completedAt: String? = null,
+    val status: String,
+    @SerialName("events_found") val eventsFound: Int = 0,
+    @SerialName("events_imported") val eventsImported: Int = 0,
+    @SerialName("events_skipped") val eventsSkipped: Int = 0,
+    @SerialName("error_log") val errorLog: String? = null,
+    @SerialName("event_sources") val eventSources: AdminSourceRunSourceRow? = null,
+) {
+    fun toDto() = AdminSourceRunDto(
+        id = id,
+        sourceId = sourceId,
+        sourceName = eventSources?.name,
+        startedAt = startedAt.parseInstant(),
+        completedAt = completedAt?.parseInstant(),
+        status = status,
+        eventsFound = eventsFound,
+        eventsImported = eventsImported,
+        eventsSkipped = eventsSkipped,
+        errorLog = errorLog,
+    )
+}
+
+@Serializable
+private data class AdminTagQueueSummaryRow(
+    val status: String,
+    @SerialName("row_count") val rowCount: Int = 0,
+    @SerialName("oldest_enqueued_at") val oldestEnqueuedAt: String? = null,
+    @SerialName("newest_enqueued_at") val newestEnqueuedAt: String? = null,
+    @SerialName("last_dead_letter_at") val lastDeadLetterAt: String? = null,
+    @SerialName("avg_attempts") val avgAttempts: Double? = null,
+) {
+    fun toDto() = AdminTagQueueSummaryRowDto(
+        status = status,
+        rowCount = rowCount,
+        oldestEnqueuedAt = oldestEnqueuedAt?.parseInstant(),
+        newestEnqueuedAt = newestEnqueuedAt?.parseInstant(),
+        lastDeadLetterAt = lastDeadLetterAt?.parseInstant(),
+        avgAttempts = avgAttempts,
     )
 }
 

@@ -203,3 +203,60 @@ data class AdminInviteRequestDto(
     val reviewedAt: Instant?,
     val adminNotes: String?,
 )
+
+data class AdminCityDto(
+    val id: CityId,
+    val name: String,
+    val state: String?,
+    val country: String,
+    val slug: String,
+    val isActive: Boolean,
+    val timezone: String,
+    val latitude: Double?,
+    val longitude: Double?,
+    val createdAt: Instant,
+)
+
+data class AdminRatingDto(
+    val id: String,
+    val userId: UserId,
+    val eventId: EventId,
+    val score: Int,
+    val createdAt: Instant,
+    val authorDisplayName: String?,
+    val eventTitle: String?,
+)
+
+data class AdminUserAccessDto(
+    val userId: UserId,
+    val isEnabled: Boolean,
+    val accessExpiresAt: Instant?,
+    val enabledAt: Instant?,
+    val disabledAt: Instant?,
+    val disabledReason: String?,
+    val displayName: String?,
+    val email: String?,
+    val role: String,
+)
+
+data class AdminSourceRunDto(
+    val id: String,
+    val sourceId: String?,
+    val sourceName: String?,
+    val startedAt: Instant,
+    val completedAt: Instant?,
+    val status: String,
+    val eventsFound: Int,
+    val eventsImported: Int,
+    val eventsSkipped: Int,
+    val errorLog: String?,
+)
+
+data class AdminTagQueueSummaryRowDto(
+    val status: String,
+    val rowCount: Int,
+    val oldestEnqueuedAt: Instant?,
+    val newestEnqueuedAt: Instant?,
+    val lastDeadLetterAt: Instant?,
+    val avgAttempts: Double?,
+)

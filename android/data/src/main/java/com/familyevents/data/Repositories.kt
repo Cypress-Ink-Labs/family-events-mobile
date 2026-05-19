@@ -97,4 +97,13 @@ interface AdminRepository {
     suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean)
     suspend fun listInviteCodes(): List<AdminInviteCodeListDto>
     suspend fun listInviteRequests(status: String = "pending"): List<AdminInviteRequestDto>
+    suspend fun listCities(): List<AdminCityDto>
+    suspend fun createCity(name: String, state: String?, country: String = "US", slug: String, timezone: String = "America/Chicago"): AdminCityDto
+    suspend fun updateCity(cityId: CityId, patchJson: String)
+    suspend fun listRatings(limit: Int = 100): List<AdminRatingDto>
+    suspend fun deleteRating(ratingId: String)
+    suspend fun listUserAccess(): List<AdminUserAccessDto>
+    suspend fun updateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String? = null)
+    suspend fun listSourceRuns(limit: Int = 50): List<AdminSourceRunDto>
+    suspend fun listTagQueueSummary(): List<AdminTagQueueSummaryRowDto>
 }
