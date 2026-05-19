@@ -213,7 +213,11 @@ jobs:
 
           ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
           : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
-          asc beta build upload --file "$ipa_path"
+
+          app_id=$(asc apps list --bundle-id "$IOS_BUNDLE_ID" --output json | jq -r '.[0].id // empty')
+          : "${app_id:?App Store Connect record missing for bundle $IOS_BUNDLE_ID. Create the app at https://appstoreconnect.apple.com/apps before re-running.}"
+
+          asc builds upload --app "$app_id" --ipa "$ipa_path"
 
       - name: Upload archive artifact
         if: always()
