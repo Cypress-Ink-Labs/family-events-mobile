@@ -206,17 +206,24 @@ jobs:
         env:
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
         run: |
           set -euo pipefail
+          : "${ASC_APP_ID:?missing ASC_APP_ID secret (App Store Connect app id)}"
           asc auth login \
             --name "ci" \
             --key-id "$ASC_API_KEY_ID" \
             --issuer-id "$ASC_API_ISSUER_ID" \
-            --private-key "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+            --private-key-path "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
 
           ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
           : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
-          asc beta build upload --file "$ipa_path"
+          asc builds upload \
+            --app-id "$ASC_APP_ID" \
+            --file "$ipa_path" \
+            --version "$IOS_VERSION_NAME" \
+            --build-number "$GITHUB_RUN_NUMBER" \
+            --wait
 
       - name: Upload archive artifact
         if: always()

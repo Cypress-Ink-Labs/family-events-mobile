@@ -35,7 +35,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.ktor.client.okhttp)
+    api(libs.ktor.client.okhttp)
     implementation(libs.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     testImplementation(libs.junit)

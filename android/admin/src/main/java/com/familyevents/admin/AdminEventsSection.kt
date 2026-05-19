@@ -58,6 +58,7 @@ import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.LoadingState
 import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonNull
@@ -524,7 +525,9 @@ private fun AdminEventEditorDialog(
                     lockEditedFields = true,
                 )
                 onSaved()
-            } catch (e: Throwable) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 feedback = "Save failed: ${e.message ?: "unknown error"}"
             } finally {
                 saving = false

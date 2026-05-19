@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -802,17 +803,13 @@ private fun AdminInviteRequestsView(adminRepository: AdminRepository) {
                     AdminInviteRequestCard(
                         request = request,
                         onApprove = {
-                            scope.launch {
-                                runCatching { adminRepository.approveInviteRequest(request.id) }
-                                    .onSuccess { result -> approvedCode = result.code }
-                                refreshKey++
-                            }
+                            runCatching { adminRepository.approveInviteRequest(request.id) }
+                                .onSuccess { result -> approvedCode = result.code }
+                            refreshKey++
                         },
                         onReject = {
-                            scope.launch {
-                                runCatching { adminRepository.rejectInviteRequest(request.id) }
-                                refreshKey++
-                            }
+                            runCatching { adminRepository.rejectInviteRequest(request.id) }
+                            refreshKey++
                         },
                     )
                 }
@@ -852,11 +849,12 @@ private fun AdminInviteRequestsView(adminRepository: AdminRepository) {
 @Composable
 private fun AdminInviteRequestCard(
     request: AdminInviteRequestDto,
-    onApprove: () -> Unit,
-    onReject: () -> Unit,
+    onApprove: suspend () -> Unit,
+    onReject: suspend () -> Unit,
 ) {
     var inFlight by remember { mutableStateOf(false) }
     val isPending = request.status == "pending"
+    val cardScope = rememberCoroutineScope()
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -882,11 +880,29 @@ private fun AdminInviteRequestCard(
             if (isPending) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
                     Button(
-                        onClick = { inFlight = true; onApprove() },
+                        onClick = {
+                            inFlight = true
+                            cardScope.launch {
+                                try {
+                                    onApprove()
+                                } finally {
+                                    inFlight = false
+                                }
+                            }
+                        },
                         enabled = !inFlight,
                     ) { Text("Approve", softWrap = false, maxLines = 1) }
                     OutlinedButton(
-                        onClick = { inFlight = true; onReject() },
+                        onClick = {
+                            inFlight = true
+                            cardScope.launch {
+                                try {
+                                    onReject()
+                                } finally {
+                                    inFlight = false
+                                }
+                            }
+                        },
                         enabled = !inFlight,
                     ) { Text("Reject", softWrap = false, maxLines = 1) }
                 }
@@ -921,7 +937,9 @@ private fun AdminCronsSection(adminRepository: AdminRepository) {
         try {
             loading = true
             jobs = adminRepository.listCronJobs()
-        } catch (e: Throwable) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             feedback = "Failed to load jobs: ${e.message ?: "unknown"}"
         } finally {
             loading = false
@@ -931,7 +949,9 @@ private fun AdminCronsSection(adminRepository: AdminRepository) {
     LaunchedEffect(historyFilter, refreshKey) {
         try {
             history = adminRepository.cronRunHistory(historyFilter, limit = 50)
-        } catch (e: Throwable) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             feedback = "Failed to load history: ${e.message ?: "unknown"}"
         }
     }
@@ -942,7 +962,9 @@ private fun AdminCronsSection(adminRepository: AdminRepository) {
             try {
                 adminRepository.runDueScrapes()
                 refreshKey++
-            } catch (e: Throwable) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 feedback = "Failed to run scrapes: ${e.message ?: "unknown"}"
             } finally {
                 inFlight = false
@@ -975,7 +997,9 @@ private fun AdminCronsSection(adminRepository: AdminRepository) {
                                 try {
                                     adminRepository.toggleCronJob(job.jobname, newActive)
                                     refreshKey++
-                                } catch (e: Throwable) {
+                                } catch (e: CancellationException) {
+                                    throw e
+                                } catch (e: Exception) {
                                     feedback = "Failed to toggle job: ${e.message ?: "unknown"}"
                                 }
                             }
@@ -1176,7 +1200,9 @@ private fun CronScheduleDialog(
                         try {
                             adminRepository.setCronSchedule(job.jobname, schedule.trim())
                             onSaved()
-                        } catch (e: Throwable) {
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
                             errorMsg = e.message ?: "Failed to update schedule"
                         } finally {
                             inFlight = false
@@ -1738,10 +1764,12 @@ private fun AdminAccessSection(
                         scope.launch {
                             inFlight = true
                             runCatching { adminRepository.updateUserAccess(target.userId, false, disableReason.trim()) }
+                                .onSuccess {
+                                    disableTarget = null
+                                    refreshKey++
+                                }
                                 .onFailure { feedback = it.message ?: "Failed to disable user" }
                             inFlight = false
-                            disableTarget = null
-                            refreshKey++
                         }
                     },
                     enabled = !inFlight && disableReason.isNotBlank(),
@@ -1778,10 +1806,14 @@ private fun AdminLogsSection(adminRepository: AdminRepository) {
 
         while (isActive && runs.any { it.status == "running" }) {
             delay(3000)
-            runCatching {
+            val pollResult = runCatching {
                 runs = adminRepository.listSourceRuns(50)
                 tagQueue = adminRepository.listTagQueueSummary()
-            }.onFailure { /* silently ignore poll errors */ }
+            }
+            if (pollResult.isFailure) {
+                feedback = pollResult.exceptionOrNull()?.message ?: "Failed to refresh running jobs"
+                break
+            }
         }
     }
 
@@ -1807,7 +1839,7 @@ private fun AdminLogsSection(adminRepository: AdminRepository) {
                             TagPill(label = "${row.status}: ${row.rowCount}")
                         }
                     }
-                    val oldest = tagQueue.firstNotNullOfOrNull { it.oldestEnqueuedAt }
+                    val oldest = tagQueue.mapNotNull { it.oldestEnqueuedAt }.minOrNull()
                     oldest?.let {
                         Text(
                             "Oldest pending: ${formatInstant(it)}",
@@ -1815,7 +1847,7 @@ private fun AdminLogsSection(adminRepository: AdminRepository) {
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
                     }
-                    val lastDead = tagQueue.firstNotNullOfOrNull { it.lastDeadLetterAt }
+                    val lastDead = tagQueue.mapNotNull { it.lastDeadLetterAt }.maxOrNull()
                     lastDead?.let {
                         Text(
                             "Last dead-letter: ${formatInstant(it)}",

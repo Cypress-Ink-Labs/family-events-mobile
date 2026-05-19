@@ -92,7 +92,7 @@ interface SupabaseAdminApi {
 class KtorSupabaseAdminApi(
     private val config: EnvConfig,
     private val sessionStore: SessionStore,
-    private val client: HttpClient = HttpClient(OkHttp),
+    private val client: HttpClient,
 ) : SupabaseAdminApi {
     private val json = Json {
         ignoreUnknownKeys = true
@@ -113,10 +113,10 @@ class KtorSupabaseAdminApi(
         }.requireOk()
         val events = eventsResponse.decodeList<AdminEventStatsRow>()
         val sources = sourcesResponse.decodeList<AdminSourceStatsRow>()
-        val aiHigh = events.count { (it.aiConfidence ?: -1.0) >= 0.8 }
-        val aiMedium = events.count { val c = it.aiConfidence ?: -1.0; c >= 0.5 && c < 0.8 }
-        val aiLow = events.count { val c = it.aiConfidence ?: -1.0; c >= 0.0 && c < 0.5 }
-        val aiUntagged = events.count { it.aiConfidence == null }
+        val aiHigh = events.count { it.aiConfidence?.let { c -> c in 0.8..1.0 } == true }
+        val aiMedium = events.count { it.aiConfidence?.let { c -> c >= 0.5 && c < 0.8 } == true }
+        val aiLow = events.count { it.aiConfidence?.let { c -> c >= 0.0 && c < 0.5 } == true }
+        val aiUntagged = events.count { val c = it.aiConfidence; c == null || c < 0.0 || c > 1.0 }
         return AdminStatsDto(
             totalEvents = events.size,
             pendingReview = events.count { it.status == "draft" },
@@ -448,10 +448,11 @@ class KtorSupabaseAdminApi(
     }
 
     override suspend fun adminDeleteRating(ratingId: String) {
-        client.delete("$baseUrl/rest/v1/ratings") {
+        client.post("$baseUrl/rest/v1/rpc/admin_delete_rating") {
             baseHeaders()
             bearer()
-            parameter("id", "eq.$ratingId")
+            contentType(ContentType.Application.Json)
+            setBody(buildJsonObject { put("p_id", ratingId) }.toString())
         }.requireOkOrNoContent()
     }
 
@@ -466,7 +467,6 @@ class KtorSupabaseAdminApi(
     }
 
     override suspend fun adminUpdateUserAccess(userId: UserId, isEnabled: Boolean, disabledReason: String?) {
-        val nowIso = java.time.Instant.now().toString()
         client.patch("$baseUrl/rest/v1/user_access") {
             baseHeaders()
             bearer()
@@ -475,13 +475,8 @@ class KtorSupabaseAdminApi(
             setBody(
                 buildJsonObject {
                     put("is_enabled", isEnabled)
-                    putNullable("disabled_reason", disabledReason)
-                    if (isEnabled) {
-                        put("enabled_at", nowIso)
-                        put("disabled_at", JsonNull)
-                    } else {
-                        put("disabled_at", nowIso)
-                    }
+                    putNullable("disabled_reason", if (isEnabled) null else disabledReason)
+                    // enabled_at / disabled_at are populated server-side (DB trigger / now()).
                 }.toString(),
             )
         }.requireOkOrNoContent()

@@ -7,6 +7,8 @@ import com.familyevents.data.EventDto
 import com.familyevents.data.EventTagDto
 
 class InMemoryAdminRepository : AdminRepository {
+    private val cities = mutableListOf<AdminCityDto>()
+
     override suspend fun stats(): AdminStatsDto = AdminStatsDto(2, 0, 2, 0, 0)
     override suspend fun sections(): List<AdminSectionDto> = adminSections()
     override suspend fun updateEvent(eventId: EventId, patchJson: String, tagIds: List<String>, lockEditedFields: Boolean): EventDto =
@@ -55,15 +57,23 @@ class InMemoryAdminRepository : AdminRepository {
     override suspend fun updateSourceAutoApprove(sourceId: String, autoApprove: Boolean) = Unit
     override suspend fun listInviteCodes(): List<AdminInviteCodeListDto> = emptyList()
     override suspend fun listInviteRequests(status: String): List<AdminInviteRequestDto> = emptyList()
-    override suspend fun listCities(): List<AdminCityDto> = emptyList()
-    override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto =
-        AdminCityDto(
+    override suspend fun listCities(): List<AdminCityDto> = cities.toList()
+    override suspend fun createCity(name: String, state: String?, country: String, slug: String, timezone: String): AdminCityDto {
+        val created = AdminCityDto(
             id = CityId("local-${java.time.Instant.now().toEpochMilli()}"),
             name = name, state = state, country = country, slug = slug,
             isActive = true, timezone = timezone, latitude = null, longitude = null,
             createdAt = java.time.Instant.now(),
         )
-    override suspend fun updateCity(cityId: CityId, patchJson: String) = Unit
+        cities.add(0, created)
+        return created
+    }
+    override suspend fun updateCity(cityId: CityId, patchJson: String) {
+        val index = cities.indexOfFirst { it.id == cityId }
+        if (index >= 0) {
+            cities[index] = cities[index].copy()
+        }
+    }
     override suspend fun listRatings(limit: Int): List<AdminRatingDto> = emptyList()
     override suspend fun deleteRating(ratingId: String) = Unit
     override suspend fun listUserAccess(): List<AdminUserAccessDto> = emptyList()

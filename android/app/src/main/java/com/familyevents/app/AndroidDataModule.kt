@@ -18,6 +18,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import javax.inject.Singleton
 
 @Module
@@ -54,10 +56,15 @@ object AndroidDataModule {
 
     @Provides
     @Singleton
+    fun provideAdminHttpClient(): HttpClient = HttpClient(OkHttp)
+
+    @Provides
+    @Singleton
     fun provideAdminRepository(
         config: EnvConfig,
         sessionStore: SessionStore,
-    ): AdminRepository = SupabaseAdminRepository(KtorSupabaseAdminApi(config, sessionStore))
+        httpClient: HttpClient,
+    ): AdminRepository = SupabaseAdminRepository(KtorSupabaseAdminApi(config, sessionStore, httpClient))
 
     @Provides
     @Singleton
