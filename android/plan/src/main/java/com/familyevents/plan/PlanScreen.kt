@@ -53,19 +53,29 @@ fun PlanScreen(
     var permissionAsked by rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        // On Android 12+ the system dialog lets users grant approximate-only,
+        // in which case ACCESS_FINE_LOCATION is denied but ACCESS_COARSE_LOCATION
+        // is granted. Either grant is enough for FusedLocationProvider.
+        val anyGranted = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         scope.launch {
-            val coord = if (granted) locationProvider.lastKnownLocation() else null
+            val coord = if (anyGranted) locationProvider.lastKnownLocation() else null
             eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude)
         }
     }
 
-    LaunchedEffect(userId, cityId) {
+    LaunchedEffect(userId, cityId, kidAge) {
         val coord = locationProvider.lastKnownLocation()
         if (coord == null && !permissionAsked) {
             permissionAsked = true
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ),
+            )
         } else {
             eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude)
         }
