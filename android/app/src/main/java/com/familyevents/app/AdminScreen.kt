@@ -45,13 +45,16 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.familyevents.core.CityId
 import com.familyevents.core.decodeHtmlEntities
 import com.familyevents.core.DateFormatting
+import com.familyevents.data.AdminCityDto
 import com.familyevents.data.AdminCommentDto
 import com.familyevents.data.AdminCronJobDto
 import com.familyevents.data.AdminCronRunDto
 import com.familyevents.data.AdminInviteCodeListDto
 import com.familyevents.data.AdminInviteRequestDto
+import com.familyevents.data.AdminRatingDto
 import com.familyevents.data.AdminRepository
 import com.familyevents.data.AdminSourceDto
 import com.familyevents.data.AdminStatsDto
@@ -82,6 +85,8 @@ fun AdminScreen(
         AdminSourcesSection(adminRepository)
         AdminInvitesSection(adminRepository)
         AdminCronsSection(adminRepository)
+        AdminCitiesSection(adminRepository)
+        AdminRatingsSection(adminRepository)
     }
 }
 
@@ -1030,5 +1035,337 @@ private fun AdminCommentCard(
                 }
             }
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Cities
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun AdminCitiesSection(adminRepository: AdminRepository) {
+    var cities by remember { mutableStateOf<List<AdminCityDto>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showInactive by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(refreshKey) {
+        loading = true
+        runCatching { adminRepository.listCities() }
+            .onSuccess { cities = it; loading = false }
+            .onFailure { feedback = it.message ?: "Failed to load cities"; loading = false }
+    }
+
+    fun toggleActive(cityId: CityId, newActive: Boolean) {
+        scope.launch {
+            val patch = """{"is_active":$newActive}"""
+            runCatching { adminRepository.updateCity(cityId, patch) }
+                .onFailure { feedback = it.message ?: "Failed to update city" }
+            refreshKey++
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("Cities", style = FamilyTypography.TitleMedium)
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+        ) {
+            Text(
+                text = "${cities.size} cities · ${cities.count { it.isActive }} active",
+                style = FamilyTypography.Caption,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterVertically),
+            )
+            Button(onClick = { showAddDialog = true }) { Text("Add city") }
+        }
+
+        FilterChip(
+            selected = showInactive,
+            onClick = { showInactive = !showInactive },
+            label = { Text("Show inactive") },
+        )
+
+        feedback?.let { msg ->
+            Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+        }
+
+        val displayed = if (showInactive) cities else cities.filter { it.isActive }
+
+        when {
+            loading && cities.isEmpty() -> LoadingState("Loading cities")
+            !loading && displayed.isEmpty() -> EmptyState("No cities.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                displayed.forEach { city ->
+                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(Tokens.Space.S4),
+                            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                        ) {
+                            Text(
+                                text = "${city.name}${if (city.state != null) ", ${city.state}" else ""}",
+                                style = FamilyTypography.TitleMedium,
+                            )
+                            Text(
+                                text = "${city.slug} · ${city.timezone} · ${city.country}",
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+                            ) {
+                                Text("Active", style = FamilyTypography.BodySmall, modifier = Modifier.weight(1f))
+                                Switch(
+                                    checked = city.isActive,
+                                    onCheckedChange = { newActive -> toggleActive(city.id, newActive) },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAddDialog) {
+        AdminAddCityDialog(
+            adminRepository = adminRepository,
+            onDismiss = { showAddDialog = false },
+            onCreated = { showAddDialog = false; refreshKey++ },
+        )
+    }
+}
+
+@Composable
+private fun AdminAddCityDialog(
+    adminRepository: AdminRepository,
+    onDismiss: () -> Unit,
+    onCreated: () -> Unit,
+) {
+    var name by rememberSaveable { mutableStateOf("") }
+    var state by rememberSaveable { mutableStateOf("") }
+    var country by rememberSaveable { mutableStateOf("US") }
+    var slug by rememberSaveable { mutableStateOf("") }
+    var timezone by rememberSaveable { mutableStateOf("America/Chicago") }
+    var inFlight by remember { mutableStateOf(false) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add city") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                errorMsg?.let { msg ->
+                    Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+                }
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name (required)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = state,
+                    onValueChange = { state = it },
+                    label = { Text("State (optional, 2-letter)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = country,
+                    onValueChange = { country = it },
+                    label = { Text("Country") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = slug,
+                    onValueChange = { slug = it },
+                    label = { Text("Slug (required, no-spaces)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = timezone,
+                    onValueChange = { timezone = it },
+                    label = { Text("Timezone") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    scope.launch {
+                        inFlight = true
+                        errorMsg = null
+                        runCatching {
+                            adminRepository.createCity(
+                                name = name.trim(),
+                                state = state.trim().ifEmpty { null },
+                                country = country.trim().ifEmpty { "US" },
+                                slug = slug.trim(),
+                                timezone = timezone.trim().ifEmpty { "America/Chicago" },
+                            )
+                        }
+                            .onSuccess { onCreated() }
+                            .onFailure { errorMsg = it.message ?: "Failed to create city" }
+                        inFlight = false
+                    }
+                },
+                enabled = !inFlight && name.isNotBlank() && slug.isNotBlank(),
+            ) { Text("Create") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
+}
+
+// ---------------------------------------------------------------------------
+// Ratings
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun AdminRatingsSection(adminRepository: AdminRepository) {
+    var ratings by remember { mutableStateOf<List<AdminRatingDto>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var refreshKey by remember { mutableStateOf(0) }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(refreshKey) {
+        loading = true
+        runCatching { adminRepository.listRatings() }
+            .onSuccess { ratings = it; loading = false }
+            .onFailure { feedback = it.message ?: "Failed to load ratings"; loading = false }
+    }
+
+    val avgScore = if (ratings.isEmpty()) 0.0 else ratings.sumOf { it.score } / ratings.size.toDouble()
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+        Text("Ratings", style = FamilyTypography.TitleMedium)
+
+        Text(
+            text = "${ratings.size} ratings · avg ${"%.1f".format(avgScore)}",
+            style = FamilyTypography.Caption,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+        )
+
+        feedback?.let { msg ->
+            Text(msg, color = MaterialTheme.colorScheme.error, style = FamilyTypography.BodySmall)
+        }
+
+        when {
+            loading && ratings.isEmpty() -> LoadingState("Loading ratings")
+            !loading && ratings.isEmpty() -> EmptyState("No ratings yet.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                ratings.forEach { rating ->
+                    AdminRatingCard(
+                        rating = rating,
+                        onDelete = {
+                            scope.launch {
+                                runCatching { adminRepository.deleteRating(rating.id) }
+                                    .onFailure { feedback = it.message ?: "Failed to delete rating" }
+                                refreshKey++
+                            }
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AdminRatingCard(
+    rating: AdminRatingDto,
+    onDelete: () -> Unit,
+) {
+    val decodedName = decodeHtmlEntities(rating.authorDisplayName ?: "Anonymous")
+    val decodedEvent = decodeHtmlEntities(rating.eventTitle ?: "(unknown event)")
+    val initial = decodedName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "U"
+    val stars = "★".repeat(rating.score) + "☆".repeat((5 - rating.score).coerceAtLeast(0))
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(Tokens.Space.S4),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(32.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = initial,
+                            style = FamilyTypography.BodySmall,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(decodedName, style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+                    Text(
+                        decodedEvent,
+                        style = FamilyTypography.Caption,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                    Text(
+                        text = stars,
+                        style = FamilyTypography.BodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = formatInstant(rating.createdAt),
+                        style = FamilyTypography.Caption,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                    TextButton(
+                        onClick = { showDeleteDialog = true },
+                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
+                    ) {
+                        Text("Delete", softWrap = false, maxLines = 1)
+                    }
+                }
+            }
+        }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete rating?") },
+            text = { Text("This will permanently remove the rating. Continue?") },
+            confirmButton = {
+                Button(
+                    onClick = { showDeleteDialog = false; onDelete() },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            },
+        )
     }
 }
