@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -72,8 +73,11 @@ import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.LoadingState
 import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 private fun text(s: String?): String = decodeHtmlEntities(s ?: "")
 
@@ -103,15 +107,26 @@ fun AdminScreen(
     }
 }
 
+private data class WeekdayBar(
+    val label: String,
+    val dayOfWeek: DayOfWeek,
+    val imported: Int,
+    val skipped: Int,
+    val errors: Int,
+)
+
 @Composable
 private fun AdminDashboardSection(adminRepository: AdminRepository) {
     var stats by remember { mutableStateOf<AdminStatsDto?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
+    var recentRuns by remember { mutableStateOf<List<AdminSourceRunDto>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         runCatching { adminRepository.stats() }
             .onSuccess { stats = it }
             .onFailure { error = it.message ?: "Failed to load stats" }
+        runCatching { adminRepository.listSourceRuns(limit = 50) }
+            .onSuccess { recentRuns = it }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
@@ -121,16 +136,218 @@ private fun AdminDashboardSection(adminRepository: AdminRepository) {
             stats == null -> LoadingState("Loading stats")
             else -> {
                 val s = stats!!
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
-                    verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
-                    maxItemsInEachRow = 2,
+                Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4)) {
+                    // 4-tile stat grid
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+                        verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+                        maxItemsInEachRow = 2,
+                    ) {
+                        StatTile(label = "Total Events", value = s.totalEvents.toString(), modifier = Modifier.weight(1f))
+                        StatTile(label = "Pending", value = s.pendingReview.toString(), modifier = Modifier.weight(1f))
+                        StatTile(label = "Published", value = s.published.toString(), modifier = Modifier.weight(1f))
+                        StatTile(label = "Sources", value = s.activeSources.toString(), modifier = Modifier.weight(1f))
+                    }
+
+                    // AI confidence buckets
+                    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                        Text("AI confidence", style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Text(
+                                    "High ${s.aiHigh}",
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.padding(horizontal = Tokens.Space.S2, vertical = Tokens.Space.S1),
+                                )
+                            }
+                            Surface(
+                                color = MaterialTheme.colorScheme.tertiary,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Text(
+                                    "Medium ${s.aiMedium}",
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.onTertiary,
+                                    modifier = Modifier.padding(horizontal = Tokens.Space.S2, vertical = Tokens.Space.S1),
+                                )
+                            }
+                            Surface(
+                                color = MaterialTheme.colorScheme.secondary,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Text(
+                                    "Low ${s.aiLow}",
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    modifier = Modifier.padding(horizontal = Tokens.Space.S2, vertical = Tokens.Space.S1),
+                                )
+                            }
+                            Surface(
+                                color = MaterialTheme.colorScheme.error,
+                                shape = MaterialTheme.shapes.small,
+                            ) {
+                                Text(
+                                    "Untagged ${s.aiUntagged}",
+                                    style = FamilyTypography.Caption,
+                                    color = MaterialTheme.colorScheme.onError,
+                                    modifier = Modifier.padding(horizontal = Tokens.Space.S2, vertical = Tokens.Space.S1),
+                                )
+                            }
+                        }
+                    }
+
+                    // Ingestion chart (last 50 runs by weekday)
+                    if (recentRuns.isNotEmpty()) {
+                        IngestionChart(recentRuns)
+                    }
+
+                    // Recent runs panel
+                    RecentRunsPanel(recentRuns)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IngestionChart(runs: List<AdminSourceRunDto>) {
+    val zone = ZoneId.systemDefault()
+    val orderedDays = listOf(
+        DayOfWeek.MONDAY to "M",
+        DayOfWeek.TUESDAY to "T",
+        DayOfWeek.WEDNESDAY to "W",
+        DayOfWeek.THURSDAY to "T",
+        DayOfWeek.FRIDAY to "F",
+        DayOfWeek.SATURDAY to "S",
+        DayOfWeek.SUNDAY to "S",
+    )
+    val byDay: Map<DayOfWeek, List<AdminSourceRunDto>> = runs.groupBy { run ->
+        LocalDate.ofInstant(run.startedAt, zone).dayOfWeek
+    }
+    val days = orderedDays.map { (dow, label) ->
+        val dayRuns = byDay[dow] ?: emptyList()
+        WeekdayBar(
+            label = label,
+            dayOfWeek = dow,
+            imported = dayRuns.sumOf { it.eventsImported },
+            skipped = dayRuns.sumOf { it.eventsSkipped },
+            errors = dayRuns.count { it.status == "error" },
+        )
+    }
+    val maxValue = days.maxOfOrNull { it.imported + it.skipped + it.errors }?.coerceAtLeast(1) ?: 1
+    val chartHeight = 100.dp
+
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        Text("Ingestion (last 50 runs)", style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+        Row(
+            modifier = Modifier
+                .height(chartHeight + 20.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            days.forEach { day ->
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    StatTile(label = "Total Events", value = s.totalEvents.toString(), modifier = Modifier.weight(1f))
-                    StatTile(label = "Pending", value = s.pendingReview.toString(), modifier = Modifier.weight(1f))
-                    StatTile(label = "Published", value = s.published.toString(), modifier = Modifier.weight(1f))
-                    StatTile(label = "Sources", value = s.activeSources.toString(), modifier = Modifier.weight(1f))
+                    val errH = (100f * day.errors / maxValue).dp
+                    val skipH = (100f * day.skipped / maxValue).dp
+                    val impH = (100f * day.imported / maxValue).dp
+                    if (day.errors > 0) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(errH)
+                                .background(MaterialTheme.colorScheme.error),
+                        )
+                    }
+                    if (day.skipped > 0) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(skipH)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                        )
+                    }
+                    if (day.imported > 0) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(impH)
+                                .background(MaterialTheme.colorScheme.primary),
+                        )
+                    }
+                    Text(
+                        day.label,
+                        style = FamilyTypography.Caption,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
+        // Legend
+        Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+            listOf(
+                MaterialTheme.colorScheme.primary to "Imported",
+                MaterialTheme.colorScheme.surfaceVariant to "Skipped",
+                MaterialTheme.colorScheme.error to "Errors",
+            ).forEach { (color, label) ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S1),
+                ) {
+                    Box(
+                        Modifier
+                            .size(8.dp)
+                            .background(color, CircleShape),
+                    )
+                    Text(label, style = FamilyTypography.Caption)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentRunsPanel(runs: List<AdminSourceRunDto>) {
+    val latest = runs.take(4)
+    Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        Text("Recent runs", style = FamilyTypography.BodySmall, fontWeight = FontWeight.Bold)
+        if (latest.isEmpty()) {
+            Text(
+                "No recent runs.",
+                style = FamilyTypography.Caption,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+        } else {
+            latest.forEach { run ->
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.padding(Tokens.Space.S3),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TagPill(label = run.status)
+                        Spacer(Modifier.width(Tokens.Space.S2))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = decodeHtmlEntities(run.sourceName ?: "(unknown)"),
+                                style = FamilyTypography.BodySmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = "${run.eventsImported} imported · ${run.eventsSkipped} skipped · ${formatInstant(run.startedAt)}",
+                                style = FamilyTypography.Caption,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            )
+                        }
+                    }
                 }
             }
         }

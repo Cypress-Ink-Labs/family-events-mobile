@@ -367,12 +367,20 @@ class KtorSupabaseConsumerApi(
         }.requireOk()
         val events = eventsResponse.decodeList<AdminEventStatsRow>()
         val sources = sourcesResponse.decodeList<AdminSourceStatsRow>()
+        val aiHigh = events.count { (it.aiConfidence ?: -1.0) >= 0.8 }
+        val aiMedium = events.count { val c = it.aiConfidence ?: -1.0; c >= 0.5 && c < 0.8 }
+        val aiLow = events.count { val c = it.aiConfidence ?: -1.0; c >= 0.0 && c < 0.5 }
+        val aiUntagged = events.count { it.aiConfidence == null }
         return AdminStatsDto(
             totalEvents = events.size,
             pendingReview = events.count { it.status == "draft" },
             published = events.count { it.status == "published" },
             activeSources = sources.count { it.isActive },
             sourceErrors = sources.count { it.isActive && it.lastStatus == "error" },
+            aiHigh = aiHigh,
+            aiMedium = aiMedium,
+            aiLow = aiLow,
+            aiUntagged = aiUntagged,
         )
     }
 

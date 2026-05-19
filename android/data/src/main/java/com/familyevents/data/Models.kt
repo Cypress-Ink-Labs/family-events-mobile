@@ -115,6 +115,10 @@ data class AdminStatsDto(
     val published: Int,
     val activeSources: Int,
     val sourceErrors: Int,
+    val aiHigh: Int = 0,
+    val aiMedium: Int = 0,
+    val aiLow: Int = 0,
+    val aiUntagged: Int = 0,
 )
 
 data class AdminSectionDto(
