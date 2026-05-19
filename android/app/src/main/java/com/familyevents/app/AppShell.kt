@@ -50,6 +50,7 @@ import com.familyevents.eventdetail.EventDetailScreen
 import com.familyevents.eventdetail.PublicSharePreviewScreen
 import com.familyevents.explore.ExploreScreen
 import com.familyevents.plan.PlanScreen
+import com.familyevents.platform.LocationProvider
 import com.familyevents.platform.PlatformActions
 import com.familyevents.saved.SavedScreen
 
@@ -77,6 +78,7 @@ fun FamilyEventsApp(
     repositories: RepositoryGraph,
     adminRepository: AdminRepository,
     platformActions: PlatformActions,
+    locationProvider: LocationProvider,
     initialUrl: String?,
     themePreference: AppThemePreference,
     onThemePreferenceChange: (AppThemePreference) -> Unit,
@@ -143,6 +145,7 @@ fun FamilyEventsApp(
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
                         weatherRepository = repositories.weatherRepository,
+                        locationProvider = locationProvider,
                         onOpenEvent = { detailEventId = it },
                         onSetCity = { showProfile = true },
                     )

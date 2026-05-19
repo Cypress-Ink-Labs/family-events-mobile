@@ -105,7 +105,7 @@ class InMemoryEventRepository : EventRepository {
 
     override fun observeEventDetail(id: EventId): Flow<EventDto?> = events.map { rows -> rows.firstOrNull { it.id == id } }
 
-    override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?) = Unit
+    override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?, lat: Double?, lng: Double?) = Unit
     override suspend fun refreshEventList(query: EventQuery) = Unit
     override suspend fun refreshEventDetail(id: EventId) = Unit
     override suspend fun publicEvent(id: EventId): EventDto? = events.value.firstOrNull { it.id == id }

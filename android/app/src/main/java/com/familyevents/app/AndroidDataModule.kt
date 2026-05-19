@@ -12,6 +12,8 @@ import com.familyevents.core.EnvConfig
 import com.familyevents.data.FamilyEventsDatabase
 import com.familyevents.data.RepositoryGraph
 import com.familyevents.data.SessionStore
+import com.familyevents.platform.FusedLocationProvider
+import com.familyevents.platform.LocationProvider
 import com.familyevents.platform.PlatformActions
 import dagger.Module
 import dagger.Provides
@@ -62,6 +64,11 @@ object AndroidDataModule {
     @Provides
     @Singleton
     fun providePlatformActions(@ApplicationContext context: Context): PlatformActions = PlatformActions(context)
+
+    @Provides
+    @Singleton
+    fun provideLocationProvider(@ApplicationContext context: Context): LocationProvider =
+        FusedLocationProvider(context.applicationContext as android.app.Application)
 }
 
 private object ProfileV2Migration : Migration(1, 2) {

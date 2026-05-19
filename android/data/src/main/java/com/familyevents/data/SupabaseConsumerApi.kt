@@ -50,7 +50,13 @@ interface SupabaseConsumerApi {
     suspend fun cities(): List<CityDto>
     suspend fun events(query: EventQuery): List<EventDto>
     suspend fun event(id: EventId): EventDto?
-    suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int? = null): List<PlanEventRowDto>
+    suspend fun planEvents(
+        userId: UserId,
+        cityId: CityId?,
+        kidAge: Int? = null,
+        lat: Double? = null,
+        lng: Double? = null,
+    ): List<PlanEventRowDto>
     suspend fun profile(userId: UserId): UserProfile?
     suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun favorite(userId: UserId, eventId: EventId)
@@ -174,7 +180,7 @@ class KtorSupabaseConsumerApi(
 
     override suspend fun event(id: EventId): EventDto? = eventsByIds(listOf(id)).firstOrNull()
 
-    override suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int?): List<PlanEventRowDto> {
+    override suspend fun planEvents(userId: UserId, cityId: CityId?, kidAge: Int?, lat: Double?, lng: Double?): List<PlanEventRowDto> {
         val response = client.post("$baseUrl/rest/v1/rpc/plan_events_first_nonempty_window") {
             baseHeaders()
             bearer(optional = true)
@@ -185,6 +191,8 @@ class KtorSupabaseConsumerApi(
                     cityId?.let { put("p_city_id", it.rawValue) }
                     put("p_limit", 6)
                     kidAge?.let { put("p_kid_age", it) }
+                    lat?.let { put("p_lat", it) }
+                    lng?.let { put("p_lng", it) }
                 }.toString(),
             )
         }
