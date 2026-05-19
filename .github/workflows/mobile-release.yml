@@ -149,23 +149,21 @@ jobs:
             SUPABASE_URL="${PROD_SUPABASE_URL}" \
             SUPABASE_ANON_KEY="${PROD_SUPABASE_ANON_KEY}"
 
-      - name: Upload to TestFlight
+      - name: Export IPA
         shell: bash
         env:
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
           IOS_PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.IOS_PROVISIONING_PROFILE_SPECIFIER }}
-          IOS_INTERNAL_ONLY_INPUT: ${{ inputs.ios_internal_only }}
         run: |
           set -euo pipefail
-          internal_only="${IOS_INTERNAL_ONLY_INPUT:-true}"
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>destination</key>
-            <string>upload</string>
+            <string>export</string>
             <key>method</key>
             <string>app-store-connect</string>
             <key>signingStyle</key>
@@ -181,8 +179,6 @@ jobs:
             </dict>
             <key>manageAppVersionAndBuildNumber</key>
             <false/>
-            <key>testFlightInternalTestingOnly</key>
-            <${internal_only}/>
             <key>uploadSymbols</key>
             <true/>
           </dict>
@@ -197,6 +193,30 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_API_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_API_ISSUER_ID"
+
+      - name: Install asc CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install asc
+          asc --version
+
+      - name: Upload to TestFlight via asc
+        shell: bash
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          asc auth login \
+            --name "ci" \
+            --key-id "$ASC_API_KEY_ID" \
+            --issuer-id "$ASC_API_ISSUER_ID" \
+            --private-key "$RUNNER_TEMP/app-store-connect/AuthKey_${ASC_API_KEY_ID}.p8"
+
+          ipa_path=$(find "$RUNNER_TEMP/ios-export" -maxdepth 2 -name '*.ipa' -print -quit)
+          : "${ipa_path:?expected exported IPA under $RUNNER_TEMP/ios-export}"
+          asc beta build upload --file "$ipa_path"
 
       - name: Upload archive artifact
         if: always()
