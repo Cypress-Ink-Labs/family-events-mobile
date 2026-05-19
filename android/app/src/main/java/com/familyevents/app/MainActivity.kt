@@ -20,6 +20,7 @@ import com.familyevents.core.EnvConfig
 import com.familyevents.data.RepositoryGraph
 import com.familyevents.designsystem.AppThemePreference
 import com.familyevents.designsystem.FamilyEventsTheme
+import com.familyevents.platform.LocationProvider
 import com.familyevents.platform.PlatformActions
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var repositories: RepositoryGraph
     @Inject lateinit var adminRepository: AdminRepository
     @Inject lateinit var platformActions: PlatformActions
+    @Inject lateinit var locationProvider: LocationProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     repositories = repositories,
                     adminRepository = adminRepository,
                     platformActions = platformActions,
+                    locationProvider = locationProvider,
                     initialUrl = intent?.data?.toString(),
                     themePreference = themePreference,
                     onThemePreferenceChange = { preference ->

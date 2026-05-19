@@ -121,8 +121,8 @@ class RoomBackedEventRepository(
     override fun observeEventDetail(id: EventId): Flow<EventDto?> =
         eventDao.observeEvent(id.rawValue).map { row -> row?.toDto() ?: seedEvents().firstOrNull { it.id == id } }
 
-    override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?) {
-        val remotePlan = api?.planEvents(userId, cityId, kidAge)
+    override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?, lat: Double?, lng: Double?) {
+        val remotePlan = api?.planEvents(userId, cityId, kidAge, lat, lng)
         val events = remotePlan?.map { it.event }.takeUnless { it.isNullOrEmpty() }
             ?: api?.events(EventQuery(cityId = cityId, limit = 50)).takeUnless { it.isNullOrEmpty() }
             ?: seedEvents().filterByCity(cityId)
