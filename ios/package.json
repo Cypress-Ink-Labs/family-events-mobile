@@ -6,6 +6,7 @@
     "generate": "xcodegen generate",
     "test:packages": "for pkg in FECore FEData FEDesignSystem FEAuth FEPlan FEExplore FESaved FEEventDetail FEAppIntents; do echo \"--- $pkg ---\" && (cd Packages/$pkg && swift test) || exit 1; done",
     "test:app": "xcodegen generate && if xcode-select -p | grep -q '/Applications/Xcode'; then xcodebuild -project FamilyEvents.xcodeproj -scheme FamilyEvents -destination 'platform=iOS Simulator,name=iPhone 17' test; else echo 'xcodebuild skipped: full Xcode not selected'; fi",
-    "test": "pnpm run test:packages && pnpm run test:app"
+    "test": "pnpm run test:packages && pnpm run test:app",
+    "clean": "find Packages -name '.build' -exec rm -rf {} + 2>/dev/null; rm -rf FamilyEvents.xcodeproj/xcuserdata FamilyEvents.xcodeproj/project.xcworkspace/xcuserdata || true"
   }
 }

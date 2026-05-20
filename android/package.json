@@ -6,6 +6,7 @@
     "check": "scripts/with-android-env.sh ./gradlew check",
     "test": "scripts/with-android-env.sh ./gradlew test",
     "build": "scripts/with-android-env.sh ./gradlew assembleDebug",
-    "lint": "scripts/with-android-env.sh ./gradlew lint"
+    "lint": "scripts/with-android-env.sh ./gradlew lint",
+    "clean": "scripts/with-android-env.sh ./gradlew clean"
   }
 }
