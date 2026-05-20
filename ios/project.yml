@@ -76,6 +76,11 @@ targets:
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
         AppWebURL: $(APP_WEB_URL)
         IOSGoogleClientID: $(IOS_GOOGLE_CLIENT_ID)
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         NSLocationWhenInUseUsageDescription: "We use your location to surface family events near you."
         NSCalendarsWriteOnlyAccessUsageDescription: "We add events you save to your calendar so you don't miss them."
         CFBundleURLTypes:
