@@ -35,6 +35,8 @@
 	<string>1</string>
 	<key>IOSGoogleClientID</key>
 	<string>$(IOS_GOOGLE_CLIENT_ID)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>We add events you save to your calendar so you don't miss them.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

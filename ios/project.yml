@@ -79,6 +79,11 @@ targets:
       path: FamilyEvents/Info.plist
       properties:
         UILaunchScreen: {}
+        # TestFlight post-action expects either an explicit ASC encryption
+        # declaration or this Info.plist flag. We use only Apple-provided crypto
+        # via CommonCrypto + Network.framework, so the app qualifies as exempt
+        # under the standard exemption.
+        ITSAppUsesNonExemptEncryption: false
         SupabaseURL: $(SUPABASE_URL)
         SupabaseAnonKey: $(SUPABASE_ANON_KEY)
         AppWebURL: $(APP_WEB_URL)
