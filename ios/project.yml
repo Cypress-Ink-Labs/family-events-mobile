@@ -49,6 +49,13 @@ packages:
   swift-snapshot-testing:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.19.2
+  # supabase-swift's Helpers/Auth modules reference IssueReporting.isTesting,
+  # which is provided by IssueReportingTestSupport. SPM resolves the package
+  # transitively, but Xcode won't link the dynamic test-support library into
+  # FamilyEventsTests unless we depend on the product explicitly here.
+  xctest-dynamic-overlay:
+    url: https://github.com/pointfreeco/xctest-dynamic-overlay
+    from: 1.9.0
   FEAuth:
     path: Packages/FEAuth
   FEPlan:
@@ -125,6 +132,8 @@ targets:
       - package: FEAuth
         product: FEAuthTesting
       - package: FEPlan
+      - package: xctest-dynamic-overlay
+        product: IssueReportingTestSupport
   FEDesignSystemTests:
     type: bundle.unit-test
     platform: iOS

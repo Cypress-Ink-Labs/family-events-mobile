@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		092D3BF0390EF7E68D1E6600 /* IssueReportingTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 70260AE57519331861D4489C /* IssueReportingTestSupport */; };
 		112083AC13F0C1F856EDCAC8 /* PlaceholderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */; };
 		1989763382F59581D1E20C8C /* testEventCardWithImageAndBadge.dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E25E003D87FAA2DF4668D2D /* testEventCardWithImageAndBadge.dark.png */; };
 		19BCE47C6893926E53962577 /* FEAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F71FCF3E0F318AFA91B50660 /* FEAuth */; };
@@ -148,6 +149,7 @@
 				B0C3E3403DA9C2E4552F4F8C /* FEAuth in Frameworks */,
 				21B9B24A491F16DAAC02486A /* FEAuthTesting in Frameworks */,
 				36F545100AE2F8B43C5FD77B /* FEPlan in Frameworks */,
+				092D3BF0390EF7E68D1E6600 /* IssueReportingTestSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -341,6 +343,7 @@
 				140C842699DB3E60E17FD74C /* FEAuth */,
 				65E2409342315B807311D9F6 /* FEAuthTesting */,
 				2BF22334E21591ABBE4D10FA /* FEPlan */,
+				70260AE57519331861D4489C /* IssueReportingTestSupport */,
 			);
 			productName = FamilyEventsTests;
 			productReference = 2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */;
@@ -390,6 +393,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2ECC8A66B244B047363B47BE /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				19C2E4D0F90326D5FBF15F03 /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */,
 				6C67EDF93C267962D9BF2BFE /* XCLocalSwiftPackageReference "Packages/FEAppIntents" */,
 				5B4603095B987C37D8E3A051 /* XCLocalSwiftPackageReference "Packages/FEAuth" */,
 				3F9231D0C366C3F4FF7FF08C /* XCLocalSwiftPackageReference "Packages/FECore" */,
@@ -936,6 +940,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		19C2E4D0F90326D5FBF15F03 /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/xctest-dynamic-overlay";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.9.0;
+			};
+		};
 		2ECC8A66B244B047363B47BE /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
@@ -991,6 +1003,11 @@
 		65E2409342315B807311D9F6 /* FEAuthTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FEAuthTesting;
+		};
+		70260AE57519331861D4489C /* IssueReportingTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 19C2E4D0F90326D5FBF15F03 /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */;
+			productName = IssueReportingTestSupport;
 		};
 		7D78F3FF96508BBA65DF1EDE /* FEDataTesting */ = {
 			isa = XCSwiftPackageProductDependency;
