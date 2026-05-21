@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="familyevents.app"
+                    android:host="family-events.org"
                     android:pathPrefix="/share" />
             </intent-filter>
         </activity>

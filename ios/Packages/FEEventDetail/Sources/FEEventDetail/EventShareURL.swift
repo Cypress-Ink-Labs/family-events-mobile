@@ -7,7 +7,7 @@ import FECore
 /// Info.plist key, falling back to a known production host so dev
 /// builds without the key still emit a sensible URL.
 public enum EventShareURL {
-    public static let fallbackOrigin = "https://family-events.app"
+    public static let fallbackOrigin = "https://family-events.org"
 
     public static func build(eventID: EventID, origin: String? = nil) -> URL? {
         let base = (origin?.trimmedNonEmpty ?? readInfoPlist() ?? fallbackOrigin)

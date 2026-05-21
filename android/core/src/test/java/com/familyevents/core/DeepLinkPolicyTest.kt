@@ -9,11 +9,11 @@ class DeepLinkPolicyTest {
     fun routesConsumerLinks() {
         assertEquals(DeepLinkTarget.Event(EventId("evt_1")), DeepLinkPolicy.parse("familyevents://event/evt_1"))
         assertEquals(DeepLinkTarget.City(CityId("chi")), DeepLinkPolicy.parse("familyevents://city/chi"))
-        assertEquals(DeepLinkTarget.Share(EventId("evt_2")), DeepLinkPolicy.parse("https://familyevents.app/share/evt_2"))
+        assertEquals(DeepLinkTarget.Share(EventId("evt_2")), DeepLinkPolicy.parse("https://family-events.org/share/evt_2"))
         assertEquals(DeepLinkTarget.ResetPassword("tok_123"), DeepLinkPolicy.parse("familyevents://reset-password?token=tok_123"))
         assertEquals(DeepLinkTarget.Tab("saved"), DeepLinkPolicy.parse("familyevents://tab/saved"))
         assertNull(DeepLinkPolicy.parse("familyevents://event"))
-        assertNull(DeepLinkPolicy.parse("https://familyevents.app/settings/profile"))
+        assertNull(DeepLinkPolicy.parse("https://family-events.org/settings/profile"))
         assertNull(DeepLinkPolicy.parse("invalid-url"))
     }
 
@@ -29,9 +29,9 @@ class DeepLinkPolicyTest {
     @Test
     fun httpsAdminPathReturnsNull() {
         // HTTPS admin paths were removed from the manifest and policy in this PR
-        assertNull(DeepLinkPolicy.parse("https://familyevents.app/admin/sources"))
-        assertNull(DeepLinkPolicy.parse("https://familyevents.app/admin"))
-        assertNull(DeepLinkPolicy.parse("https://familyevents.app/admin/events"))
+        assertNull(DeepLinkPolicy.parse("https://family-events.org/admin/sources"))
+        assertNull(DeepLinkPolicy.parse("https://family-events.org/admin"))
+        assertNull(DeepLinkPolicy.parse("https://family-events.org/admin/events"))
     }
 
     @Test

@@ -25,7 +25,7 @@ object DeepLinkPolicy {
             }
             uri.scheme == "familyevents" && host == "tab" && segments.size == 1 ->
                 DeepLinkTarget.Tab(segments[0])
-            uri.scheme == "https" && host == "familyevents.app" && segments.size == 2 && segments[0] == "share" ->
+            uri.scheme == "https" && host == "family-events.org" && segments.size == 2 && segments[0] == "share" ->
                 DeepLinkTarget.Share(EventId(segments[1]))
             else -> null
         }

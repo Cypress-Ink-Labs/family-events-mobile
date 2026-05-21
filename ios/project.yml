@@ -36,7 +36,7 @@ settings:
     Release:
       SUPABASE_URL: https://ufrjcnozcapskjtoakvf.supabase.co
       SUPABASE_ANON_KEY: sb_publishable_5SvbRT9MxYeLxn9lBAkSdA_xGVy430_
-      APP_WEB_URL: https://family-events.app
+      APP_WEB_URL: https://family-events.org
       IOS_GOOGLE_CLIENT_ID: 545014101545-in1qudtusha5kqlf5cben5oljjhmha6o.apps.googleusercontent.com
       IOS_GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.545014101545-in1qudtusha5kqlf5cben5oljjhmha6o
 packages:

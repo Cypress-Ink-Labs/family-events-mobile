@@ -10,7 +10,7 @@ class PlatformActions(private val context: Context) {
     fun share(eventId: EventId) {
         val intent = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, "https://familyevents.app/share/${eventId.rawValue}")
+            .putExtra(Intent.EXTRA_TEXT, "https://family-events.org/share/${eventId.rawValue}")
         context.startActivity(Intent.createChooser(intent, "Share event").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
