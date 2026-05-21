@@ -8,5 +8,10 @@
     <array>
         <string>Default</string>
     </array>
+    <key>com.apple.developer.associated-domains</key>
+    <array>
+        <string>applinks:family-events.org</string>
+        <string>webcredentials:family-events.org</string>
+    </array>
 </dict>
 </plist>
