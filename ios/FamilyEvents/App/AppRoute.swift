@@ -6,6 +6,5 @@ enum AppRoute: Hashable, Sendable {
     case city(CityID)
     case profile
     case settings
-    case admin(section: String?)
     case resetPassword(token: String)
 }

@@ -12,11 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,8 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.familyevents.admin.AdminRepository
-import com.familyevents.admin.AdminScreen
 import com.familyevents.core.CityId
 import com.familyevents.auth.AuthScreen
 import com.familyevents.core.DeepLinkPolicy
@@ -57,8 +53,7 @@ import com.familyevents.saved.SavedScreen
 private enum class AppTab(val title: String) {
     Plan("Plan"),
     Explore("Explore"),
-    Saved("Saved"),
-    Admin("Admin");
+    Saved("Saved");
 
     @Composable
     fun Icon(selected: Boolean) {
@@ -66,7 +61,6 @@ private enum class AppTab(val title: String) {
             Plan -> if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
             Explore -> if (selected) Icons.Filled.Explore else Icons.Outlined.Explore
             Saved -> if (selected) Icons.Filled.Favorite else Icons.Outlined.Favorite
-            Admin -> if (selected) Icons.Filled.Settings else Icons.Outlined.Settings
         }
         Icon(imageVector, contentDescription = null)
     }
@@ -76,7 +70,6 @@ private enum class AppTab(val title: String) {
 fun FamilyEventsApp(
     config: EnvConfig,
     repositories: RepositoryGraph,
-    adminRepository: AdminRepository,
     platformActions: PlatformActions,
     locationProvider: LocationProvider,
     initialUrl: String?,
@@ -124,14 +117,12 @@ fun FamilyEventsApp(
             val userId = state.userId
             val profile by repositories.profileRepository.observeProfile(userId).collectAsStateWithLifecycle(initialValue = null)
             val activeCityId = profile?.currentCityId ?: CityId("chicago")
-            val showAdminTab = profile?.role == "admin"
             LaunchedEffect(userId) {
                 runCatching { repositories.cityRepository.refreshCities() }
                 runCatching { repositories.profileRepository.currentContext(userId) }
             }
-            val visibleTabs = if (showAdminTab) AppTab.entries else AppTab.entries.filter { it != AppTab.Admin }
             AppScaffold(
-                tabs = visibleTabs,
+                tabs = AppTab.entries,
                 selectedTab = selectedTab,
                 onSelectTab = {
                     selectedTab = it
@@ -162,11 +153,6 @@ fun FamilyEventsApp(
                         favoriteRepository = repositories.favoriteRepository,
                         onOpenEvent = { detailEventId = it },
                         onOpenProfile = { showProfile = true },
-                    )
-                    AppTab.Admin -> AdminScreen(
-                        adminRepository = adminRepository,
-                        currentUserId = userId,
-                        modifier = contentModifier,
                     )
                 }
                 detailEventId?.let { eventId ->

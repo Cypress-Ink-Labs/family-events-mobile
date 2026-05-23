@@ -24,11 +24,9 @@ final class DeepLinkRouterTests: XCTestCase {
         XCTAssertEqual(result?.routes, [])
     }
 
-    func testParsesAdminURL() throws {
+    func testReturnsNilForAdminURL() {
         let url = URL(string: "familyevents://admin/events")!
-        let result = DeepLinkRouter.route(from: url)
-        XCTAssertEqual(result?.tab, .admin)
-        XCTAssertEqual(result?.routes, [.admin(section: "events")])
+        XCTAssertNil(DeepLinkRouter.route(from: url))
     }
 
     func testReturnsNilForUnknownScheme() {

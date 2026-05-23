@@ -55,7 +55,6 @@ struct RootView: View {
     @State private var showProfile = false
     @State private var planContext: PlanContext?
     @State private var cityName: String?
-    @State private var isAdmin = false
 
     init(
         authService: any AuthService,
@@ -167,11 +166,6 @@ struct RootView: View {
                         .tabItem { Label(AppTab.saved.title, systemImage: AppTab.saved.systemImage) }
                         .tag(AppTab.saved)
                 }
-                if isAdmin {
-                    AdminTab()
-                        .tabItem { Label(AppTab.admin.title, systemImage: AppTab.admin.systemImage) }
-                        .tag(AppTab.admin)
-                }
             }
         } else {
             ProgressView()
@@ -185,7 +179,6 @@ struct RootView: View {
     private func resolveContext(userID: UserID) async -> PlanContext {
         do {
             let profile = try await profileRepo.profile(userID: userID)
-            isAdmin = profile?.isAdmin == true
             let cityID = profile?.cityPreferenceID
             let kidAge = profile?.childAge
             if let cityID {
@@ -212,75 +205,3 @@ struct RootView: View {
     }
 }
 
-private struct AdminTab: View {
-    private let sections: [(String, String)] = [
-        ("Dashboard", "Events, sources, review load, and AI confidence."),
-        ("Sources", "Scrape sources, runs, errors, and refresh actions."),
-        ("Events", "Search, edit, publish, lock, and delete events."),
-        ("Cities", "Markets, active status, timezone, and source coverage."),
-        ("Comments", "Approve, flag, and moderate event comments."),
-        ("Ratings", "Review and remove event ratings."),
-        ("Access", "User access, role, and account enablement."),
-        ("Invites", "Invite requests, codes, approval, and revocation."),
-        ("Logs", "Source run logs, tag queue, and audit history."),
-        ("Crons", "Scheduled jobs, run history, and manual triggers."),
-    ]
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: DesignTokens.Space.s4) {
-                    VStack(alignment: .leading, spacing: DesignTokens.Space.s1) {
-                        Text("Admin")
-                            .font(.dsTitleLg)
-                            .foregroundStyle(Color.dsTextPrimary)
-                        Text("Native parity shell for the web back office.")
-                            .font(.dsBodySm)
-                            .foregroundStyle(Color.dsTextMuted)
-                    }
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignTokens.Space.s3) {
-                        metric("Events", "—")
-                        metric("Drafts", "—")
-                        metric("Sources", "—")
-                        metric("Errors", "—")
-                    }
-                    ForEach(sections, id: \.0) { title, body in
-                        VStack(alignment: .leading, spacing: DesignTokens.Space.s1) {
-                            Text(title)
-                                .font(.dsTitleLg)
-                                .foregroundStyle(Color.dsTextPrimary)
-                            Text(body)
-                                .font(.dsBodySm)
-                                .foregroundStyle(Color.dsTextMuted)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(DesignTokens.Space.s4)
-                        .background(Color.dsSurface)
-                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.md))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: DesignTokens.Radius.md)
-                                .stroke(Color.dsBorder, lineWidth: 1)
-                        )
-                    }
-                }
-                .padding(DesignTokens.Space.s4)
-            }
-            .background(Color.dsBackground)
-            .navigationTitle("Admin")
-        }
-    }
-
-    private func metric(_ label: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Space.s1) {
-            Text(value)
-                .font(.dsTitleLg)
-            Text(label)
-                .font(.dsCaptionXs)
-                .foregroundStyle(Color.dsTextMuted)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(DesignTokens.Space.s3)
-        .background(Color.dsSurfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.sm))
-    }
-}
