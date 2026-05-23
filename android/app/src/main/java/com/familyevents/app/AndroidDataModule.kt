@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.familyevents.BuildConfig
 import com.familyevents.admin.AdminRepository
 import com.familyevents.admin.SupabaseAdminRepository
 import com.familyevents.admin.createSupabaseAdminApi

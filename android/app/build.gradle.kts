@@ -42,7 +42,7 @@ fun getSigningEnvValue(key: String): String? = getEnvValue(key, allowViteFallbac
 fun missingSigningEnvKeys(): List<String> = signingEnvKeys.filter { getSigningEnvValue(it).isNullOrBlank() }
 
 android {
-    namespace = "com.familyevents"
+    namespace = "com.familyevents.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
