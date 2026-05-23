@@ -13,9 +13,9 @@ public struct ForgotPasswordScreen: View {
 
     public var body: some View {
         VStack(spacing: 24) {
-            Text("Reset your password").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
+            Text("Reset your password").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
             Text("Enter your email and we'll send a reset link.")
-                .appTypography(.body)
+                .font(.dsBody)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -26,14 +26,14 @@ public struct ForgotPasswordScreen: View {
                 #endif
                 .autocorrectionDisabled()
                 .textContentType(.emailAddress)
-                .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
             if viewModel.emailSent {
-                Text("Check your email for a reset link.").appTypography(.body)
+                Text("Check your email for a reset link.").font(.dsBody)
                 Button("Back to sign in", action: onBack).buttonStyle(.borderedProminent)
             } else {
                 if let err = viewModel.errorMessage {
-                    Text(err).foregroundStyle(.red).appTypography(.caption)
+                    Text(err).foregroundStyle(.red).font(.dsCaptionXs)
                 }
                 Button {
                     Task { await viewModel.submit() }

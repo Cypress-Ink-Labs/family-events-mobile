@@ -182,7 +182,7 @@ public struct EventDetailScreen: View {
         // clipped by the Rectangle's frame, so post-load layout cannot resize
         // the container — fixes the iOS 26 "snap to broken layout" symptom.
         Rectangle()
-            .fill(Color.appSecondaryBackground)
+            .fill(Color.dsSurfaceRaised)
             .frame(maxWidth: .infinity)
             .frame(height: 260)
             .overlay {
@@ -242,7 +242,7 @@ public struct EventDetailScreen: View {
                         .font(.footnote)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(Color.appSecondaryBackground)
+                        .background(Color.dsSurfaceRaised)
                         .clipShape(Capsule())
                 }
             }
@@ -286,7 +286,7 @@ public struct EventDetailScreen: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -349,7 +349,7 @@ public struct EventDetailScreen: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
-            .background(Color.appSecondaryBackground)
+            .background(Color.dsSurfaceRaised)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
@@ -392,7 +392,7 @@ public struct EventDetailScreen: View {
                     .lineLimit(1...4)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(Color.appSecondaryBackground)
+                    .background(Color.dsSurfaceRaised)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 Button {
                     Task {
@@ -450,7 +450,7 @@ public struct EventDetailScreen: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 

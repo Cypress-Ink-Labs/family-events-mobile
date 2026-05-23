@@ -118,7 +118,7 @@ struct ExploreMapEventCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .background(Color.appSecondaryBackground)
+            .background(Color.dsSurfaceRaised)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)

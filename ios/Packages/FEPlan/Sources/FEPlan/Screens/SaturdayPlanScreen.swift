@@ -105,12 +105,12 @@ public struct SaturdayPlanScreen: View {
         HStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
             Text("No new plan today — showing yesterday's events.")
-                .appTypography(.caption)
+                .font(.dsCaptionXs)
             Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -153,7 +153,7 @@ public struct SaturdayPlanScreen: View {
     @ViewBuilder
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 12) {
-            Text(message).foregroundStyle(.red).appTypography(.body)
+            Text(message).foregroundStyle(.red).font(.dsBody)
             Button("Retry") { Task { await viewModel.refresh(context: context) } }
                 .buttonStyle(.borderedProminent)
         }
@@ -169,11 +169,11 @@ public struct SaturdayPlanScreen: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.secondary)
                 Text("No location set")
-                    .appTypography(.titleMedium)
+                    .font(.dsTitleLg)
                 Text("Pick a city to see family events nearby.")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                    .appTypography(.body)
+                    .font(.dsBody)
                 Button("Set your city") { onSetCity() }
                     .buttonStyle(.borderedProminent)
             }
@@ -187,7 +187,7 @@ public struct SaturdayPlanScreen: View {
                 Text("No family plans found nearby in the next 7 days.")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                    .appTypography(.body)
+                    .font(.dsBody)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 48)

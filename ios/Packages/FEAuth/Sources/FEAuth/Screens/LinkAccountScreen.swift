@@ -13,18 +13,18 @@ public struct LinkAccountScreen: View {
 
     public var body: some View {
         VStack(spacing: 24) {
-            Text("Sign in to your account").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
+            Text("Sign in to your account").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
             Text("An account already exists for **\(viewModel.email)**. Sign in with your password to continue. You can connect Apple sign-in later in Profile settings.")
-                .appTypography(.body)
+                .font(.dsBody)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             SecureField("Password", text: $viewModel.password)
                 .textContentType(.password)
-                .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
             if let err = viewModel.errorMessage {
-                Text(err).foregroundStyle(.red).appTypography(.caption)
+                Text(err).foregroundStyle(.red).font(.dsCaptionXs)
             }
 
             Button {

@@ -14,7 +14,7 @@ public struct GoogleSignInButton: View {
                 Image(systemName: "g.circle.fill")
                     .foregroundStyle(.white)
                 Text("Sign in with Google")
-                    .appTypography(.body)
+                    .font(.dsBody)
                     .foregroundStyle(.white)
             }
             .frame(maxWidth: .infinity)

@@ -30,7 +30,7 @@ public struct SignInScreen: View {
         ScrollView {
             VStack(spacing: 24) {
                 Text("Welcome back")
-                    .appTypography(.titleLarge)
+                    .font(.dsTitle2xl)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 AppleSignInButton(action: onAppleSignIn)
@@ -49,14 +49,14 @@ public struct SignInScreen: View {
                     #endif
                     .autocorrectionDisabled()
                     .textContentType(.emailAddress)
-                    .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
                 SecureField("Password", text: $viewModel.password)
                     .textContentType(.password)
-                    .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
                 if let err = viewModel.errorMessage {
-                    Text(err).foregroundStyle(.red).appTypography(.caption)
+                    Text(err).foregroundStyle(.red).font(.dsCaptionXs)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
@@ -78,7 +78,7 @@ public struct SignInScreen: View {
                     Spacer()
                     Button("Create account", action: onSignUp).buttonStyle(.plain)
                 }
-                .appTypography(.caption)
+                .font(.dsCaptionXs)
             }
             .padding()
         }

@@ -14,7 +14,7 @@ public struct SignUpScreen: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Text("Create your account").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
+                Text("Create your account").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
 
                 TextField("Email", text: $viewModel.email)
                     #if os(iOS)
@@ -23,20 +23,20 @@ public struct SignUpScreen: View {
                     #endif
                     .autocorrectionDisabled()
                     .textContentType(.emailAddress)
-                    .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
                 SecureField("Password (at least 8 characters)", text: $viewModel.password)
                     .textContentType(.newPassword)
-                    .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
                 if viewModel.pendingConfirmation {
                     Text("Check your email for a confirmation link. Once confirmed, sign in.")
-                        .appTypography(.body)
+                        .font(.dsBody)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Button("Back to sign in", action: onBackToSignIn).buttonStyle(.borderedProminent)
                 } else if let err = viewModel.errorMessage {
-                    Text(err).foregroundStyle(.red).appTypography(.caption)
+                    Text(err).foregroundStyle(.red).font(.dsCaptionXs)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 

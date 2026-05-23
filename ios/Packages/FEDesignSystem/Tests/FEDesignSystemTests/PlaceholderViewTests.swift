@@ -9,8 +9,8 @@ final class PlaceholderViewTests: XCTestCase {
         XCTAssertEqual(view.systemImage, "calendar.badge.clock")
     }
 
-    func testAppTypographyExposesTitleStyle() {
-        let style = AppTypography.titleLarge
+    func testTypographyTokensExposeTitleStyle() {
+        let style = Font.dsTitle2xl
         XCTAssertNotNil(style)
     }
 }

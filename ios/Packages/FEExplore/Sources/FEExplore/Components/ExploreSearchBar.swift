@@ -23,7 +23,7 @@ public struct ExploreSearchBar: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 

@@ -21,11 +21,11 @@ public struct PlanContextBar: View {
     @ViewBuilder
     private func chip(systemImage: String, text: String) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: systemImage).appTypography(.caption)
-            Text(text).appTypography(.caption)
+            Image(systemName: systemImage).font(.dsCaptionXs)
+            Text(text).font(.dsCaptionXs)
         }
         .padding(.horizontal, 10).padding(.vertical, 6)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(Capsule())
     }
 }

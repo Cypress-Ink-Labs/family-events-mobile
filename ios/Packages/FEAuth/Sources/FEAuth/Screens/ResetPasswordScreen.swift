@@ -13,18 +13,18 @@ public struct ResetPasswordScreen: View {
 
     public var body: some View {
         VStack(spacing: 24) {
-            Text("Choose a new password").appTypography(.titleLarge).frame(maxWidth: .infinity, alignment: .leading)
+            Text("Choose a new password").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
 
             SecureField("New password (at least 8 characters)", text: $viewModel.newPassword)
                 .textContentType(.newPassword)
-                .padding().background(Color.appSecondaryBackground).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
 
             if viewModel.didReset {
-                Text("Password updated. You're signed in.").appTypography(.body)
+                Text("Password updated. You're signed in.").font(.dsBody)
                 Button("Continue", action: onDone).buttonStyle(.borderedProminent)
             } else {
                 if let err = viewModel.errorMessage {
-                    Text(err).foregroundStyle(.red).appTypography(.caption)
+                    Text(err).foregroundStyle(.red).font(.dsCaptionXs)
                 }
                 Button {
                     Task { await viewModel.submit() }

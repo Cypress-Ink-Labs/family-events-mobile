@@ -13,15 +13,15 @@ public struct WeatherStrip: View {
                 .font(.title3)
                 .foregroundStyle(.tint)
             VStack(alignment: .leading, spacing: 2) {
-                Text(temperatureText).appTypography(.titleMedium)
-                Text(fitText).appTypography(.caption).foregroundStyle(.secondary)
+                Text(temperatureText).font(.dsTitleLg)
+                Text(fitText).font(.dsCaptionXs).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(precipitationText).appTypography(.caption).foregroundStyle(.secondary)
+            Text(precipitationText).font(.dsCaptionXs).foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color.appSecondaryBackground)
+        .background(Color.dsSurfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
