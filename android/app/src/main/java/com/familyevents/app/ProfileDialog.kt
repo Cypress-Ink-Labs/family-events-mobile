@@ -255,7 +255,7 @@ private fun validateAge(rawAge: String): String? {
 private fun validatePassword(email: String?, currentPassword: String, newPassword: String, confirmPassword: String): String? = when {
     email.isNullOrBlank() -> "Profile email is required to change password."
     currentPassword.isBlank() -> "Enter your current password."
-    newPassword.length < 6 -> "New password must be at least 6 characters."
+    newPassword.length < 8 -> "New password must be at least 8 characters."
     newPassword != confirmPassword -> "New passwords do not match."
     newPassword == currentPassword -> "New password must be different."
     else -> null

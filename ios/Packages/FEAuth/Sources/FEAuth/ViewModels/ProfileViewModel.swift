@@ -123,8 +123,8 @@ public final class ProfileViewModel {
             errorMessage = "Enter your current password."
             return false
         }
-        guard newPassword.count >= 6 else {
-            errorMessage = "New password must be at least 6 characters."
+        guard newPassword.count >= 8 else {
+            errorMessage = "New password must be at least 8 characters."
             return false
         }
         guard newPassword == confirmPassword else {
