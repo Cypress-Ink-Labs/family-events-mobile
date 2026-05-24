@@ -137,4 +137,35 @@ final class ExploreViewModelTests: XCTestCase {
         await vm.reload()
         XCTAssertNotNil(vm.errorMessage)
     }
+
+    func testCancelledReloadDoesNotSurfaceError() async {
+        let fake = FakeEventRepository()
+        fake.fetchListResult = .success([.fixture(id: "e1", title: "Storytime")])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 1)
+
+        fake.fetchListResult = .failure(URLError(.cancelled))
+        await vm.reload()
+
+        XCTAssertNil(vm.errorMessage)
+        XCTAssertEqual(vm.events.count, 1)
+        XCTAssertFalse(vm.isLoading)
+    }
+
+    func testTaskCancelledReloadDoesNotSurfaceError() async {
+        let fake = FakeEventRepository()
+        fake.artificialDelay = .seconds(1)
+        fake.fetchListResult = .success([.fixture(id: "e1", title: "Storytime")])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+
+        let task = Task { await vm.reload() }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        task.cancel()
+        await task.value
+
+        XCTAssertNil(vm.errorMessage)
+        XCTAssertTrue(vm.events.isEmpty)
+        XCTAssertFalse(vm.isLoading)
+    }
 }

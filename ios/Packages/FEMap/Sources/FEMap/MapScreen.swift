@@ -23,7 +23,17 @@ public struct MapScreen: View {
             overlay
         }
         .navigationTitle("Map")
-        .refreshable { await viewModel.refresh() }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    Task { await viewModel.refresh() }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .accessibilityLabel("Refresh")
+                .disabled(viewModel.isLoading)
+            }
+        }
         .task { await viewModel.loadIfNeeded() }
         .sheet(item: $selectedEvent) { event in
             popup(for: event)

@@ -137,20 +137,24 @@ public struct EventDetailScreen: View {
 
     @ViewBuilder
     private func errorState(_ message: String) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
-            Text("Couldn't load this event")
-                .font(.title3.weight(.semibold))
-            Text(message)
-                .foregroundStyle(Color.dsTextMuted)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-            Button("Retry") { Task { await viewModel.load() } }
-                .buttonStyle(.borderedProminent)
+        ScrollView {
+            VStack(spacing: 16) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.orange)
+                Text("Couldn't load this event")
+                    .font(.title3.weight(.semibold))
+                Text(message)
+                    .foregroundStyle(Color.dsTextMuted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                Button("Retry") { Task { await viewModel.load() } }
+                    .buttonStyle(.borderedProminent)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 64)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scrollBounceBehavior(.always)
     }
 
     @ViewBuilder
