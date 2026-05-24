@@ -10,10 +10,12 @@ public final class FakeEventRepository: EventRepository, @unchecked Sendable {
     private(set) public var lastListQuery: EventQuery?
     private(set) public var lastUserID: UserID?
     private(set) public var fetchListCallCount = 0
+    private(set) public var fetchByIDsCallCount = 0
 
     public init() {}
 
     public func fetch(ids: [EventID], for userID: UserID) async throws -> [EventDTO] {
+        fetchByIDsCallCount += 1
         lastIDs = ids
         lastUserID = userID
         if let delay = artificialDelay { try await Task.sleep(for: delay) }

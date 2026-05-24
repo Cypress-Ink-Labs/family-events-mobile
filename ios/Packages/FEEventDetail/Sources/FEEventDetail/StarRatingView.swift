@@ -1,4 +1,5 @@
 import SwiftUI
+import FEDesignSystem
 
 /// Tap-to-rate 5-star control. Stateless — caller owns `score` binding.
 public struct StarRatingView: View {
@@ -21,7 +22,7 @@ public struct StarRatingView: View {
                 } label: {
                     Image(systemName: value <= score ? "star.fill" : "star")
                         .font(.title3)
-                        .foregroundStyle(value <= score ? Color.yellow : Color.secondary)
+                        .foregroundStyle(value <= score ? Color.dsAccentKid : Color.dsTextMuted)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(value) star\(value == 1 ? "" : "s")")

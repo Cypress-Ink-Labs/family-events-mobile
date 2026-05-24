@@ -32,7 +32,7 @@ public struct SignUpScreen: View {
                 if viewModel.pendingConfirmation {
                     Text("Check your email for a confirmation link. Once confirmed, sign in.")
                         .font(.dsBody)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.dsTextMuted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Button("Back to sign in", action: onBackToSignIn).buttonStyle(.borderedProminent)
                 } else if let err = viewModel.errorMessage {

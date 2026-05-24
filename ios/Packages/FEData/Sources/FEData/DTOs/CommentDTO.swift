@@ -37,3 +37,9 @@ public struct CommentDTO: Equatable, Sendable, Codable, Identifiable {
         self.authorAvatarURL = authorAvatarURL
     }
 }
+
+public enum CommentChange: Sendable, Equatable {
+    case inserted(CommentDTO)
+    case updated(CommentDTO)
+    case deleted(commentID: String)
+}

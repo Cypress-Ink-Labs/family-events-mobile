@@ -1,4 +1,5 @@
 import SwiftUI
+import FEDesignSystem
 
 public struct ExploreActiveFiltersBar: View {
     @Binding public var filters: ExploreFilters
@@ -46,7 +47,7 @@ public struct ExploreActiveFiltersBar: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(Color.accentColor.opacity(0.12))
+        .background(Color.dsAccentPrimarySoft)
         .clipShape(Capsule())
     }
 }

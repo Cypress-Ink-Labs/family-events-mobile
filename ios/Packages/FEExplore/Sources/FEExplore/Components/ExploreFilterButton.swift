@@ -1,4 +1,5 @@
 import SwiftUI
+import FEDesignSystem
 
 public struct ExploreFilterButton: View {
     public let activeCount: Int
@@ -20,9 +21,9 @@ public struct ExploreFilterButton: View {
                 if activeCount > 0 {
                     Text("\(activeCount)")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.dsSurface)
                         .padding(4)
-                        .background(Color.accentColor)
+                        .background(Color.dsAccentPrimary)
                         .clipShape(Circle())
                         .offset(x: 6, y: -6)
                 }

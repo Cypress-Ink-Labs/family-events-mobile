@@ -8,7 +8,6 @@ public struct ExploreScreen: View {
     @Bindable var viewModel: ExploreViewModel
     public let onSelectEvent: (EventID) -> Void
     @State private var showFilters = false
-    @State private var viewMode: ExploreViewMode = .list
 
     public init(viewModel: ExploreViewModel, onSelectEvent: @escaping (EventID) -> Void) {
         self.viewModel = viewModel
@@ -18,29 +17,20 @@ public struct ExploreScreen: View {
     public var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                HStack {
-                    ExploreSearchBar(text: $viewModel.filters.keyword)
-                    Spacer()
-                    ExploreViewModeToggle(mode: $viewMode)
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                ExploreSearchBar(text: $viewModel.filters.keyword)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
 
                 ExploreActiveFiltersBar(filters: $viewModel.filters)
             }
 
-            if viewMode == .list {
-                ScrollView {
-                    listContent
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 12)
-                }
-                .refreshable {
-                    await viewModel.reload()
-                }
-            } else {
-                ExploreMapView(events: viewModel.events, onSelectEvent: onSelectEvent)
-                    .ignoresSafeArea(edges: .bottom)
+            ScrollView {
+                listContent
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 12)
+            }
+            .refreshable {
+                await viewModel.reload()
             }
         }
         .navigationTitle("Explore")
@@ -87,7 +77,7 @@ public struct ExploreScreen: View {
                 .foregroundStyle(.orange)
             Text(message)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.dsTextMuted)
                 .padding(.horizontal, 24)
             Button("Retry") { Task { await viewModel.reload() } }
                 .buttonStyle(.borderedProminent)
@@ -101,10 +91,10 @@ public struct ExploreScreen: View {
         VStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.dsTextMuted)
             Text("No events match these filters.")
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.dsTextMuted)
                 .padding(.horizontal, 24)
             if viewModel.filters.activeCount > 0 {
                 Button("Clear filters") { viewModel.filters = ExploreFilters() }

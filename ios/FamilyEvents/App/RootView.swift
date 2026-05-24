@@ -6,6 +6,9 @@ import FEAuth
 import FEPlan
 import FEExplore
 import FESaved
+import FEMap
+import FECalendar
+import FECityPicker
 import FEDesignSystem
 
 private struct PendingResetToken: Identifiable, Equatable {
@@ -36,7 +39,7 @@ private struct FallbackFavoriteRepo: FavoriteRepo {
 }
 
 struct RootView: View {
-    static let shownTabs: [AppTab] = [.plan, .explore, .saved]
+    static let shownTabs: [AppTab] = [.plan, .explore, .map, .calendar, .saved]
     let initialTab: AppTab
     private let authService: any AuthService
     private let planComposer: PlanComposer
@@ -50,11 +53,14 @@ struct RootView: View {
     private let googleSignInEnabled: Bool
 
     @Environment(SessionStore.self) private var sessionStore
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var refreshController = ScenePhaseRefreshController()
     @State private var selectedTab: AppTab
     @State private var pendingResetToken: PendingResetToken?
     @State private var showProfile = false
     @State private var planContext: PlanContext?
     @State private var cityName: String?
+    @State private var showWhatsNew = false
 
     init(
         authService: any AuthService,
@@ -107,6 +113,19 @@ struct RootView: View {
                 }
             }
         }
+        .environment(refreshController)
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .active:
+                refreshController.scenePhaseChanged(.active)
+            case .inactive:
+                refreshController.scenePhaseChanged(.inactive)
+            case .background:
+                refreshController.scenePhaseChanged(.background)
+            @unknown default:
+                break
+            }
+        }
         .sheet(isPresented: $showProfile) {
             ProfileSheet(
                 authService: authService,
@@ -123,6 +142,14 @@ struct RootView: View {
                     viewModel: ResetPasswordViewModel(token: pending.token, authService: authService, sessionStore: sessionStore),
                     onDone: { pendingResetToken = nil }
                 )
+            }
+        }
+        .sheet(isPresented: $showWhatsNew) {
+            WhatsNewSheet()
+        }
+        .onAppear {
+            if case .signedIn = sessionStore.state, WhatsNewSheet.shouldShow {
+                showWhatsNew = true
             }
         }
     }
@@ -153,6 +180,36 @@ struct RootView: View {
                 )
                     .tabItem { Label(AppTab.explore.title, systemImage: AppTab.explore.systemImage) }
                     .tag(AppTab.explore)
+                MapTab(
+                    eventRepo: eventRepo,
+                    cityRepo: cityRepo,
+                    favoriteRepo: favoriteRepo,
+                    ratingRepo: ratingRepo,
+                    commentRepo: commentRepo,
+                    userID: userID,
+                    cityID: ctx.cityID,
+                    cityName: cityName,
+                    onCityChanged: { city in
+                        Task { await applyCityChange(city, userID: userID) }
+                    }
+                )
+                    .tabItem { Label(AppTab.map.title, systemImage: AppTab.map.systemImage) }
+                    .tag(AppTab.map)
+                CalendarTab(
+                    eventRepo: eventRepo,
+                    cityRepo: cityRepo,
+                    favoriteRepo: favoriteRepo,
+                    ratingRepo: ratingRepo,
+                    commentRepo: commentRepo,
+                    userID: userID,
+                    cityID: ctx.cityID,
+                    cityName: cityName,
+                    onCityChanged: { city in
+                        Task { await applyCityChange(city, userID: userID) }
+                    }
+                )
+                    .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
+                    .tag(AppTab.calendar)
                 if let container = modelContainer {
                     SavedTab(
                         favoriteRepo: favoriteRepo,
@@ -174,6 +231,26 @@ struct RootView: View {
                     planContext = await resolveContext(userID: userID)
                 }
         }
+    }
+
+    private func applyCityChange(_ city: CitySummary, userID: UserID) async {
+        cityName = city.name
+        planContext = PlanContext(
+            userID: userID,
+            cityID: city.id,
+            kidAge: planContext?.kidAge
+        )
+        // Best-effort persist to the user profile so the choice survives
+        // across cold restart and other devices.
+        _ = try? await profileRepo.updateProfile(
+            UserProfileUpdate(
+                displayName: nil,
+                cityPreferenceID: city.id,
+                childName: nil,
+                childAge: planContext?.kidAge
+            ),
+            for: userID
+        )
     }
 
     private func resolveContext(userID: UserID) async -> PlanContext {

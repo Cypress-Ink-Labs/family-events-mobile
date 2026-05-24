@@ -22,6 +22,12 @@ enum DeepLinkRouter {
         case "saved":
             guard segments.isEmpty else { return nil }
             return Result(tab: .saved, routes: [])
+        case "map":
+            guard segments.isEmpty else { return nil }
+            return Result(tab: .map, routes: [])
+        case "calendar":
+            guard segments.isEmpty else { return nil }
+            return Result(tab: .calendar, routes: [])
         case "reset-password":
             let comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
             guard let token = comps?.queryItems?.first(where: { $0.name == "token" })?.value,

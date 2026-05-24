@@ -59,21 +59,31 @@ public struct PlanCarouselCard: View {
     @ViewBuilder
     private var imageBlock: some View {
         ZStack(alignment: .topTrailing) {
-            if let url = event.images.first.flatMap(URL.init(string:)) {
-                AsyncImage(url: url) { image in
+            let resolvedURL = SafeImageURL.resolve(
+                images: event.images,
+                seed: event.id.rawValue,
+                aspect: .card
+            )
+            AsyncImage(url: resolvedURL) { phase in
+                switch phase {
+                case .empty:
+                    Rectangle().fill(Color.dsSurfaceRaised)
+                case .success(let image):
                     image.resizable().aspectRatio(contentMode: .fill)
-                } placeholder: {
+                case .failure:
+                    ZStack {
+                        Rectangle().fill(Color.dsSurfaceRaised)
+                        Image(systemName: "photo")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Color.dsTextMuted)
+                    }
+                @unknown default:
                     Rectangle().fill(Color.dsSurfaceRaised)
                 }
-                .frame(width: Self.cardWidth - 2 * Self.pad, height: Self.imageHeight)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: Self.imageRadius))
-            } else {
-                Rectangle()
-                    .fill(Color.dsSurfaceRaised)
-                    .frame(width: Self.cardWidth - 2 * Self.pad, height: Self.imageHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: Self.imageRadius))
             }
+            .frame(width: Self.cardWidth - 2 * Self.pad, height: Self.imageHeight)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: Self.imageRadius))
             if event.isFree {
                 Text("Free")
                     .font(.dsCaptionXs)

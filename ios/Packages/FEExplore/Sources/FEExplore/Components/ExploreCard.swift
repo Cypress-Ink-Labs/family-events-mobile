@@ -16,7 +16,11 @@ public struct ExploreCard: View {
         EventCard(
             title: event.title,
             subtitle: Self.subtitle(for: event),
-            imageURL: event.images.first.flatMap(URL.init(string:)),
+            imageURL: SafeImageURL.resolve(
+                images: event.images,
+                seed: event.id.rawValue,
+                aspect: .card
+            ),
             badge: event.isFree ? "Free" : nil,
             onTap: onTap
         )

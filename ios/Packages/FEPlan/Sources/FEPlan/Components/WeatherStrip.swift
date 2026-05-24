@@ -14,10 +14,10 @@ public struct WeatherStrip: View {
                 .foregroundStyle(.tint)
             VStack(alignment: .leading, spacing: 2) {
                 Text(temperatureText).font(.dsTitleLg)
-                Text(fitText).font(.dsCaptionXs).foregroundStyle(.secondary)
+                Text(fitText).font(.dsCaptionXs).foregroundStyle(Color.dsTextMuted)
             }
             Spacer()
-            Text(precipitationText).font(.dsCaptionXs).foregroundStyle(.secondary)
+            Text(precipitationText).font(.dsCaptionXs).foregroundStyle(Color.dsTextMuted)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

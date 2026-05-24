@@ -16,7 +16,7 @@ public struct LinkAccountScreen: View {
             Text("Sign in to your account").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
             Text("An account already exists for **\(viewModel.email)**. Sign in with your password to continue. You can connect Apple sign-in later in Profile settings.")
                 .font(.dsBody)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.dsTextMuted)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             SecureField("Password", text: $viewModel.password)

@@ -41,6 +41,6 @@ final class RootViewSmokeTests: XCTestCase {
     }
 
     func testRootExposesAllTabs() {
-        XCTAssertEqual(RootView.shownTabs, [.plan, .explore, .saved])
+        XCTAssertEqual(RootView.shownTabs, [.plan, .explore, .map, .calendar, .saved])
     }
 }

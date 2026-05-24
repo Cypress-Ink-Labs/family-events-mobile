@@ -68,6 +68,12 @@ packages:
     path: Packages/FEEventDetail
   FEAppIntents:
     path: Packages/FEAppIntents
+  FECityPicker:
+    path: Packages/FECityPicker
+  FEMap:
+    path: Packages/FEMap
+  FECalendar:
+    path: Packages/FECalendar
 targets:
   FamilyEvents:
     type: application
@@ -114,6 +120,9 @@ targets:
       - package: FESaved
       - package: FEEventDetail
       - package: FEAppIntents
+      - package: FECityPicker
+      - package: FEMap
+      - package: FECalendar
     scheme:
       testTargets:
         - FamilyEventsTests

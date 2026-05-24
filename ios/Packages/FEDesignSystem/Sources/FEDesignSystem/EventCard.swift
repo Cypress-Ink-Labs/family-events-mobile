@@ -25,10 +25,26 @@ public struct EventCard: View {
         Button { onTap?() } label: {
             VStack(alignment: .leading, spacing: DesignTokens.Space.s2) {
                 if let url = imageURL {
-                    AsyncImage(url: url) { image in
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Rectangle().fill(Color.dsSurfaceRaised)
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle().fill(Color.dsSurfaceRaised)
+                        case .success(let image):
+                            image.resizable().aspectRatio(contentMode: .fill)
+                        case .failure:
+                            // AsyncImage swallows errors silently by default.
+                            // Surface a token-coloured fallback so cards
+                            // still read as cards (vs. an empty rectangle
+                            // that looks like a layout bug).
+                            ZStack {
+                                Rectangle().fill(Color.dsSurfaceRaised)
+                                Image(systemName: "photo")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(Color.dsTextMuted)
+                            }
+                        @unknown default:
+                            Rectangle().fill(Color.dsSurfaceRaised)
+                        }
                     }
                     // maxWidth: .infinity locks the image to the parent
                     // VStack's available width. Without it,

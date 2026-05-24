@@ -4,9 +4,11 @@ import Supabase
 
 public final class SupabaseCommentRepo: CommentRepo, @unchecked Sendable {
     private let supabase: FamilyEventsSupabase
+    private let pollInterval: Duration
 
-    public init(supabase: FamilyEventsSupabase) {
+    public init(supabase: FamilyEventsSupabase, pollInterval: Duration = .seconds(15)) {
         self.supabase = supabase
+        self.pollInterval = pollInterval
     }
 
     public func comments(for eventID: EventID) async throws -> [CommentDTO] {
@@ -43,6 +45,46 @@ public final class SupabaseCommentRepo: CommentRepo, @unchecked Sendable {
             throw AppError.notFound
         }
         return row.toDTO()
+    }
+
+    public func observeComments(for eventID: EventID) -> AsyncStream<CommentChange> {
+        let pollInterval = self.pollInterval
+        return AsyncStream { continuation in
+            let task = Task { [weak self] in
+                defer { continuation.finish() }
+                guard let self else { return }
+                var lastKnown: [String: CommentDTO] = [:]
+                if let initial = try? await self.comments(for: eventID) {
+                    lastKnown = Dictionary(uniqueKeysWithValues: initial.map { ($0.id, $0) })
+                }
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: pollInterval)
+                    if Task.isCancelled { break }
+                    guard let latest = try? await self.comments(for: eventID) else { continue }
+                    let latestByID = Dictionary(uniqueKeysWithValues: latest.map { ($0.id, $0) })
+                    let latestIDs = Set(latestByID.keys)
+                    let lastIDs = Set(lastKnown.keys)
+                    for addedID in latestIDs.subtracting(lastIDs) {
+                        if let dto = latestByID[addedID] {
+                            continuation.yield(.inserted(dto))
+                        }
+                    }
+                    for removedID in lastIDs.subtracting(latestIDs) {
+                        continuation.yield(.deleted(commentID: removedID))
+                    }
+                    for sharedID in latestIDs.intersection(lastIDs) {
+                        if let prior = lastKnown[sharedID], let now = latestByID[sharedID],
+                           prior != now {
+                            continuation.yield(.updated(now))
+                        }
+                    }
+                    lastKnown = latestByID
+                }
+            }
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
     }
 }
 

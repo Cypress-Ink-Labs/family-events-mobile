@@ -16,7 +16,7 @@ public struct ForgotPasswordScreen: View {
             Text("Reset your password").font(.dsTitle2xl).frame(maxWidth: .infinity, alignment: .leading)
             Text("Enter your email and we'll send a reset link.")
                 .font(.dsBody)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.dsTextMuted)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             TextField("Email", text: $viewModel.email)
