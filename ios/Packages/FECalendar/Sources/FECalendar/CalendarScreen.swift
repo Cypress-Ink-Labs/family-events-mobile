@@ -40,6 +40,7 @@ public struct CalendarScreen: View {
             .padding(.vertical, 16)
         }
         .navigationTitle("Calendar")
+        .scrollBounceBehavior(.always)
         .refreshable { await viewModel.refresh() }
         .task { await viewModel.loadIfNeeded() }
         .overlay {

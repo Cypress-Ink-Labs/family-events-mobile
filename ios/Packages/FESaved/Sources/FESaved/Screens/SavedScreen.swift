@@ -75,6 +75,7 @@ public struct SavedScreen: View {
         .onDisappear {
             coordinator.stopObserving()
         }
+        .scrollBounceBehavior(.always)
         .refreshable {
             await coordinator.refresh(userID: userID)
         }

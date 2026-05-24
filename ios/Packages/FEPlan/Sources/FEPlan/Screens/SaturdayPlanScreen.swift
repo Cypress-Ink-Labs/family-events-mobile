@@ -77,6 +77,7 @@ public struct SaturdayPlanScreen: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.dsBackground.ignoresSafeArea())
+        .scrollBounceBehavior(.always)
         .refreshable { await viewModel.refresh(context: context) }
         .task { await viewModel.refresh(context: context) }
         .navigationTitle("Plan")
