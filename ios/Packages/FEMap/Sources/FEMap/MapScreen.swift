@@ -11,6 +11,7 @@ public struct MapScreen: View {
 
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var selectedEvent: EventDTO?
+    @State private var showList = false
 
     public init(viewModel: MapViewModel, onSelectEvent: @escaping (EventID) -> Void) {
         self.viewModel = viewModel
@@ -19,11 +20,23 @@ public struct MapScreen: View {
 
     public var body: some View {
         ZStack {
-            map
-            overlay
+            if showList {
+                listView
+            } else {
+                map
+                overlay
+            }
         }
         .navigationTitle("Map")
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker("View", selection: $showList) {
+                    Image(systemName: "map").tag(false)
+                    Image(systemName: "list.bullet").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 100)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     Task { await viewModel.refresh() }
@@ -41,6 +54,7 @@ public struct MapScreen: View {
         .onChange(of: viewModel.events) { _, _ in
             adjustCameraForEvents()
         }
+        .animation(.default, value: showList)
     }
 
     private var map: some View {
@@ -126,6 +140,51 @@ public struct MapScreen: View {
         .padding()
         .background(Color.dsSurfaceRaised, in: RoundedRectangle(cornerRadius: 12))
         .padding()
+    }
+
+    private var listView: some View {
+        Group {
+            if viewModel.isLoading && viewModel.events.isEmpty {
+                ProgressView()
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let message = viewModel.errorMessage, viewModel.events.isEmpty {
+                errorOverlay(message: message)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if viewModel.events.isEmpty {
+                emptyOverlay
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.events) { event in
+                            EventCard(
+                                title: event.title,
+                                subtitle: listSubtitle(for: event),
+                                imageURL: SafeImageURL.resolve(
+                                    images: event.images,
+                                    seed: event.id.rawValue,
+                                    aspect: .card
+                                ),
+                                badge: event.isFree ? "Free" : nil,
+                                onTap: { onSelectEvent(event.id) }
+                            )
+                            .padding(.horizontal, 16)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                }
+                .refreshable { await viewModel.refresh() }
+            }
+        }
+    }
+
+    private func listSubtitle(for event: EventDTO) -> String {
+        let base = DateFormatting.cardSubtitleFormatter.string(from: event.startDatetime)
+        if let venue = event.venueName, !venue.isEmpty {
+            return "\(base) · \(venue)"
+        }
+        return base
     }
 
     private func adjustCameraForEvents() {

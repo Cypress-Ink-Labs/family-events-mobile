@@ -157,6 +157,8 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: ""
+        BUNDLE_LOADER: ""
     dependencies:
       - package: FEDesignSystem
       - package: swift-snapshot-testing

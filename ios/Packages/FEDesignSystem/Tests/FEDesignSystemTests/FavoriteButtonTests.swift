@@ -19,6 +19,13 @@ import SnapshotTesting
 
 @MainActor
 final class FavoriteButtonSnapshotTests: XCTestCase {
+    override class func setUp() {
+        super.setUp()
+        // Set this to true to regenerate baselines. Commit baselines after,
+        // then flip back to false so CI catches regressions.
+        isRecording = false
+    }
+
     func testFavoriteButtonUnfavoritedState() {
         let button = FavoriteButton(
             isFavorited: .constant(false),

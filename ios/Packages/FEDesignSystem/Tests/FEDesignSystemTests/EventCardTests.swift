@@ -31,7 +31,7 @@ final class EventCardSnapshotTests: XCTestCase {
         super.setUp()
         // Set this to true to regenerate baselines. Commit baselines after,
         // then flip back to false so CI catches regressions.
-        // isRecording = true
+        isRecording = false
     }
 
     func testEventCardWithImageAndBadge() {
