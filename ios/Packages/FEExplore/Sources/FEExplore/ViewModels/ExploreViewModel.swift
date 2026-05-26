@@ -107,6 +107,15 @@ public final class ExploreViewModel {
                 let haystack = "\(event.title) \(event.description ?? "") \(event.venueName ?? "")".lowercased()
                 if !haystack.contains(keyword) { return false }
             }
+            if let af = filters.ageFilter {
+                let eMax = event.ageMax ?? 99
+                let eMin = event.ageMin ?? 0
+                let fMax = af.max ?? Int.max
+                if eMax < af.min || eMin > fMax { return false }
+            }
+            if let slug = filters.activeCategory {
+                if !event.tags.contains(where: { $0.slug == slug }) { return false }
+            }
             return true
         }
     }

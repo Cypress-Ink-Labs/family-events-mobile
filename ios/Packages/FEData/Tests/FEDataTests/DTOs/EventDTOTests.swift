@@ -64,6 +64,47 @@ final class EventDTOTests: XCTestCase {
         XCTAssertEqual(dto.images.count, 0)
         XCTAssertEqual(dto.avgRating, 0)
     }
+    func testDecodesV2FieldsWhenPresent() throws {
+        let json = """
+        {
+            "id":"evt_v2","title":"Outdoor Play","description":null,
+            "start_datetime":"2026-06-01T10:00:00Z","end_datetime":null,
+            "timezone":"UTC","venue_name":null,"address":null,"city_id":null,
+            "latitude":null,"longitude":null,"age_min":null,"age_max":null,
+            "price":null,"is_free":true,"source_url":null,"source_name":null,"source_id":null,
+            "images":[],"status":"published","ai_confidence":null,"ai_tag_provider":null,
+            "is_featured":false,"view_count":0,
+            "created_at":"2026-01-01T00:00:00Z","updated_at":"2026-01-01T00:00:00Z",
+            "tags":[],
+            "is_outdoor": true,
+            "parent_tips": [{"category": "Fun", "text": "Good for toddlers"}]
+        }
+        """
+        let dto = try JSONDecoder().decode(EventDTO.self, from: Data(json.utf8))
+        XCTAssertEqual(dto.isOutdoor, true)
+        XCTAssertEqual(dto.parentTips?.first?.category, "Fun")
+        XCTAssertEqual(dto.parentTips?.first?.text, "Good for toddlers")
+    }
+
+    func testDecodesV2FieldsWhenAbsent() throws {
+        let json = """
+        {
+            "id":"evt_v2_absent","title":"Indoor Story","description":null,
+            "start_datetime":"2026-06-01T10:00:00Z","end_datetime":null,
+            "timezone":"UTC","venue_name":null,"address":null,"city_id":null,
+            "latitude":null,"longitude":null,"age_min":null,"age_max":null,
+            "price":null,"is_free":true,"source_url":null,"source_name":null,"source_id":null,
+            "images":[],"status":"published","ai_confidence":null,"ai_tag_provider":null,
+            "is_featured":false,"view_count":0,
+            "created_at":"2026-01-01T00:00:00Z","updated_at":"2026-01-01T00:00:00Z",
+            "tags":[]
+        }
+        """
+        let dto = try JSONDecoder().decode(EventDTO.self, from: Data(json.utf8))
+        XCTAssertNil(dto.isOutdoor)
+        XCTAssertNil(dto.parentTips)
+    }
+
     func testMalformedDateRaisesDecodingError() {
         let json = """
         {

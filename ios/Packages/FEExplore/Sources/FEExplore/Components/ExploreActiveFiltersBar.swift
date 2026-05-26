@@ -27,10 +27,30 @@ public struct ExploreActiveFiltersBar: View {
                             filters.onlyFree = false
                         }
                     }
+                    if let af = filters.ageFilter {
+                        chip(label: af.rawValue) {
+                            filters.ageFilter = nil
+                        }
+                    }
+                    if let slug = filters.activeCategory {
+                        chip(label: categoryLabel(for: slug)) {
+                            filters.activeCategory = nil
+                        }
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 4)
             }
+        }
+    }
+
+    private func categoryLabel(for slug: String) -> String {
+        switch slug {
+        case "playgroup": return "Playgroups"
+        case "music": return "Music & Movement"
+        case "outdoor": return "Outdoor Fun"
+        case "storytime": return "Indoor Storytime"
+        default: return slug
         }
     }
 

@@ -39,21 +39,24 @@ extension EventDTO {
         isFree: Bool = true,
         price: Double? = nil,
         venueName: String? = nil,
-        description: String? = nil
+        description: String? = nil,
+        ageMin: Int? = nil,
+        ageMax: Int? = nil,
+        tags: [TagDTO] = []
     ) -> EventDTO {
         EventDTO(
             id: EventID(id), title: title, description: description,
             startDatetime: Date(timeIntervalSince1970: 1_700_000_000),
             endDatetime: nil, timezone: "UTC",
             venueName: venueName, address: nil, cityID: nil,
-            latitude: nil, longitude: nil, ageMin: nil, ageMax: nil,
+            latitude: nil, longitude: nil, ageMin: ageMin, ageMax: ageMax,
             price: price, isFree: isFree, sourceURL: nil, sourceName: nil,
             sourceID: nil, images: [], status: "published",
             aiConfidence: nil, aiTagProvider: nil, isFeatured: false,
             viewCount: 0,
             createdAt: Date(timeIntervalSince1970: 1_700_000_000),
             updatedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            tags: [], avgRating: 0, ratingCount: 0, isFavorited: false
+            tags: tags, avgRating: 0, ratingCount: 0, isFavorited: false
         )
     }
 }

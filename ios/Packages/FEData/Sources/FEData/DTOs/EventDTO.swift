@@ -1,6 +1,11 @@
 import Foundation
 import FECore
 
+public struct ParentTip: Codable, Equatable, Sendable {
+    public let category: String
+    public let text: String
+}
+
 public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
     public let id: EventID
     public let title: String
@@ -32,6 +37,8 @@ public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
     public let avgRating: Double
     public let ratingCount: Int
     public let isFavorited: Bool
+    public let isOutdoor: Bool?
+    public let parentTips: [ParentTip]?
 
     private enum CodingKeys: String, CodingKey {
         case id, title, description, timezone, address, latitude, longitude
@@ -57,6 +64,8 @@ public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
         case avgRating = "avg_rating"
         case ratingCount = "rating_count"
         case isFavorited = "is_favorited"
+        case isOutdoor = "is_outdoor"
+        case parentTips = "parent_tips"
     }
 
     private static let isoFrac: ISO8601DateFormatter = {
@@ -111,6 +120,8 @@ public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
         avgRating = (try? c.decodeIfPresent(Double.self, forKey: .avgRating)) ?? 0
         ratingCount = (try? c.decodeIfPresent(Int.self, forKey: .ratingCount)) ?? 0
         isFavorited = (try? c.decodeIfPresent(Bool.self, forKey: .isFavorited)) ?? false
+        isOutdoor = try c.decodeIfPresent(Bool.self, forKey: .isOutdoor)
+        parentTips = try c.decodeIfPresent([ParentTip].self, forKey: .parentTips)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -126,7 +137,8 @@ public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
         sourceID: String?, images: [String], status: String,
         aiConfidence: Double?, aiTagProvider: String?, isFeatured: Bool,
         viewCount: Int, createdAt: Date, updatedAt: Date,
-        tags: [TagDTO], avgRating: Double, ratingCount: Int, isFavorited: Bool
+        tags: [TagDTO], avgRating: Double, ratingCount: Int, isFavorited: Bool,
+        isOutdoor: Bool? = nil, parentTips: [ParentTip]? = nil
     ) {
         self.id = id; self.title = title; self.description = description
         self.startDatetime = startDatetime; self.endDatetime = endDatetime; self.timezone = timezone
@@ -141,5 +153,7 @@ public struct EventDTO: Equatable, Sendable, Codable, Identifiable {
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.tags = tags; self.avgRating = avgRating; self.ratingCount = ratingCount
         self.isFavorited = isFavorited
+        self.isOutdoor = isOutdoor
+        self.parentTips = parentTips
     }
 }

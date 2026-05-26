@@ -168,4 +168,59 @@ final class ExploreViewModelTests: XCTestCase {
         XCTAssertTrue(vm.events.isEmpty)
         XCTAssertFalse(vm.isLoading)
     }
+
+    // MARK: - age filter
+
+    func testAgeFilterNarrowsList() async {
+        let fake = FakeEventRepository()
+        let infant = EventDTO.fixture(id: "e1", title: "Baby Swim", ageMin: 0, ageMax: 1)
+        let older = EventDTO.fixture(id: "e2", title: "Soccer Camp", ageMin: 5, ageMax: 10)
+        fake.fetchListResult = .success([infant, older])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+        vm.filters.ageFilter = .zeroToOne
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 1)
+        XCTAssertEqual(vm.events.first?.id.rawValue, "e1")
+    }
+
+    func testAgeFilterOpenEndedMax() async {
+        // nineAndUp has max == nil → fMax == Int.max; event with ageMax nil treated as 99 passes
+        let fake = FakeEventRepository()
+        let event = EventDTO.fixture(id: "e1", title: "Teen Workshop", ageMin: 12, ageMax: nil)
+        fake.fetchListResult = .success([event])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+        vm.filters.ageFilter = .nineAndUp
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 1)
+    }
+
+    func testCategoryFilterNarrowsList() async {
+        let fake = FakeEventRepository()
+        let playgroupTag = TagDTO(id: "t1", name: "Playgroup", slug: "playgroup", color: "#abc")
+        let musicTag = TagDTO(id: "t2", name: "Music", slug: "music", color: "#def")
+        let playgroupEvent = EventDTO.fixture(id: "e1", title: "Playgroup Fun", tags: [playgroupTag])
+        let musicEvent = EventDTO.fixture(id: "e2", title: "Music Class", tags: [musicTag])
+        fake.fetchListResult = .success([playgroupEvent, musicEvent])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+        vm.filters.activeCategory = "playgroup"
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 1)
+        XCTAssertEqual(vm.events.first?.id.rawValue, "e1")
+    }
+
+    func testClearingFiltersRestoresList() async {
+        let fake = FakeEventRepository()
+        let infant = EventDTO.fixture(id: "e1", title: "Baby Swim", ageMin: 0, ageMax: 1)
+        let older = EventDTO.fixture(id: "e2", title: "Soccer Camp", ageMin: 5, ageMax: 10)
+        fake.fetchListResult = .success([infant, older])
+        let vm = ExploreViewModel(eventRepo: fake, userID: userID, cityID: nil)
+
+        vm.filters.ageFilter = .zeroToOne
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 1)
+
+        vm.filters.ageFilter = nil
+        await vm.reload()
+        XCTAssertEqual(vm.events.count, 2)
+    }
 }

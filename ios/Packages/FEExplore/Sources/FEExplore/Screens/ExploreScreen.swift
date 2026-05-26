@@ -21,6 +21,8 @@ public struct ExploreScreen: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
 
+                ExploreCategoryChipRow(activeCategory: $viewModel.filters.activeCategory)
+
                 ExploreActiveFiltersBar(filters: $viewModel.filters)
             }
 

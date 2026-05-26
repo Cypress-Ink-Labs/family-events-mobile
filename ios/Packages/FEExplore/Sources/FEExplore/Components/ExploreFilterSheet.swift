@@ -25,6 +25,42 @@ public struct ExploreFilterSheet: View {
                 Section("Price") {
                     Toggle("Free events only", isOn: $filters.onlyFree)
                 }
+
+                Section("Age") {
+                    Picker("Age", selection: $filters.ageFilter) {
+                        Text("Any age").tag(Optional<ExploreFilters.AgeFilter>.none)
+                        ForEach(ExploreFilters.AgeFilter.allCases, id: \.self) { af in
+                            Text(af.rawValue).tag(Optional(af))
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+
+                Section("Category") {
+                    ForEach(
+                        [("Playgroups", "playgroup"),
+                         ("Music & Movement", "music"),
+                         ("Outdoor Fun", "outdoor"),
+                         ("Indoor Storytime", "storytime")],
+                        id: \.1
+                    ) { label, slug in
+                        Button {
+                            filters.activeCategory = (filters.activeCategory == slug) ? nil : slug
+                        } label: {
+                            HStack {
+                                Text(label)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                if filters.activeCategory == slug {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Color.accentColor)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
             .navigationTitle("Filters")
             #if os(iOS)
