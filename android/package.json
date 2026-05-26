@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "check": "scripts/with-android-env.sh ./gradlew check",
-    "test": "scripts/with-android-env.sh ./gradlew test",
-    "build": "scripts/with-android-env.sh ./gradlew assembleDebug",
-    "lint": "scripts/with-android-env.sh ./gradlew lint",
-    "clean": "scripts/with-android-env.sh ./gradlew clean"
+    "check": "bash -c 'scripts/with-android-env.sh ./gradlew check'",
+    "test": "bash -c 'scripts/with-android-env.sh ./gradlew test'",
+    "build": "bash -c 'scripts/with-android-env.sh ./gradlew assembleDebug'",
+    "lint": "bash -c 'scripts/with-android-env.sh ./gradlew lint'",
+    "clean": "bash -c 'scripts/with-android-env.sh ./gradlew clean'"
   }
 }
