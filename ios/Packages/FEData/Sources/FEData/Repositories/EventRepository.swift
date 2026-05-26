@@ -21,7 +21,7 @@ public final class SupabaseEventRepository: EventRepository, @unchecked Sendable
             let p_user_id: String
         }
         let params = Params(p_event_ids: ids.map(\.rawValue), p_user_id: userID.rawValue)
-        let builder = try supabase.client.rpc("events_enriched_v2", params: params)
+        let builder = try supabase.client.rpc("events_enriched", params: params)
         let response: PostgrestResponse<[EventDTO]> = try await builder
             .select(Self.eventColumns)
             .execute()
@@ -47,7 +47,7 @@ public final class SupabaseEventRepository: EventRepository, @unchecked Sendable
             p_date_from: query.dateFrom.map { iso.string(from: $0) },
             p_date_to: query.dateTo.map { iso.string(from: $0) }
         )
-        let builder = try supabase.client.rpc("events_enriched_v2", params: params)
+        let builder = try supabase.client.rpc("events_enriched", params: params)
         let response: PostgrestResponse<[EventDTO]> = try await builder
             .select(Self.eventColumns)
             .execute()
