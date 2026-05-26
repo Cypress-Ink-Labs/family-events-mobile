@@ -10,7 +10,11 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../FECore"),
-        .package(url: "https://github.com/supabase/supabase-swift", exact: "2.46.0"),
+        // Pin by revision (v2.46.0) so CI/SPM cache restores don't fail exact-version lookup.
+        .package(
+            url: "https://github.com/supabase/supabase-swift",
+            revision: "dd29b624b9ceea87612d0b00457e1400f7d22c2e"
+        ),
     ],
     targets: [
         .target(

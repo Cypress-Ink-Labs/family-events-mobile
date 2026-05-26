@@ -12,7 +12,11 @@ let package = Package(
         .package(path: "../FECore"),
         .package(path: "../FEData"),
         .package(path: "../FEDesignSystem"),
-        .package(url: "https://github.com/supabase/supabase-swift", exact: "2.46.0"),
+        // Keep in sync with FEData — supabase-swift v2.46.0 (revision pin for CI determinism).
+        .package(
+            url: "https://github.com/supabase/supabase-swift",
+            revision: "dd29b624b9ceea87612d0b00457e1400f7d22c2e"
+        ),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "9.1.0"),
     ],
     targets: [
