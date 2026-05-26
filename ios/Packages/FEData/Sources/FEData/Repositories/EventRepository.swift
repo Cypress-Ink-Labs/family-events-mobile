@@ -33,7 +33,6 @@ public final class SupabaseEventRepository: EventRepository, @unchecked Sendable
             let p_city_id: String?
             let p_status: String
             let p_limit: Int
-            let p_offset: Int
             let p_user_id: String
             let p_date_from: String?
             let p_date_to: String?
@@ -44,7 +43,6 @@ public final class SupabaseEventRepository: EventRepository, @unchecked Sendable
             p_city_id: query.cityID?.rawValue,
             p_status: "published",
             p_limit: query.limit,
-            p_offset: query.offset,
             p_user_id: userID.rawValue,
             p_date_from: query.dateFrom.map { iso.string(from: $0) },
             p_date_to: query.dateTo.map { iso.string(from: $0) }
