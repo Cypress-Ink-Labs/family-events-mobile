@@ -55,3 +55,74 @@ test("android consumer endpoint policy stays admin-free even though app modules 
   const sources = discoverAndroidSourcePaths()
   assert.ok(sources.length > 0, "no Android sources discovered")
 })
+
+// Structural scope guard: the Android tree is consumer-only. No `admin` module, no
+// `admin` directory segments, no source files referencing the bare identifier
+// `admin` (case-insensitive). String literals are stripped before matching so legit
+// consumer-side role comparisons like `role == "admin"` do not trip the guard.
+function discoverAllAndroidPaths() {
+  const paths = []
+  const stack = [androidRoot]
+  const skipDirs = new Set(["build", ".gradle", ".idea", "node_modules", ".kotlin"])
+  while (stack.length > 0) {
+    const current = stack.pop()
+    const entries = readdirSync(current, { withFileTypes: true })
+    for (const entry of entries) {
+      const next = path.join(current, entry.name)
+      paths.push(next)
+      if (entry.isDirectory() && !skipDirs.has(entry.name) && !entry.name.startsWith(".")) {
+        stack.push(next)
+      }
+    }
+  }
+  return paths
+}
+
+function stripStringLiterals(source) {
+  // Remove triple-quoted raw strings, double-quoted strings, char literals, and
+  // line + block comments before scanning for identifiers.
+  return source
+    .replace(/"""[\s\S]*?"""/g, "")
+    .replace(/"(?:\\.|[^"\\])*"/g, "")
+    .replace(/'(?:\\.|[^'\\])'/g, "")
+    .replace(/\/\/.*$/gm, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+}
+
+test("android tree has no admin module or admin references", () => {
+  // No admin module wired into Gradle.
+  const settings = readFileSync(settingsPath, "utf8")
+  assert.doesNotMatch(
+    settings,
+    /["']:admin["']/,
+    "':admin' must not be in apps/android/settings.gradle.kts"
+  )
+
+  // No path under apps/android/ has an `admin` segment (case-insensitive).
+  const allPaths = discoverAllAndroidPaths()
+  const offendingPaths = allPaths.filter((p) => {
+    const rel = path.relative(androidRoot, p)
+    return rel.split(path.sep).some((seg) => /^admin$/i.test(seg))
+  })
+  assert.deepEqual(
+    offendingPaths,
+    [],
+    `unexpected 'admin' path segment(s) under apps/android: ${offendingPaths.join(", ")}`
+  )
+
+  // No source file (.kt/.kts/.xml) outside string literals/comments contains the
+  // bare identifier `admin` (case-insensitive). String literals are stripped so
+  // legitimate role string comparisons survive.
+  const offendingIdentifierHits = []
+  for (const [file, source] of readAndroidSources()) {
+    const cleaned = stripStringLiterals(source)
+    if (/\badmin\b/i.test(cleaned)) {
+      offendingIdentifierHits.push(path.relative(androidRoot, file))
+    }
+  }
+  assert.deepEqual(
+    offendingIdentifierHits,
+    [],
+    `unexpected bare 'admin' identifier(s) in Android sources: ${offendingIdentifierHits.join(", ")}`
+  )
+})
