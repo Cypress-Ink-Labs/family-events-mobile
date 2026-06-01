@@ -18,7 +18,7 @@ public protocol LocationAuthorizationProvider: Sendable {
 /// and it serializes access to the `pending` continuation.
 @MainActor
 public final class CLLocationManagerAuthorizationProvider: NSObject, LocationAuthorizationProvider, CLLocationManagerDelegate, Sendable {
-    private let manager: CLLocationManager
+    nonisolated(unsafe) private let manager: CLLocationManager
     private var pending: CheckedContinuation<LocationAuthorizationStatus, Never>?
 
     nonisolated public init(manager: CLLocationManager = CLLocationManager()) {
