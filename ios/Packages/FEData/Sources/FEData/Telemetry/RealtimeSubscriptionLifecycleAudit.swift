@@ -25,7 +25,7 @@ public struct RealtimeSubscriptionAuditSnapshot: Equatable, Sendable {
     }
 
     public var batteryNetworkImpactSummary: String {
-        let reconnects = String(format: "%.2f", reconnectRatePerMinute)
+        let reconnects = reconnectRatePerMinute.formatted(.number.precision(.fractionLength(2)))
         return "active=\(activeSubscriptions), attaches=\(attachCount), detaches=\(detachCount), reconnects=\(reconnectCount), reconnects_per_min=\(reconnects)"
     }
 

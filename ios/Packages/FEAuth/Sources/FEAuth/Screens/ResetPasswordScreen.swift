@@ -17,7 +17,7 @@ public struct ResetPasswordScreen: View {
 
             SecureField("New password (at least 8 characters)", text: $viewModel.newPassword)
                 .textContentType(.newPassword)
-                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).clipShape(.rect(cornerRadius: 8))
 
             if viewModel.didReset {
                 Text("Password updated. You're signed in.").font(.dsBody)

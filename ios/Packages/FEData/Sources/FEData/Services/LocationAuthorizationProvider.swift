@@ -14,8 +14,10 @@ public protocol LocationAuthorizationProvider: Sendable {
 /// Real impl over CLLocationManager. The continuation-based requestWhenInUse
 /// is unavoidable: CLLocationManager.requestWhenInUseAuthorization() is fire-and-
 /// forget; the result arrives via the delegate callback. We bridge once and
-/// resolve.
-public final class CLLocationManagerAuthorizationProvider: NSObject, LocationAuthorizationProvider, CLLocationManagerDelegate, @unchecked Sendable {
+/// resolve. MainActor-isolated because CLLocationManager requires main thread
+/// and it serializes access to the `pending` continuation.
+@MainActor
+public final class CLLocationManagerAuthorizationProvider: NSObject, LocationAuthorizationProvider, CLLocationManagerDelegate, Sendable {
     private let manager: CLLocationManager
     private var pending: CheckedContinuation<LocationAuthorizationStatus, Never>?
 
@@ -33,16 +35,21 @@ public final class CLLocationManagerAuthorizationProvider: NSObject, LocationAut
         if manager.authorizationStatus != .notDetermined {
             return Self.translate(manager.authorizationStatus)
         }
+        if pending != nil {
+            return Self.translate(manager.authorizationStatus)
+        }
         return await withCheckedContinuation { continuation in
             pending = continuation
             manager.requestWhenInUseAuthorization()
         }
     }
 
-    public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        guard let cont = pending else { return }
-        pending = nil
-        cont.resume(returning: Self.translate(manager.authorizationStatus))
+    nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            guard let cont = self.pending else { return }
+            self.pending = nil
+            cont.resume(returning: Self.translate(manager.authorizationStatus))
+        }
     }
 
     private static func translate(_ status: CLAuthorizationStatus) -> LocationAuthorizationStatus {

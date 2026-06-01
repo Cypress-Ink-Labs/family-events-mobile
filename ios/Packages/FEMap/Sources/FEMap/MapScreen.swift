@@ -31,8 +31,8 @@ public struct MapScreen: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Picker("View", selection: $showList) {
-                    Image(systemName: "map").tag(false)
-                    Image(systemName: "list.bullet").tag(true)
+                    Label("Map", systemImage: "map").tag(false)
+                    Label("List", systemImage: "list.bullet").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 100)

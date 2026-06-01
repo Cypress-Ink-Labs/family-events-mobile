@@ -75,6 +75,7 @@ public enum AppleSignInCoordinator {
         let rawNonce: String
         var continuation: CheckedContinuation<AppleSignInResult, Error>?
         init(rawNonce: String) { self.rawNonce = rawNonce }
+        deinit { continuation?.resume(throwing: CancellationError()) }
 
         func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,

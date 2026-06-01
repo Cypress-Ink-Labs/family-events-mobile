@@ -62,15 +62,17 @@ public final class SavedSyncCoordinator: Refreshable {
         let attemptID = UUID()
         observationAttemptID = attemptID
         observationTask = Task { [weak self] in
-            guard let self else { return }
             var reconnectAttempts = 0
             while !Task.isCancelled {
+                guard let self else { return }
                 await self.subscriptionAudit.recordAttach()
                 let stream = self.favoriteRepo.observeFavorites(for: userID)
                 for await change in stream {
                     if Task.isCancelled { break }
+                    guard let self else { return }
                     self.apply(change: change, userID: userID)
                 }
+                guard let self else { return }
                 await self.subscriptionAudit.recordDetach()
                 if Task.isCancelled { break }
                 guard self.observationAttemptID == attemptID else { break }
@@ -82,6 +84,7 @@ public final class SavedSyncCoordinator: Refreshable {
                 await self.subscriptionAudit.recordReconnect()
                 try? await Task.sleep(for: self.reconnectPolicy.delay)
             }
+            guard let self else { return }
             if self.observationAttemptID == attemptID {
                 self.observationAttemptID = nil
                 self.observationTask = nil

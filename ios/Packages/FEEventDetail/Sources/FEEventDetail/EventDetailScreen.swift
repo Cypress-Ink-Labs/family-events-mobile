@@ -11,8 +11,7 @@ public struct EventDetailScreen: View {
     @State private var draftRating: Int = 0
     private let eventID: EventID
 
-    private struct CalendarToast: Identifiable {
-        let id = UUID()
+    private struct CalendarToast {
         let title: String
         let message: String
         let isError: Bool
@@ -40,7 +39,8 @@ public struct EventDetailScreen: View {
     public var body: some View {
         Group {
             if viewModel.isLoading && viewModel.event == nil {
-                loadingState
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let err = viewModel.errorMessage, viewModel.event == nil {
                 errorState(err)
             } else if let event = viewModel.event {
@@ -73,25 +73,29 @@ public struct EventDetailScreen: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Label("More actions", systemImage: "ellipsis.circle")
                     }
-                    .accessibilityLabel("More actions")
+                    .labelStyle(.iconOnly)
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.toggleFavorite() }) {
-                    Image(systemName: viewModel.isFavorited ? "heart.fill" : "heart")
-                        .foregroundStyle(viewModel.isFavorited ? Color.dsAccentSecondary : Color.dsTextPrimary)
-                }
-                .accessibilityLabel(viewModel.isFavorited ? "Unfavorite" : "Favorite")
+                Button(viewModel.isFavorited ? "Unfavorite" : "Favorite", systemImage: viewModel.isFavorited ? "heart.fill" : "heart", action: viewModel.toggleFavorite)
+                    .foregroundStyle(viewModel.isFavorited ? Color.dsAccentSecondary : Color.dsTextPrimary)
+                    .labelStyle(.iconOnly)
             }
         }
-        .alert(item: $calendarToast) { toast in
-            Alert(
-                title: Text(toast.title),
-                message: Text(toast.message),
-                dismissButton: .default(Text("OK"))
+        .alert(
+            calendarToast?.title ?? "",
+            isPresented: Binding(
+                get: { calendarToast != nil },
+                set: { if !$0 { calendarToast = nil } }
             )
+        ) {
+            Button("OK") { calendarToast = nil }
+        } message: {
+            if let toast = calendarToast {
+                Text(toast.message)
+            }
         }
     }
 
@@ -130,12 +134,6 @@ public struct EventDetailScreen: View {
     #endif
 
     @ViewBuilder
-    private var loadingState: some View {
-        ProgressView()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    @ViewBuilder
     private func errorState(_ message: String) -> some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -161,12 +159,12 @@ public struct EventDetailScreen: View {
     private func content(for event: EventDTO) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                heroImage(event: event)
+                EventDetailHeroImage(event: event)
 
                 VStack(alignment: .leading, spacing: 24) {
                     titleBlock(event: event)
                     if !event.tags.isEmpty { tagRow(event: event) }
-                    infoGrid(event: event)
+                    EventDetailInfoGrid(event: event)
                     if let description = DescriptionSanitizer.clean(event.description) {
                         aboutSection(description: description)
                     }
@@ -175,7 +173,16 @@ public struct EventDetailScreen: View {
                         sourceLink(url: url, name: event.sourceName)
                     }
                     ratingSection(event: event)
-                    commentSection(event: event)
+                    EventDetailCommentSection(
+                        comments: viewModel.comments,
+                        commentError: viewModel.commentError,
+                        isInFlight: viewModel.isCommentInFlight,
+                        draftComment: $draftComment,
+                        onSubmit: { text in
+                            await viewModel.addComment(text)
+                            if viewModel.commentError == nil { draftComment = "" }
+                        }
+                    )
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
@@ -183,40 +190,6 @@ public struct EventDetailScreen: View {
                 .padding(.bottom, 32)
             }
         }
-    }
-
-    @ViewBuilder
-    private func heroImage(event: EventDTO) -> some View {
-        // Fixed-frame Rectangle + overlay pattern: the Rectangle owns the size
-        // (260pt tall, full width). AsyncImage renders into the overlay and is
-        // clipped by the Rectangle's frame, so post-load layout cannot resize
-        // the container — fixes the iOS 26 "snap to broken layout" symptom.
-        Rectangle()
-            .fill(Color.dsSurfaceRaised)
-            .frame(maxWidth: .infinity)
-            .frame(height: 260)
-            .overlay {
-                let resolvedURL = SafeImageURL.resolve(
-                    images: event.images,
-                    seed: event.id.rawValue,
-                    aspect: .hero
-                )
-                AsyncImage(url: resolvedURL) { phase in
-                    switch phase {
-                    case .empty:
-                        Color.clear
-                    case .success(let image):
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    case .failure:
-                        Image(systemName: "photo")
-                            .font(.system(size: 48))
-                            .foregroundStyle(Color.dsTextMuted)
-                    @unknown default:
-                        Color.clear
-                    }
-                }
-            }
-            .clipped()
     }
 
     @ViewBuilder
@@ -253,7 +226,7 @@ public struct EventDetailScreen: View {
 
     @ViewBuilder
     private func tagRow(event: EventDTO) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 8) {
                 ForEach(event.tags, id: \.id) { tag in
                     Text(tag.name)
@@ -265,53 +238,15 @@ public struct EventDetailScreen: View {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func infoGrid(event: EventDTO) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-            infoCell(systemImage: "calendar", label: "Date", value: Self.dateFormatter.string(from: event.startDatetime))
-            infoCell(systemImage: "clock", label: "Time", value: Self.timeFormatter.string(from: event.startDatetime))
-            infoCell(systemImage: "figure.2.and.child.holdinghands", label: "Ages", value: ageText(event: event))
-            infoCell(systemImage: event.isFree ? "checkmark.seal" : "dollarsign.circle", label: "Price",
-                     value: event.isFree ? "Free" : (event.price.map { String(format: "$%.2f", $0) } ?? "—"))
-        }
-    }
-
-    private func ageText(event: EventDTO) -> String {
-        if let lo = event.ageMin, let hi = event.ageMax { return "\(lo)–\(hi)" }
-        if let lo = event.ageMin { return "\(lo)+" }
-        return "All ages"
-    }
-
-    @ViewBuilder
-    private func infoCell(systemImage: String, label: String, value: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.body)
-                .foregroundStyle(.tint)
-                .frame(width: 22)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(label)
-                    .font(.caption2)
-                    .foregroundStyle(Color.dsTextMuted)
-                Text(value)
-                    .font(.subheadline.weight(.medium))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.dsSurfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .scrollIndicators(.hidden)
     }
 
     @ViewBuilder
     private func aboutSection(description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            sectionHeader("About")
+            Text("About")
+                .font(.headline)
+                .foregroundStyle(Color.dsTextPrimary)
             Text(description)
                 .font(.body)
                 .foregroundStyle(Color.dsTextPrimary)
@@ -322,7 +257,9 @@ public struct EventDetailScreen: View {
     @ViewBuilder
     private func locationSection(event: EventDTO) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Location")
+            Text("Location")
+                .font(.headline)
+                .foregroundStyle(Color.dsTextPrimary)
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: "mappin.and.ellipse")
                     .font(.body)
@@ -376,7 +313,9 @@ public struct EventDetailScreen: View {
     @ViewBuilder
     private func ratingSection(event: EventDTO) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader("Your rating")
+            Text("Your rating")
+                .font(.headline)
+                .foregroundStyle(Color.dsTextPrimary)
             StarRatingView(
                 score: $draftRating,
                 isDisabled: viewModel.isRatingInFlight,
@@ -401,91 +340,6 @@ public struct EventDetailScreen: View {
         return "Community average: \(avg) (\(event.ratingCount) rating\(event.ratingCount == 1 ? "" : "s"))"
     }
 
-    @ViewBuilder
-    private func commentSection(event: EventDTO) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Comments")
-            HStack(alignment: .top, spacing: 8) {
-                TextField("Share what you're hoping for…", text: $draftComment, axis: .vertical)
-                    .lineLimit(1...4)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(Color.dsSurfaceRaised)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                Button {
-                    Task {
-                        await viewModel.addComment(draftComment)
-                        if viewModel.commentError == nil { draftComment = "" }
-                    }
-                } label: {
-                    Image(systemName: "paperplane.fill")
-                        .padding(10)
-                        .background(Color.dsAccentPrimary)
-                        .foregroundStyle(Color.dsSurface)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .disabled(viewModel.isCommentInFlight || draftComment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .accessibilityLabel("Post comment")
-            }
-            if let err = viewModel.commentError {
-                Text(err)
-                    .font(.caption)
-                    .foregroundStyle(Color.dsError)
-            }
-            if viewModel.comments.isEmpty {
-                Text("No comments yet. Be the first.")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.dsTextMuted)
-            } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.comments) { comment in
-                        commentRow(comment)
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func commentRow(_ comment: CommentDTO) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(Color.dsTextMuted)
-                Text(comment.authorDisplayName ?? "Anonymous")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(Self.commentDateFormatter.string(from: comment.createdAt))
-                    .font(.caption)
-                    .foregroundStyle(Color.dsTextMuted)
-            }
-            Text(comment.body)
-                .font(.body)
-                .foregroundStyle(Color.dsTextPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.dsSurfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    private static let commentDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f
-    }()
-
-    @ViewBuilder
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(Color.dsTextPrimary)
-    }
-
     private func appleMapsURL(for event: EventDTO) -> URL? {
         if let lat = event.latitude, let lng = event.longitude {
             let q = event.venueName?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Event"
@@ -497,16 +351,4 @@ public struct EventDetailScreen: View {
         }
         return nil
     }
-
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "EEE, MMM d"
-        return f
-    }()
-
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "h:mm a"
-        return f
-    }()
 }

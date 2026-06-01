@@ -23,7 +23,7 @@ public struct PlanInput: Equatable, Sendable {
     }
 }
 
-public final class SupabasePlanRepository: PlanRepository, @unchecked Sendable {
+public final class SupabasePlanRepository: PlanRepository, Sendable {
     private let supabase: FamilyEventsSupabase
     public init(supabase: FamilyEventsSupabase) { self.supabase = supabase }
 

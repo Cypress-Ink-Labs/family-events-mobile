@@ -20,7 +20,7 @@ public struct GoogleSignInButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 48)
             .background(Color(red: 0.26, green: 0.52, blue: 0.96))
-            .cornerRadius(8)
+            .clipShape(.rect(cornerRadius: 8))
         }
         .buttonStyle(.plain)
     }

@@ -13,7 +13,7 @@ import Supabase
 /// poll every 30s and diff against the previous snapshot to emit FavoriteChange
 /// events. M7.1 will reinstate native realtime when the upstream packaging
 /// supports it. Tracking note in CommitMessageBody.
-public final class SupabaseFavoriteRepo: FavoriteRepo, @unchecked Sendable {
+public final class SupabaseFavoriteRepo: FavoriteRepo, Sendable {
     private let supabase: FamilyEventsSupabase
 
     public init(supabase: FamilyEventsSupabase) {
@@ -55,6 +55,7 @@ public final class SupabaseFavoriteRepo: FavoriteRepo, @unchecked Sendable {
     public func observeFavorites(for userID: UserID) -> AsyncStream<FavoriteChange> {
         AsyncStream { continuation in
             let task = Task { [weak self] in
+                defer { continuation.finish() }
                 guard let self else { return }
                 var lastKnown: [String: FavoriteDTO] = [:]
                 // Seed from current server state on subscribe.

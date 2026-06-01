@@ -19,7 +19,7 @@ public protocol CityRepository: Sendable {
     func cityName(id: CityID) async throws -> String?
 }
 
-public final class SupabaseCityRepository: CityRepository, @unchecked Sendable {
+public final class SupabaseCityRepository: CityRepository, Sendable {
     private let supabase: FamilyEventsSupabase
     public init(supabase: FamilyEventsSupabase) { self.supabase = supabase }
 

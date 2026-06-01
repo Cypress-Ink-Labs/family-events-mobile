@@ -57,7 +57,7 @@ public final class ScenePhaseRefreshController {
     public func scenePhaseChanged(_ phase: Phase) {
         switch phase {
         case .background:
-            lastBackgroundedAt = Date()
+            lastBackgroundedAt = .now
         case .inactive:
             // Transient — about to background or about to foreground. Ignore.
             break

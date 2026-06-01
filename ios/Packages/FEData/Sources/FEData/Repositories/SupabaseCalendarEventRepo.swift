@@ -2,7 +2,7 @@ import Foundation
 import FECore
 import Supabase
 
-public final class SupabaseCalendarEventRepo: CalendarEventRepo, @unchecked Sendable {
+public final class SupabaseCalendarEventRepo: CalendarEventRepo, Sendable {
     private let supabase: FamilyEventsSupabase
     private let pollInterval: Duration
 
@@ -51,6 +51,7 @@ public final class SupabaseCalendarEventRepo: CalendarEventRepo, @unchecked Send
         let pollInterval = self.pollInterval
         return AsyncStream { continuation in
             let task = Task { [weak self] in
+                defer { continuation.finish() }
                 guard let self else { return }
                 var lastKnown: [String: CalendarEventDTO] = [:]
                 if let initial = try? await self.calendarEvents(for: userID) {

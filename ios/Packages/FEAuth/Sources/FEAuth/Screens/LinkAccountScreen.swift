@@ -21,7 +21,7 @@ public struct LinkAccountScreen: View {
 
             SecureField("Password", text: $viewModel.password)
                 .textContentType(.password)
-                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).clipShape(.rect(cornerRadius: 8))
 
             if let err = viewModel.errorMessage {
                 Text(err).foregroundStyle(.red).font(.dsCaptionXs)

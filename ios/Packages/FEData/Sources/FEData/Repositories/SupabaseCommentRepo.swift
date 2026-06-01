@@ -2,7 +2,7 @@ import Foundation
 import FECore
 import Supabase
 
-public final class SupabaseCommentRepo: CommentRepo, @unchecked Sendable {
+public final class SupabaseCommentRepo: CommentRepo, Sendable {
     private let supabase: FamilyEventsSupabase
     private let pollInterval: Duration
 

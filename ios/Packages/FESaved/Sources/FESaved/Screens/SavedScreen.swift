@@ -62,18 +62,20 @@ public struct SavedScreen: View {
         .navigationTitle("Saved")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: onOpenProfile) {
-                    Image(systemName: "person.crop.circle")
-                }
-                .accessibilityLabel("Profile")
+                Button("Profile", systemImage: "person.crop.circle", action: onOpenProfile)
+                    .labelStyle(.iconOnly)
             }
         }
         .task {
             await coordinator.refresh(userID: userID)
             coordinator.startObserving(userID: userID)
-        }
-        .onDisappear {
-            coordinator.stopObserving()
+            await withTaskCancellationHandler {
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(86400))
+                }
+            } onCancel: {
+                Task { @MainActor in coordinator.stopObserving() }
+            }
         }
         .scrollBounceBehavior(.always)
         .refreshable {

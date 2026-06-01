@@ -26,7 +26,7 @@ public struct ForgotPasswordScreen: View {
                 #endif
                 .autocorrectionDisabled()
                 .textContentType(.emailAddress)
-                .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
+                .padding().background(Color.dsSurfaceRaised).clipShape(.rect(cornerRadius: 8))
 
             if viewModel.emailSent {
                 Text("Check your email for a reset link.").font(.dsBody)

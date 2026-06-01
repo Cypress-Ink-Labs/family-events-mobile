@@ -88,7 +88,7 @@ public enum DescriptionSanitizer {
             ("&ldquo;", "\""),
         ]
         for (entity, replacement) in map {
-            s = s.replacingOccurrences(of: entity, with: replacement)
+            s = s.replacing(entity, with: replacement)
         }
         return s
     }

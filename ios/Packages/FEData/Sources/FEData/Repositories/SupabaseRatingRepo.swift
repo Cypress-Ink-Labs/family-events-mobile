@@ -2,7 +2,7 @@ import Foundation
 import FECore
 import Supabase
 
-public final class SupabaseRatingRepo: RatingRepo, @unchecked Sendable {
+public final class SupabaseRatingRepo: RatingRepo, Sendable {
     private let supabase: FamilyEventsSupabase
 
     public init(supabase: FamilyEventsSupabase) {

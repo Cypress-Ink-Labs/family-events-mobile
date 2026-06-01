@@ -23,11 +23,11 @@ public struct SignUpScreen: View {
                     #endif
                     .autocorrectionDisabled()
                     .textContentType(.emailAddress)
-                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).clipShape(.rect(cornerRadius: 8))
 
                 SecureField("Password (at least 8 characters)", text: $viewModel.password)
                     .textContentType(.newPassword)
-                    .padding().background(Color.dsSurfaceRaised).cornerRadius(8)
+                    .padding().background(Color.dsSurfaceRaised).clipShape(.rect(cornerRadius: 8))
 
                 if viewModel.pendingConfirmation {
                     Text("Check your email for a confirmation link. Once confirmed, sign in.")

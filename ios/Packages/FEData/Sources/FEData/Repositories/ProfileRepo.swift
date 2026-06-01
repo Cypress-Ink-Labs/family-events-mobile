@@ -60,7 +60,7 @@ public protocol ProfileRepo: Sendable {
     func currentContext(userID: UserID) async throws -> (cityID: CityID?, kidAge: Int?)
 }
 
-public final class SupabaseProfileRepo: ProfileRepo, @unchecked Sendable {
+public final class SupabaseProfileRepo: ProfileRepo, Sendable {
     private let supabase: FamilyEventsSupabase
     public init(supabase: FamilyEventsSupabase) { self.supabase = supabase }
 

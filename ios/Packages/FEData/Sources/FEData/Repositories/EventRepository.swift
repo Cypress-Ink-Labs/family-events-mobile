@@ -9,7 +9,7 @@ public protocol EventRepository: Sendable {
 
 /// Concrete impl chaining `.select("...")` after `.rpc("events_enriched", ...)` per D13.
 /// supabase-swift 2.20.0's PostgrestFilterBuilder inherits select from PostgrestTransformBuilder.
-public final class SupabaseEventRepository: EventRepository, @unchecked Sendable {
+public final class SupabaseEventRepository: EventRepository, Sendable {
     private let supabase: FamilyEventsSupabase
     public init(supabase: FamilyEventsSupabase) { self.supabase = supabase }
 
