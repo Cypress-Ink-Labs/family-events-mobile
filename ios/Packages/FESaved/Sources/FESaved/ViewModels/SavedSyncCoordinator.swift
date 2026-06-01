@@ -64,30 +64,30 @@ public final class SavedSyncCoordinator: Refreshable {
         observationTask = Task { [weak self] in
             var reconnectAttempts = 0
             while !Task.isCancelled {
-                guard let self else { return }
-                await self.subscriptionAudit.recordAttach()
-                let stream = self.favoriteRepo.observeFavorites(for: userID)
+                guard let coordinator = self else { return }
+                await coordinator.subscriptionAudit.recordAttach()
+                let stream = coordinator.favoriteRepo.observeFavorites(for: userID)
                 for await change in stream {
                     if Task.isCancelled { break }
-                    guard let self else { return }
-                    self.apply(change: change, userID: userID)
+                    guard let coordinator = self else { return }
+                    coordinator.apply(change: change, userID: userID)
                 }
-                guard let self else { return }
-                await self.subscriptionAudit.recordDetach()
+                guard let coordinator = self else { return }
+                await coordinator.subscriptionAudit.recordDetach()
                 if Task.isCancelled { break }
-                guard self.observationAttemptID == attemptID else { break }
-                guard reconnectAttempts < self.reconnectPolicy.maxAttempts else {
-                    self.errorMessage = "Favorites realtime subscription stopped. Pull to refresh."
+                guard coordinator.observationAttemptID == attemptID else { break }
+                guard reconnectAttempts < coordinator.reconnectPolicy.maxAttempts else {
+                    coordinator.errorMessage = "Favorites realtime subscription stopped. Pull to refresh."
                     break
                 }
                 reconnectAttempts += 1
-                await self.subscriptionAudit.recordReconnect()
-                try? await Task.sleep(for: self.reconnectPolicy.delay)
+                await coordinator.subscriptionAudit.recordReconnect()
+                try? await Task.sleep(for: coordinator.reconnectPolicy.delay)
             }
-            guard let self else { return }
-            if self.observationAttemptID == attemptID {
-                self.observationAttemptID = nil
-                self.observationTask = nil
+            guard let coordinator = self else { return }
+            if coordinator.observationAttemptID == attemptID {
+                coordinator.observationAttemptID = nil
+                coordinator.observationTask = nil
             }
         }
     }

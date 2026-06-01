@@ -21,7 +21,7 @@ public final class CLLocationManagerAuthorizationProvider: NSObject, LocationAut
     private let manager: CLLocationManager
     private var pending: CheckedContinuation<LocationAuthorizationStatus, Never>?
 
-    public init(manager: CLLocationManager = CLLocationManager()) {
+    nonisolated public init(manager: CLLocationManager = CLLocationManager()) {
         self.manager = manager
         super.init()
         self.manager.delegate = self
