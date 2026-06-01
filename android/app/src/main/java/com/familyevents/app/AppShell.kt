@@ -9,12 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -22,19 +26,28 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.familyevents.core.CityId
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familyevents.data.EventQuery
+import kotlinx.coroutines.launch
 import com.familyevents.auth.AuthScreen
+import com.familyevents.calendar.CalendarScreen
+import com.familyevents.core.CityId
 import com.familyevents.core.DeepLinkPolicy
 import com.familyevents.core.DeepLinkTarget
 import com.familyevents.core.EnvConfig
@@ -45,6 +58,7 @@ import com.familyevents.designsystem.AppThemePreference
 import com.familyevents.eventdetail.EventDetailScreen
 import com.familyevents.eventdetail.PublicSharePreviewScreen
 import com.familyevents.explore.ExploreScreen
+import com.familyevents.map.MapScreen
 import com.familyevents.plan.PlanScreen
 import com.familyevents.platform.LocationProvider
 import com.familyevents.platform.PlatformActions
@@ -53,6 +67,8 @@ import com.familyevents.saved.SavedScreen
 private enum class AppTab(val title: String) {
     Plan("Plan"),
     Explore("Explore"),
+    Map("Map"),
+    Calendar("Calendar"),
     Saved("Saved");
 
     @Composable
@@ -60,6 +76,8 @@ private enum class AppTab(val title: String) {
         val imageVector = when (this) {
             Plan -> if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
             Explore -> if (selected) Icons.Filled.Explore else Icons.Outlined.Explore
+            Map -> if (selected) Icons.Filled.Map else Icons.Outlined.Map
+            Calendar -> if (selected) Icons.Filled.CalendarMonth else Icons.Outlined.CalendarMonth
             Saved -> if (selected) Icons.Filled.Favorite else Icons.Outlined.Favorite
         }
         Icon(imageVector, contentDescription = null)
@@ -117,9 +135,41 @@ fun FamilyEventsApp(
             val userId = state.userId
             val profile by repositories.profileRepository.observeProfile(userId).collectAsStateWithLifecycle(initialValue = null)
             val activeCityId = profile?.currentCityId ?: CityId("chicago")
+            val cities by repositories.cityRepository.observeCities().collectAsStateWithLifecycle(initialValue = emptyList())
+            val scope = rememberCoroutineScope()
+            var cityName by remember { mutableStateOf<String?>(null) }
+            var showCityPicker by remember { mutableStateOf(false) }
+
+            // Lifecycle-aware foreground refresh
+            var foregroundKey by remember { mutableIntStateOf(0) }
+            val lifecycleOwner = LocalLifecycleOwner.current
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_START) foregroundKey++
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            }
+            LaunchedEffect(foregroundKey) {
+                if (foregroundKey <= 1) return@LaunchedEffect
+                when (selectedTab) {
+                    AppTab.Plan -> {
+                        val coord = locationProvider.lastKnownLocation()
+                        runCatching { repositories.eventRepository.refreshPlan(userId, activeCityId, profile?.kidAge, coord?.latitude, coord?.longitude) }
+                    }
+                    AppTab.Explore, AppTab.Map, AppTab.Calendar ->
+                        runCatching { repositories.eventRepository.refreshEventList(EventQuery(cityId = activeCityId)) }
+                    AppTab.Saved ->
+                        runCatching { repositories.eventRepository.refreshEventList(EventQuery(cityId = null)) }
+                }
+            }
+
             LaunchedEffect(userId) {
                 runCatching { repositories.cityRepository.refreshCities() }
                 runCatching { repositories.profileRepository.currentContext(userId) }
+            }
+            LaunchedEffect(activeCityId) {
+                cityName = runCatching { repositories.cityRepository.cityName(activeCityId) }.getOrNull()
             }
             AppScaffold(
                 tabs = AppTab.entries,
@@ -133,19 +183,34 @@ fun FamilyEventsApp(
                     AppTab.Plan -> PlanScreen(
                         userId = userId,
                         cityId = activeCityId,
+                        cityName = cityName,
                         kidAge = profile?.kidAge,
                         eventRepository = repositories.eventRepository,
                         favoriteRepository = repositories.favoriteRepository,
                         weatherRepository = repositories.weatherRepository,
                         locationProvider = locationProvider,
                         onOpenEvent = { detailEventId = it },
-                        onSetCity = { showProfile = true },
+                        onSetCity = { showCityPicker = true },
                     )
                     AppTab.Explore -> ExploreScreen(
                         cityId = activeCityId,
+                        eventRepository = repositories.eventRepository,
+                        onOpenEvent = { detailEventId = it },
+                    )
+                    AppTab.Map -> MapScreen(
+                        cityId = activeCityId,
+                        cityName = cityName,
                         mapStyleUrl = config.mapStyleUrl,
                         eventRepository = repositories.eventRepository,
                         onOpenEvent = { detailEventId = it },
+                        onSetCity = { showCityPicker = true },
+                    )
+                    AppTab.Calendar -> CalendarScreen(
+                        cityId = activeCityId,
+                        cityName = cityName,
+                        eventRepository = repositories.eventRepository,
+                        onOpenEvent = { detailEventId = it },
+                        onSetCity = { showCityPicker = true },
                     )
                     AppTab.Saved -> SavedScreen(
                         userId = userId,
@@ -169,6 +234,22 @@ fun FamilyEventsApp(
                         onAddToCalendar = platformActions::addToCalendar,
                     )
                 }
+            }
+
+            if (showCityPicker) {
+                CityPickerBottomSheet(
+                    cities = cities,
+                    selectedCityId = activeCityId,
+                    onSelectCity = { newCityId ->
+                        showCityPicker = false
+                        scope.launch {
+                            runCatching {
+                                repositories.profileRepository.updateContext(userId, newCityId, profile?.kidAge)
+                            }
+                        }
+                    },
+                    onDismiss = { showCityPicker = false },
+                )
             }
         }
     }
@@ -245,6 +326,8 @@ private fun routeDeepLink(raw: String?, onTab: (AppTab) -> Unit, onEvent: (Event
 
 private fun String.toAppTab(): AppTab = when (lowercase()) {
     "explore" -> AppTab.Explore
+    "map" -> AppTab.Map
+    "calendar" -> AppTab.Calendar
     "saved" -> AppTab.Saved
     else -> AppTab.Plan
 }

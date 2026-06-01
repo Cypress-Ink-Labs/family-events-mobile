@@ -3,7 +3,9 @@ package com.familyevents.data
 import com.familyevents.core.CityId
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 sealed interface SessionState {
     data object Restoring : SessionState
@@ -70,5 +72,11 @@ interface RatingRepository {
 interface CommentRepository {
     suspend fun comments(eventId: EventId): List<CommentDto>
     suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto
+    fun observeComments(eventId: EventId): Flow<List<CommentDto>> = flow {
+        while (true) {
+            emit(runCatching { comments(eventId) }.getOrDefault(emptyList()))
+            delay(CacheTtlTracker.COMMENTS_POLL_MS)
+        }
+    }
 }
 

@@ -5,13 +5,23 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,16 +31,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familyevents.core.CityId
 import com.familyevents.core.EventId
 import com.familyevents.core.UserId
 import com.familyevents.data.EventRepository
 import com.familyevents.data.FavoriteRepository
+import com.familyevents.data.PlanEventRowDto
 import com.familyevents.data.WeatherRepository
+import com.familyevents.data.WeatherSnapshotDto
 import com.familyevents.designsystem.EmptyState
-import com.familyevents.designsystem.EventCard
+import com.familyevents.designsystem.EventHeroImage
 import com.familyevents.designsystem.FamilyTypography
+import com.familyevents.designsystem.TagPill
 import com.familyevents.designsystem.generated.Tokens
 import com.familyevents.platform.LocationProvider
 import kotlinx.coroutines.launch
@@ -39,6 +56,7 @@ import kotlinx.coroutines.launch
 fun PlanScreen(
     userId: UserId,
     cityId: CityId?,
+    cityName: String? = null,
     kidAge: Int? = null,
     eventRepository: EventRepository,
     favoriteRepository: FavoriteRepository,
@@ -48,15 +66,12 @@ fun PlanScreen(
     onSetCity: () -> Unit,
 ) {
     val rows by eventRepository.observePlanEvents(userId, cityId).collectAsStateWithLifecycle(initialValue = emptyList())
-    val emptyForecast = remember { mutableStateOf(emptyList<com.familyevents.data.WeatherSnapshotDto>()) }
+    val emptyForecast = remember { mutableStateOf(emptyList<WeatherSnapshotDto>()) }
     val forecast by cityId?.let { weatherRepository.observeForecast(it).collectAsStateWithLifecycle(initialValue = emptyList()) } ?: emptyForecast
     val scope = rememberCoroutineScope()
     var permissionAsked by rememberSaveable { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
-    // Hold latest values for the permission callback. The launcher closure
-    // captures these once at composition; without rememberUpdatedState a profile
-    // change (e.g., kidAge loading after dialog opens) would refresh against
-    // stale args when the dialog returns.
     val currentUserId by rememberUpdatedState(userId)
     val currentCityId by rememberUpdatedState(cityId)
     val currentKidAge by rememberUpdatedState(kidAge)
@@ -64,9 +79,6 @@ fun PlanScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
-        // On Android 12+ the system dialog lets users grant approximate-only,
-        // in which case ACCESS_FINE_LOCATION is denied but ACCESS_COARSE_LOCATION
-        // is granted. Either grant is enough for FusedLocationProvider.
         val anyGranted = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         scope.launch {
@@ -80,50 +92,163 @@ fun PlanScreen(
         runCatching { eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude) }
     }
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(Tokens.Space.S4),
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            scope.launch {
+                isRefreshing = true
+                val coord = locationProvider.lastKnownLocation()
+                if (coord == null && !permissionAsked) {
+                    permissionAsked = true
+                    permissionLauncher.launch(
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    )
+                } else {
+                    runCatching { eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude) }
+                }
+                if (cityId != null) {
+                    runCatching { weatherRepository.refreshForecast(cityId) }
+                }
+                isRefreshing = false
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
     ) {
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
+            contentPadding = PaddingValues(Tokens.Space.S4),
+        ) {
+            item {
                 Text("Saturday Plan", style = FamilyTypography.TitleLarge)
-                Text(forecast.firstOrNull()?.summary ?: "Pick a few easy events for this weekend.", style = FamilyTypography.BodySmall)
-                Button(onClick = {
-                    scope.launch {
-                        val coord = locationProvider.lastKnownLocation()
-                        if (coord == null && !permissionAsked) {
-                            permissionAsked = true
-                            permissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                ),
-                            )
-                        } else {
-                            runCatching { eventRepository.refreshPlan(userId, cityId, kidAge, coord?.latitude, coord?.longitude) }
+            }
+            item {
+                PlanContextBar(cityName = cityName, kidAge = kidAge, onSetCity = onSetCity)
+            }
+            if (forecast.isNotEmpty()) {
+                item {
+                    WeatherStrip(snapshot = forecast.first())
+                }
+            }
+            if (cityId == null || rows.isEmpty()) {
+                item {
+                    EmptyState("Set your city or broaden filters.", "Set city", onSetCity)
+                }
+            } else {
+                item {
+                    PlanHeroCard(row = rows.first(), onOpen = { onOpenEvent(it) })
+                }
+                if (rows.size > 1) {
+                    item {
+                        Text("Also this week", style = FamilyTypography.TitleMedium)
+                    }
+                    item {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+                        ) {
+                            items(rows.drop(1), key = { it.event.id.rawValue }) { row ->
+                                PlanCarouselCard(row = row, onOpen = { onOpenEvent(it) })
+                            }
                         }
                     }
-                }) {
-                    Text("Refresh")
                 }
             }
         }
-        if (cityId == null || rows.isEmpty()) {
-            item {
-                EmptyState("Set your city or broaden filters.", "Set city", onSetCity)
+    }
+}
+
+@Composable
+private fun PlanContextBar(cityName: String?, kidAge: Int?, onSetCity: () -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2)) {
+        FilterChip(
+            selected = cityName != null,
+            onClick = onSetCity,
+            label = { Text(cityName ?: "Set city") },
+        )
+        if (kidAge != null) {
+            FilterChip(
+                selected = true,
+                onClick = {},
+                label = { Text("Age $kidAge") },
+            )
+        }
+    }
+}
+
+@Composable
+private fun WeatherStrip(snapshot: WeatherSnapshotDto) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Tokens.Radius.Md),
+    ) {
+        Row(
+            modifier = Modifier.padding(Tokens.Space.S3),
+            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1)) {
+                Text(snapshot.summary, style = FamilyTypography.Body)
+                Row(horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                    snapshot.temperatureHighF?.let { Text("${it}°F", style = FamilyTypography.BodySmall) }
+                    snapshot.precipitationChance?.let {
+                        Text("${(it * 100).toInt()}% rain", style = FamilyTypography.BodySmall)
+                    }
+                }
             }
-        } else {
-            items(rows, key = { it.event.id.rawValue }) { row ->
-                EventCard(
-                    title = row.event.title,
-                    subtitle = row.event.venueName ?: row.section,
-                    badge = row.event.tags.firstOrNull()?.label,
-                    imageUrl = row.event.imageUrl,
-                    onClick = { onOpenEvent(row.event.id) },
+        }
+    }
+}
+
+@Composable
+private fun PlanHeroCard(row: PlanEventRowDto, onOpen: (EventId) -> Unit) {
+    Card(
+        onClick = { onOpen(row.event.id) },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(Tokens.Radius.Md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column {
+            EventHeroImage(title = row.event.title, imageUrl = row.event.imageUrl)
+            Column(
+                modifier = Modifier.padding(Tokens.Space.S4),
+                verticalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            ) {
+                Text(row.event.title, style = FamilyTypography.TitleLarge)
+                Text(
+                    row.event.venueName ?: row.section,
+                    style = FamilyTypography.Body,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
                 )
+                row.event.tags.firstOrNull()?.let { TagPill(it.label) }
             }
+        }
+    }
+}
+
+@Composable
+private fun PlanCarouselCard(row: PlanEventRowDto, onOpen: (EventId) -> Unit) {
+    OutlinedCard(
+        onClick = { onOpen(row.event.id) },
+        modifier = Modifier.width(200.dp),
+        shape = RoundedCornerShape(Tokens.Radius.Md),
+    ) {
+        Column(
+            modifier = Modifier.padding(Tokens.Space.S3),
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S1),
+        ) {
+            Text(
+                row.event.title,
+                style = FamilyTypography.TitleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                row.event.venueName ?: row.section,
+                style = FamilyTypography.BodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+            )
+            row.event.tags.firstOrNull()?.let { TagPill(it.label) }
         }
     }
 }

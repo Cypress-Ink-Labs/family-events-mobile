@@ -132,6 +132,8 @@ dependencies {
     implementation(project(":auth"))
     implementation(project(":plan"))
     implementation(project(":explore"))
+    implementation(project(":map"))
+    implementation(project(":calendar"))
     implementation(project(":saved"))
     implementation(project(":eventdetail"))
     implementation(project(":platform"))

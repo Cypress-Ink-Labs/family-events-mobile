@@ -38,6 +38,8 @@ class DeepLinkPolicyTest {
     fun tabLinksForDifferentTabs() {
         assertEquals(DeepLinkTarget.Tab("plan"), DeepLinkPolicy.parse("familyevents://tab/plan"))
         assertEquals(DeepLinkTarget.Tab("explore"), DeepLinkPolicy.parse("familyevents://tab/explore"))
+        assertEquals(DeepLinkTarget.Tab("map"), DeepLinkPolicy.parse("familyevents://tab/map"))
+        assertEquals(DeepLinkTarget.Tab("calendar"), DeepLinkPolicy.parse("familyevents://tab/calendar"))
     }
 
     @Test

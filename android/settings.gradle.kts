@@ -28,6 +28,8 @@ include(
     ":auth",
     ":plan",
     ":explore",
+    ":map",
+    ":calendar",
     ":saved",
     ":eventdetail",
     ":platform",

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,12 +29,14 @@ import com.familyevents.designsystem.EmptyState
 import com.familyevents.designsystem.EventCard
 import com.familyevents.designsystem.FamilyTypography
 import com.familyevents.designsystem.generated.Tokens
+import java.time.Instant
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.ZoneId
 
-private enum class SavedMode { List, Calendar }
+private enum class SavedFilter(val label: String) {
+    Upcoming("Upcoming"),
+    Past("Past"),
+    All("All");
+}
 
 @Composable
 fun SavedScreen(
@@ -47,62 +50,72 @@ fun SavedScreen(
     val events by eventRepository.observeEventList(EventQuery(cityId = null)).collectAsStateWithLifecycle(initialValue = emptyList())
     val eventsById = events.associateBy { it.id }
     val scope = rememberCoroutineScope()
+    var filter by remember { mutableStateOf(SavedFilter.Upcoming) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
-    var mode by remember { mutableStateOf(SavedMode.List) }
-    var selectedMonth by remember { mutableStateOf(YearMonth.now(ZoneId.systemDefault())) }
-    var selectedDay by remember { mutableStateOf<LocalDate?>(LocalDate.now(ZoneId.systemDefault())) }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(Tokens.Space.S4),
-    ) {
-        Text("Saved", style = FamilyTypography.TitleLarge)
-        Button(onClick = onOpenProfile) { Text("Profile") }
-
-        // List / Calendar toggle
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
-        ) {
-            SavedMode.entries.forEach { item ->
-                FilterChip(
-                    selected = mode == item,
-                    onClick = { mode = item },
-                    label = { Text(item.name) },
-                )
-            }
+    val now = remember { Instant.now() }
+    val filtered = favorites.filter { fav ->
+        val event = eventsById[fav.eventId]
+        when (filter) {
+            SavedFilter.All -> true
+            SavedFilter.Upcoming -> event == null || !event.startsAt.isBefore(now)
+            SavedFilter.Past -> event != null && event.startsAt.isBefore(now)
         }
+    }
 
-        if (favorites.isEmpty()) {
-            EmptyState("Saved events will appear here.")
-        } else {
-            when (mode) {
-                SavedMode.List -> LazyColumn(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
-                    items(favorites, key = { it.eventId.rawValue }) { fav ->
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            scope.launch {
+                isRefreshing = true
+                runCatching { eventRepository.refreshEventList(EventQuery(cityId = null)) }
+                isRefreshing = false
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Tokens.Space.S4),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Tokens.Space.S4),
+        ) {
+            Text("Saved", style = FamilyTypography.TitleLarge)
+            Button(onClick = onOpenProfile) { Text("Profile") }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Tokens.Space.S2),
+            ) {
+                SavedFilter.entries.forEach { item ->
+                    FilterChip(
+                        selected = filter == item,
+                        onClick = { filter = item },
+                        label = { Text(item.label) },
+                    )
+                }
+            }
+
+            if (filtered.isEmpty()) {
+                val message = when (filter) {
+                    SavedFilter.Upcoming -> "No upcoming saved events."
+                    SavedFilter.Past -> "No past saved events."
+                    SavedFilter.All -> "Saved events will appear here."
+                }
+                EmptyState(message)
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(Tokens.Space.S3)) {
+                    items(filtered, key = { it.eventId.rawValue }) { fav ->
                         val event = eventsById[fav.eventId]
                         EventCard(
                             title = event?.title ?: fav.eventId.rawValue,
                             subtitle = event?.venueName ?: "Saved event",
-                            badge = "Saved",
+                            badge = null,
                             imageUrl = event?.imageUrl,
                             onClick = { onOpenEvent(fav.eventId) },
                         )
-                        Button(onClick = { scope.launch { runCatching { favoriteRepository.unfavorite(userId, fav.eventId) } } }) {
-                            Text("Unsave")
-                        }
                     }
                 }
-                SavedMode.Calendar -> SavedCalendarView(
-                    favorites = favorites,
-                    eventsById = eventsById,
-                    selectedMonth = selectedMonth,
-                    selectedDay = selectedDay,
-                    onSelectMonth = { selectedMonth = it },
-                    onSelectDay = { selectedDay = it },
-                    onOpenEvent = onOpenEvent,
-                )
             }
         }
     }

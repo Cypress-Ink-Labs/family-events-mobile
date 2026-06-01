@@ -67,6 +67,8 @@ class MainActivity : ComponentActivity() {
         manager.dynamicShortcuts = listOf(
             shortcut("plan", "Plan", "Open Saturday Plan", "familyevents://tab/plan", icon),
             shortcut("explore", "Explore", "Search family events", "familyevents://tab/explore", icon),
+            shortcut("map", "Map", "View events on map", "familyevents://tab/map", icon),
+            shortcut("calendar", "Calendar", "Browse events by date", "familyevents://tab/calendar", icon),
             shortcut("saved", "Saved", "Open saved events", "familyevents://tab/saved", icon),
         )
     }
