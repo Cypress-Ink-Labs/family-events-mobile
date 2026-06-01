@@ -9,6 +9,7 @@ import FECityPicker
 public struct MapTab: View {
     public let tabTitle = "Map"
 
+    @Environment(ScenePhaseRefreshController.self) private var refreshController
     @State private var viewModel: MapViewModel
     @State private var path: [EventID] = []
     @State private var citySelection: CityPickerToolbarButton.Selection
@@ -72,6 +73,7 @@ public struct MapTab: View {
                 )
             }
         }
+        .onAppear { refreshController.bind(viewModel) }
     }
 
     private var cityPickerPlacement: ToolbarItemPlacement {

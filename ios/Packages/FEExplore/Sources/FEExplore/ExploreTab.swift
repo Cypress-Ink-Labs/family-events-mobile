@@ -7,6 +7,7 @@ import FEEventDetail
 @MainActor
 public struct ExploreTab: View {
     public let tabTitle = "Explore"
+    @Environment(ScenePhaseRefreshController.self) private var refreshController
     @State private var viewModel: ExploreViewModel
     @State private var path: [EventID] = []
     private let eventRepo: any EventRepository
@@ -45,5 +46,6 @@ public struct ExploreTab: View {
                     )
                 }
         }
+        .onAppear { refreshController.bind(viewModel) }
     }
 }

@@ -46,9 +46,7 @@ public struct ExploreScreen: View {
             ExploreFilterSheet(filters: $viewModel.filters, onDismiss: { showFilters = false })
         }
         .task {
-            if viewModel.events.isEmpty && viewModel.errorMessage == nil {
-                await viewModel.reload()
-            }
+            await viewModel.loadIfNeeded()
         }
     }
 
@@ -111,11 +109,11 @@ public struct ExploreScreen: View {
     @ViewBuilder
     private var eventList: some View {
         LazyVStack(spacing: 12) {
-            ForEach(Array(viewModel.events.enumerated()), id: \.element.id) { index, event in
+            ForEach(viewModel.events) { event in
                 ExploreCard(event: event, onTap: { onSelectEvent(event.id) })
                     .padding(.horizontal, 16)
                     .onAppear {
-                        if index >= viewModel.events.count - 3 {
+                        if event.id == viewModel.events.suffix(3).first?.id {
                             Task { await viewModel.loadNextPage() }
                         }
                     }

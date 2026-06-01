@@ -8,6 +8,7 @@ import FEEventDetail
 @MainActor
 public struct SavedTab: View {
     public let tabTitle = "Saved"
+    @Environment(ScenePhaseRefreshController.self) private var refreshController
     @State private var coordinator: SavedSyncCoordinator
     @State private var path: [EventID] = []
     private let favoriteRepo: any FavoriteRepo
@@ -58,5 +59,6 @@ public struct SavedTab: View {
                 )
             }
         }
+        .onAppear { refreshController.bind(coordinator) }
     }
 }

@@ -4,23 +4,6 @@ import FECore
 import FEData
 import FEDesignSystem
 
-/// iOS-specific nav chrome: inline title display + opaque warm-paper
-/// background. Without the opaque toolbar bg, scroll content shows
-/// through the translucent nav bar and reads as ghosted text behind the
-/// title. No-op on macOS where these modifiers aren't available.
-private struct InlineNavTitle: ViewModifier {
-    func body(content: Content) -> some View {
-        #if os(iOS)
-        content
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.dsBackground, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-        #else
-        content
-        #endif
-    }
-}
-
 @MainActor
 public struct SaturdayPlanScreen: View {
     @Bindable var viewModel: PlanViewModel
@@ -78,7 +61,7 @@ public struct SaturdayPlanScreen: View {
         .scrollContentBackground(.hidden)
         .background(Color.dsBackground.ignoresSafeArea())
         .scrollBounceBehavior(.always)
-        .refreshable { await viewModel.refresh(context: context) }
+        .refreshable { await viewModel.forceRefresh(context: context) }
         .task { await viewModel.refresh(context: context) }
         .navigationTitle("Plan")
         .modifier(InlineNavTitle())
@@ -139,7 +122,7 @@ public struct SaturdayPlanScreen: View {
                 .textCase(.uppercase)
                 .tracking(1.2)
                 .foregroundStyle(Color.dsAccentSecondary)
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(secondaryEvents, id: \.id) { event in
                         PlanCarouselCard(event: event, onTap: { onSelectEvent(event.id) })
@@ -147,6 +130,7 @@ public struct SaturdayPlanScreen: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .scrollIndicators(.hidden)
             .padding(.horizontal, -16)
         }
     }
@@ -164,34 +148,10 @@ public struct SaturdayPlanScreen: View {
 
     @ViewBuilder
     private var emptyView: some View {
-        if context.cityID == nil && viewModel.lastEmptyRefresh {
-            VStack(spacing: 16) {
-                Image(systemName: "mappin.slash")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.dsTextMuted)
-                Text("No location set")
-                    .font(.dsTitleLg)
-                Text("Pick a city to see family events nearby.")
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.dsTextMuted)
-                    .font(.dsBody)
-                Button("Set your city") { onSetCity() }
-                    .buttonStyle(.borderedProminent)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 48)
-        } else {
-            VStack(spacing: 12) {
-                Image(systemName: "calendar.badge.exclamationmark")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.dsTextMuted)
-                Text("No family plans found nearby in the next 7 days.")
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.dsTextMuted)
-                    .font(.dsBody)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 48)
-        }
+        PlanEmptyStateView(
+            hasCitySet: context.cityID != nil,
+            lastEmptyRefresh: viewModel.lastEmptyRefresh,
+            onSetCity: onSetCity
+        )
     }
 }

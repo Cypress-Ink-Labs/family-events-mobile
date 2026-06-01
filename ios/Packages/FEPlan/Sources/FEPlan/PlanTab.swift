@@ -7,6 +7,7 @@ import FEEventDetail
 @MainActor
 public struct PlanTab: View {
     public let tabTitle = "Plan"
+    @Environment(ScenePhaseRefreshController.self) private var refreshController
     @State private var viewModel: PlanViewModel
     @State private var path: [EventID] = []
     private let context: PlanContext
@@ -57,5 +58,6 @@ public struct PlanTab: View {
                 )
             }
         }
+        .onAppear { refreshController.bind(viewModel) }
     }
 }

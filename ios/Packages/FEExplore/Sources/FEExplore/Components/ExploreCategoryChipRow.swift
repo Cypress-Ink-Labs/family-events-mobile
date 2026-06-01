@@ -16,7 +16,7 @@ public struct ExploreCategoryChipRow: View {
     ]
 
     public var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 8) {
                 ForEach(categories, id: \.slug) { cat in
                     Button {
@@ -26,8 +26,8 @@ public struct ExploreCategoryChipRow: View {
                             .font(.subheadline)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(activeCategory == cat.slug ? Color.dsAccentPrimarySoft : Color.secondary.opacity(0.1))
-                            .foregroundStyle(activeCategory == cat.slug ? Color.dsAccentPrimary : Color.primary)
+                            .background(activeCategory == cat.slug ? Color.dsAccentPrimarySoft : Color.dsSurfaceRaised)
+                            .foregroundStyle(activeCategory == cat.slug ? Color.dsAccentPrimary : Color.dsTextPrimary)
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
@@ -36,5 +36,6 @@ public struct ExploreCategoryChipRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
+        .scrollIndicators(.hidden)
     }
 }

@@ -9,7 +9,7 @@ import FEData
 /// coordinator owns the write side.
 @Observable
 @MainActor
-public final class SavedSyncCoordinator {
+public final class SavedSyncCoordinator: Refreshable {
     public private(set) var isRefreshing = false
     public private(set) var errorMessage: String?
 
@@ -20,6 +20,7 @@ public final class SavedSyncCoordinator {
     private let reconnectPolicy: FavoriteSubscriptionReconnectPolicy
     private var observationTask: Task<Void, Never>?
     private var observationAttemptID: UUID?
+    private var lastUserID: UserID?
 
     public init(
         favoriteRepo: any FavoriteRepo,
@@ -35,7 +36,13 @@ public final class SavedSyncCoordinator {
         self.reconnectPolicy = reconnectPolicy
     }
 
+    public func refresh() async {
+        guard let userID = lastUserID else { return }
+        await refresh(userID: userID)
+    }
+
     public func refresh(userID: UserID) async {
+        lastUserID = userID
         isRefreshing = true
         errorMessage = nil
         defer { isRefreshing = false }

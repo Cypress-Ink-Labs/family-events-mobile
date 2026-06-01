@@ -9,6 +9,7 @@ import FECityPicker
 public struct CalendarTab: View {
     public let tabTitle = "Calendar"
 
+    @Environment(ScenePhaseRefreshController.self) private var refreshController
     @State private var viewModel: CalendarViewModel
     @State private var path: [EventID] = []
     @State private var citySelection: CityPickerToolbarButton.Selection
@@ -72,6 +73,7 @@ public struct CalendarTab: View {
                 )
             }
         }
+        .onAppear { refreshController.bind(viewModel) }
     }
 
     private var cityPickerPlacement: ToolbarItemPlacement {

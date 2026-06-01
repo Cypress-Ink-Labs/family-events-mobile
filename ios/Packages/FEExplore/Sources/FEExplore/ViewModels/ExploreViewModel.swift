@@ -4,12 +4,13 @@ import FEData
 
 @Observable
 @MainActor
-public final class ExploreViewModel {
+public final class ExploreViewModel: Refreshable {
     public private(set) var isLoading = false
     public private(set) var isLoadingMore = false
     public private(set) var errorMessage: String?
     public private(set) var events: [EventDTO] = []
     public private(set) var hasMore = true
+    public private(set) var lastFetchedAt: Date?
     public var filters = ExploreFilters() {
         didSet {
             if filters != oldValue {
@@ -33,10 +34,21 @@ public final class ExploreViewModel {
         self.cityID = cityID
     }
 
+    public func refresh() async {
+        await reload()
+    }
+
     public func reload() async {
         filterReloadTask?.cancel()
         filterReloadTask = nil
         await reloadInternal()
+    }
+
+    public func loadIfNeeded() async {
+        if CacheTTL.isFresh(lastFetchedAt: lastFetchedAt, ttl: CacheTTL.default) && !events.isEmpty {
+            return
+        }
+        await reload()
     }
 
     private func reloadFromFilter() async {
@@ -85,6 +97,7 @@ public final class ExploreViewModel {
                 events.append(contentsOf: filtered)
             }
             loadedPages += 1
+            lastFetchedAt = Date()
             if fetched.count < pageSize { hasMore = false }
         } catch is CancellationError {
             guard generation == requestGeneration else { return }
