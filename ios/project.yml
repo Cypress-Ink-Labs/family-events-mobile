@@ -20,6 +20,8 @@ settings:
     MARKETING_VERSION: "1.0"
     SWIFT_VERSION: 5.10
     PRODUCT_BUNDLE_IDENTIFIER: com.familyevents.app
+    EAGER_LINKING: YES
+    COMPILATION_CACHE_ENABLE_CACHING: YES
   configs:
     Debug:
       SUPABASE_URL: http://127.0.0.1:55321
@@ -136,6 +138,11 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+      configs:
+        Debug:
+          DEBUG_INFORMATION_FORMAT: dwarf
+        DebugCloud:
+          DEBUG_INFORMATION_FORMAT: dwarf
     dependencies:
       - target: FamilyEvents
       - package: FECore
@@ -159,6 +166,11 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: ""
         BUNDLE_LOADER: ""
+      configs:
+        Debug:
+          DEBUG_INFORMATION_FORMAT: dwarf
+        DebugCloud:
+          DEBUG_INFORMATION_FORMAT: dwarf
     dependencies:
       - package: FEDesignSystem
       - package: swift-snapshot-testing
