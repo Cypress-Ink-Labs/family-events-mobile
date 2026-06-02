@@ -5,7 +5,7 @@ import FECore
 import FEData
 
 @MainActor
-final class PushNotificationCoordinator {
+final class PushNotificationCoordinator: NSObject, UNUserNotificationCenterDelegate {
     static let shared = PushNotificationCoordinator()
 
     private var userID: UserID?
@@ -13,7 +13,10 @@ final class PushNotificationCoordinator {
     private var lastDeviceToken: String?
     private var hasRequestedAuthorization = false
 
-    private init() {}
+    private override init() {
+        super.init()
+        UNUserNotificationCenter.current().delegate = self
+    }
 
     func configure(userID: UserID, registrationRepo: any MobilePushRegistrationRepo) async {
         self.userID = userID
@@ -56,6 +59,13 @@ final class PushNotificationCoordinator {
     private func register(token: String) async {
         guard let userID, let registrationRepo else { return }
         try? await registrationRepo.registerMobilePushToken(token, platform: .ios, for: userID)
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .list, .sound, .badge]
     }
 }
 
