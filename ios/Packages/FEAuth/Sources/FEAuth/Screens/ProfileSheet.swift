@@ -10,19 +10,23 @@ public struct ProfileSheet: View {
     private let authService: any AuthService
     private let profileRepo: any ProfileRepo
     private let cityRepo: any CityRepository
+    private let notificationPreferencesRepo: any NotificationPreferencesRepo
     private let onProfileSaved: (UserProfile) -> Void
     @State private var showDeleteConfirmation = false
     @State private var viewModel: ProfileViewModel?
+    @State private var notificationVM: NotificationPreferencesViewModel?
 
     public init(
         authService: any AuthService,
         profileRepo: any ProfileRepo,
         cityRepo: any CityRepository,
+        notificationPreferencesRepo: any NotificationPreferencesRepo,
         onProfileSaved: @escaping (UserProfile) -> Void = { _ in }
     ) {
         self.authService = authService
         self.profileRepo = profileRepo
         self.cityRepo = cityRepo
+        self.notificationPreferencesRepo = notificationPreferencesRepo
         self.onProfileSaved = onProfileSaved
     }
 
@@ -34,6 +38,7 @@ public struct ProfileSheet: View {
                     if let viewModel {
                         ProfileForm(
                             viewModel: viewModel,
+                            notificationVM: notificationVM,
                             appearanceRawValue: $appearanceRawValue,
                             onSave: { saved in onProfileSaved(saved) },
                             onSignOut: {
@@ -64,17 +69,25 @@ public struct ProfileSheet: View {
             .task(id: signedInUserID?.rawValue) {
                 guard let userID = signedInUserID else {
                     viewModel = nil
+                    notificationVM = nil
                     return
                 }
                 viewModel = nil
+                notificationVM = nil
                 let model = ProfileViewModel(
                     userID: userID,
                     profileRepo: profileRepo,
                     cityRepo: cityRepo,
                     authService: authService
                 )
+                let notifModel = NotificationPreferencesViewModel(
+                    userID: userID,
+                    repo: notificationPreferencesRepo
+                )
                 viewModel = model
+                notificationVM = notifModel
                 await model.load()
+                await notifModel.load()
             }
             .confirmationDialog(
                 "Delete account?",
@@ -105,6 +118,7 @@ public struct ProfileSheet: View {
 
 private struct ProfileForm: View {
     @Bindable var viewModel: ProfileViewModel
+    var notificationVM: NotificationPreferencesViewModel?
     @Binding var appearanceRawValue: String
     let onSave: (UserProfile) -> Void
     let onSignOut: () -> Void
@@ -114,6 +128,9 @@ private struct ProfileForm: View {
         List {
             accountSection
             personalInfoSection
+            if let notificationVM {
+                NotificationPreferencesSection(viewModel: notificationVM)
+            }
             appearanceSection
             passwordSection
             destructiveSection

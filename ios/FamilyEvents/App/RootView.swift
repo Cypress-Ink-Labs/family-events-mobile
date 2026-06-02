@@ -38,6 +38,12 @@ private struct FallbackFavoriteRepo: FavoriteRepo {
     }
 }
 
+/// No-op fallback for NotificationPreferencesRepo (previews, tests).
+private struct FallbackNotificationPreferencesRepo: NotificationPreferencesRepo {
+    func fetch(userID: UserID) async throws -> NotificationPreferences { .defaults }
+    func upsert(_ preferences: NotificationPreferences, for userID: UserID) async throws -> NotificationPreferences { preferences }
+}
+
 struct RootView: View {
     static let shownTabs: [AppTab] = [.plan, .explore, .map, .calendar, .saved]
     let initialTab: AppTab
@@ -49,6 +55,7 @@ struct RootView: View {
     private let favoriteRepo: any FavoriteRepo
     private let ratingRepo: (any RatingRepo)?
     private let commentRepo: (any CommentRepo)?
+    private let notificationPreferencesRepo: any NotificationPreferencesRepo
     private let modelContainer: ModelContainer?
     private let googleSignInEnabled: Bool
 
@@ -71,6 +78,7 @@ struct RootView: View {
         favoriteRepo: any FavoriteRepo = FallbackFavoriteRepo(),
         ratingRepo: (any RatingRepo)? = nil,
         commentRepo: (any CommentRepo)? = nil,
+        notificationPreferencesRepo: any NotificationPreferencesRepo = FallbackNotificationPreferencesRepo(),
         modelContainer: ModelContainer? = nil,
         googleSignInEnabled: Bool = false,
         initialTab: AppTab = .plan
@@ -83,6 +91,7 @@ struct RootView: View {
         self.favoriteRepo = favoriteRepo
         self.ratingRepo = ratingRepo
         self.commentRepo = commentRepo
+        self.notificationPreferencesRepo = notificationPreferencesRepo
         self.modelContainer = modelContainer
         self.googleSignInEnabled = googleSignInEnabled
         self.initialTab = initialTab
@@ -131,6 +140,7 @@ struct RootView: View {
                 authService: authService,
                 profileRepo: profileRepo,
                 cityRepo: cityRepo,
+                notificationPreferencesRepo: notificationPreferencesRepo,
                 onProfileSaved: { profile in
                     Task { await applyProfile(profile) }
                 }

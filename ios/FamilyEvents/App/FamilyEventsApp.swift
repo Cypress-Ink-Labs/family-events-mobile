@@ -21,6 +21,7 @@ struct FamilyEventsApp: App {
             favoriteRepo: any FavoriteRepo,
             ratingRepo: any RatingRepo,
             commentRepo: any CommentRepo,
+            notificationPreferencesRepo: any NotificationPreferencesRepo,
             modelContainer: ModelContainer,
             googleSignInEnabled: Bool
         )
@@ -62,6 +63,7 @@ struct FamilyEventsApp: App {
             let favoriteRepo = SupabaseFavoriteRepo(supabase: supa)
             let ratingRepo = SupabaseRatingRepo(supabase: supa)
             let commentRepo = SupabaseCommentRepo(supabase: supa)
+            let notificationPreferencesRepo = SupabaseNotificationPreferencesRepo(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
@@ -72,6 +74,7 @@ struct FamilyEventsApp: App {
                 favoriteRepo: favoriteRepo,
                 ratingRepo: ratingRepo,
                 commentRepo: commentRepo,
+                notificationPreferencesRepo: notificationPreferencesRepo,
                 modelContainer: container,
                 googleSignInEnabled: env.googleSignInEnabled
             )
@@ -85,7 +88,7 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let modelContainer, let googleSignInEnabled):
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let notificationPreferencesRepo, let modelContainer, let googleSignInEnabled):
                 RootView(
                     authService: authService,
                     planComposer: composer,
@@ -95,6 +98,7 @@ struct FamilyEventsApp: App {
                     favoriteRepo: favoriteRepo,
                     ratingRepo: ratingRepo,
                     commentRepo: commentRepo,
+                    notificationPreferencesRepo: notificationPreferencesRepo,
                     modelContainer: modelContainer,
                     googleSignInEnabled: googleSignInEnabled
                 )
