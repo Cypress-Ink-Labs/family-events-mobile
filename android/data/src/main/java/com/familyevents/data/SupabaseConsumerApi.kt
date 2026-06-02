@@ -72,6 +72,7 @@ interface SupabaseConsumerApi {
     suspend fun invitesRequired(): Boolean = true
     suspend fun requestInvite(email: String, message: String?): Boolean = false
     suspend fun publicEvent(id: EventId): EventDto? = null
+    suspend fun registerPushSubscription(platform: PushPlatform, token: String) {}
 }
 
 internal fun escapePostgrestIlike(keyword: String): String = buildString {
@@ -363,6 +364,21 @@ class KtorSupabaseConsumerApi(
             contentType(ContentType.Application.Json)
             setBody("{}")
         }.requireOkOrNoContent()
+    }
+
+    override suspend fun registerPushSubscription(platform: PushPlatform, token: String) {
+        if (token.isBlank()) return
+        client.post("$baseUrl/rest/v1/rpc/register_push_subscription") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_platform", platform.rpcValue)
+                    put("p_token", token)
+                }.toString(),
+            )
+        }.requireOk()
     }
 
     override suspend fun invitesRequired(): Boolean {

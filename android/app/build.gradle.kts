@@ -62,11 +62,19 @@ android {
         val supabaseKey = getEnvValue("SUPABASE_ANON_KEY") ?: "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
         val mapStyleUrl = getEnvValue("MAP_STYLE_URL") ?: "https://demotiles.maplibre.org/style.json"
         val webClientId = getEnvValue("ANDROID_GOOGLE_WEB_CLIENT_ID") ?: ""
+        val firebaseApplicationId = getEnvValue("ANDROID_FIREBASE_APPLICATION_ID", allowViteFallback = false) ?: ""
+        val firebaseApiKey = getEnvValue("ANDROID_FIREBASE_API_KEY", allowViteFallback = false) ?: ""
+        val firebaseProjectId = getEnvValue("ANDROID_FIREBASE_PROJECT_ID", allowViteFallback = false) ?: ""
+        val firebaseSenderId = getEnvValue("ANDROID_FIREBASE_GCM_SENDER_ID", allowViteFallback = false) ?: ""
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
         buildConfigField("String", "MAP_STYLE_URL", "\"$mapStyleUrl\"")
         buildConfigField("String", "ANDROID_GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
+        buildConfigField("String", "ANDROID_FIREBASE_APPLICATION_ID", "\"$firebaseApplicationId\"")
+        buildConfigField("String", "ANDROID_FIREBASE_API_KEY", "\"$firebaseApiKey\"")
+        buildConfigField("String", "ANDROID_FIREBASE_PROJECT_ID", "\"$firebaseProjectId\"")
+        buildConfigField("String", "ANDROID_FIREBASE_GCM_SENDER_ID", "\"$firebaseSenderId\"")
     }
 
     signingConfigs {
@@ -138,6 +146,7 @@ dependencies {
     implementation(project(":eventdetail"))
     implementation(project(":platform"))
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
@@ -148,8 +157,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.security.crypto)
+    implementation(libs.firebase.messaging)
     implementation(libs.hilt.android)
     implementation(libs.json)
+    implementation(libs.kotlinx.coroutines.play.services)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     kapt(libs.hilt.compiler)
     testImplementation(libs.junit)

@@ -36,6 +36,15 @@ interface ProfileRepository {
     suspend fun deleteAccount(userId: UserId)
 }
 
+enum class PushPlatform(val rpcValue: String) {
+    Ios("ios"),
+    Android("android"),
+}
+
+interface PushRegistrationRepository {
+    suspend fun registerMobilePushToken(userId: UserId, platform: PushPlatform, token: String)
+}
+
 interface EventRepository {
     fun observePlanEvents(userId: UserId, cityId: CityId?): Flow<List<PlanEventRowDto>>
     fun observeEventList(query: EventQuery): Flow<List<EventDto>>
@@ -79,4 +88,3 @@ interface CommentRepository {
         }
     }
 }
-

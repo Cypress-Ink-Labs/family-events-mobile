@@ -44,6 +44,10 @@ private struct FallbackNotificationPreferencesRepo: NotificationPreferencesRepo 
     func upsert(_ preferences: NotificationPreferences, for userID: UserID) async throws -> NotificationPreferences { preferences }
 }
 
+private struct FallbackMobilePushRegistrationRepo: MobilePushRegistrationRepo {
+    func registerMobilePushToken(_ token: String, platform: MobilePushPlatform, for userID: UserID) async throws {}
+}
+
 struct RootView: View {
     static let shownTabs: [AppTab] = [.plan, .explore, .map, .calendar, .saved]
     let initialTab: AppTab
@@ -56,6 +60,7 @@ struct RootView: View {
     private let ratingRepo: (any RatingRepo)?
     private let commentRepo: (any CommentRepo)?
     private let notificationPreferencesRepo: any NotificationPreferencesRepo
+    private let mobilePushRegistrationRepo: any MobilePushRegistrationRepo
     private let modelContainer: ModelContainer?
     private let googleSignInEnabled: Bool
 
@@ -79,6 +84,7 @@ struct RootView: View {
         ratingRepo: (any RatingRepo)? = nil,
         commentRepo: (any CommentRepo)? = nil,
         notificationPreferencesRepo: any NotificationPreferencesRepo = FallbackNotificationPreferencesRepo(),
+        mobilePushRegistrationRepo: any MobilePushRegistrationRepo = FallbackMobilePushRegistrationRepo(),
         modelContainer: ModelContainer? = nil,
         googleSignInEnabled: Bool = false,
         initialTab: AppTab = .plan
@@ -92,6 +98,7 @@ struct RootView: View {
         self.ratingRepo = ratingRepo
         self.commentRepo = commentRepo
         self.notificationPreferencesRepo = notificationPreferencesRepo
+        self.mobilePushRegistrationRepo = mobilePushRegistrationRepo
         self.modelContainer = modelContainer
         self.googleSignInEnabled = googleSignInEnabled
         self.initialTab = initialTab
@@ -107,6 +114,12 @@ struct RootView: View {
                 AuthRootView(authService: authService, googleSignInEnabled: googleSignInEnabled)
             case .signedIn(let userID):
                 signedInContent(userID: userID)
+                    .task(id: userID.rawValue) {
+                        await PushNotificationCoordinator.shared.configure(
+                            userID: userID,
+                            registrationRepo: mobilePushRegistrationRepo
+                        )
+                    }
             }
         }
         .onOpenURL { url in
@@ -291,4 +304,3 @@ struct RootView: View {
         )
     }
 }
-

@@ -8,6 +8,7 @@ import FEPlan
 
 @main
 struct FamilyEventsApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @AppStorage("family-events-theme") private var appearanceRawValue = AppAppearancePreference.system.rawValue
 
     private enum BootResult {
@@ -22,6 +23,7 @@ struct FamilyEventsApp: App {
             ratingRepo: any RatingRepo,
             commentRepo: any CommentRepo,
             notificationPreferencesRepo: any NotificationPreferencesRepo,
+            mobilePushRegistrationRepo: any MobilePushRegistrationRepo,
             modelContainer: ModelContainer,
             googleSignInEnabled: Bool
         )
@@ -64,6 +66,7 @@ struct FamilyEventsApp: App {
             let ratingRepo = SupabaseRatingRepo(supabase: supa)
             let commentRepo = SupabaseCommentRepo(supabase: supa)
             let notificationPreferencesRepo = SupabaseNotificationPreferencesRepo(supabase: supa)
+            let mobilePushRegistrationRepo = SupabaseMobilePushRegistrationRepo(supabase: supa)
             return .ready(
                 authService: svc,
                 sessionStore: store,
@@ -75,6 +78,7 @@ struct FamilyEventsApp: App {
                 ratingRepo: ratingRepo,
                 commentRepo: commentRepo,
                 notificationPreferencesRepo: notificationPreferencesRepo,
+                mobilePushRegistrationRepo: mobilePushRegistrationRepo,
                 modelContainer: container,
                 googleSignInEnabled: env.googleSignInEnabled
             )
@@ -88,7 +92,7 @@ struct FamilyEventsApp: App {
     var body: some Scene {
         WindowGroup {
             switch boot {
-            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let notificationPreferencesRepo, let modelContainer, let googleSignInEnabled):
+            case .ready(let authService, let sessionStore, let composer, let profileRepo, let cityRepo, let eventRepo, let favoriteRepo, let ratingRepo, let commentRepo, let notificationPreferencesRepo, let mobilePushRegistrationRepo, let modelContainer, let googleSignInEnabled):
                 RootView(
                     authService: authService,
                     planComposer: composer,
@@ -99,6 +103,7 @@ struct FamilyEventsApp: App {
                     ratingRepo: ratingRepo,
                     commentRepo: commentRepo,
                     notificationPreferencesRepo: notificationPreferencesRepo,
+                    mobilePushRegistrationRepo: mobilePushRegistrationRepo,
                     modelContainer: modelContainer,
                     googleSignInEnabled: googleSignInEnabled
                 )

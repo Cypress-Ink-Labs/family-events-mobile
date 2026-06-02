@@ -88,6 +88,24 @@ class InMemoryProfileRepository : ProfileRepository {
     }
 }
 
+class InMemoryPushRegistrationRepository : PushRegistrationRepository {
+    var lastUserId: UserId? = null
+        private set
+    var lastPlatform: PushPlatform? = null
+        private set
+    var lastToken: String? = null
+        private set
+    var registerCallCount: Int = 0
+        private set
+
+    override suspend fun registerMobilePushToken(userId: UserId, platform: PushPlatform, token: String) {
+        lastUserId = userId
+        lastPlatform = platform
+        lastToken = token
+        registerCallCount += 1
+    }
+}
+
 class InMemoryEventRepository : EventRepository {
     private val events = MutableStateFlow(seedEvents())
 
@@ -227,6 +245,7 @@ class RepositoryGraph(
     val weatherRepository: WeatherRepository = InMemoryWeatherRepository(),
     val ratingRepository: RatingRepository = InMemoryRatingRepository(),
     val commentRepository: CommentRepository = InMemoryCommentRepository(),
+    val pushRegistrationRepository: PushRegistrationRepository = InMemoryPushRegistrationRepository(),
 ) {
     companion object {
         fun roomBacked(
@@ -246,6 +265,7 @@ class RepositoryGraph(
                 weatherRepository = RoomBackedWeatherRepository(database.weatherDao()),
                 ratingRepository = SupabaseRatingRepository(api),
                 commentRepository = SupabaseCommentRepository(api),
+                pushRegistrationRepository = SupabasePushRegistrationRepository(api),
             )
         }
     }

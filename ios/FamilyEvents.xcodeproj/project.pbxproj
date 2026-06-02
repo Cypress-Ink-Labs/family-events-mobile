@@ -18,6 +18,7 @@
 		22D37D3A3B20CBC64E57751E /* testEventCardWithImageAndBadge.xxl-type.png in Resources */ = {isa = PBXBuildFile; fileRef = 67665F44CDBD9422E738A4CA /* testEventCardWithImageAndBadge.xxl-type.png */; };
 		2DD3FAA5E40A57EBF574655E /* testEventCardWithImageAndBadge.light.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E83F7CD0362922CE0BEA9E0 /* testEventCardWithImageAndBadge.light.png */; };
 		2EBC682AD7466335DA1634D8 /* FEPlan in Frameworks */ = {isa = PBXBuildFile; productRef = B05296E5CE38DEC7D1ABE5D2 /* FEPlan */; };
+		2EBE1EF4D8C199505A3C3474 /* PushNotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6E5C40096F4B681C34D0B8 /* PushNotificationCoordinator.swift */; };
 		36F545100AE2F8B43C5FD77B /* FEPlan in Frameworks */ = {isa = PBXBuildFile; productRef = 2BF22334E21591ABBE4D10FA /* FEPlan */; };
 		3B3D2272937549E740332DA6 /* FavoriteButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */; };
 		49A9E128562DF3D5208C35F6 /* testFavoriteButtonUnfavoritedState.light.png in Resources */ = {isa = PBXBuildFile; fileRef = F956075831CCA7450ADD1D45 /* testFavoriteButtonUnfavoritedState.light.png */; };
@@ -117,6 +118,7 @@
 		CDB0BB0DA2D1AC60CFBE46B2 /* FEData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEData; path = Packages/FEData; sourceTree = SOURCE_ROOT; };
 		D20C5A97FCDCB5CB6935294A /* testFavoriteButtonUnfavoritedState.dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonUnfavoritedState.dark.png; sourceTree = "<group>"; };
 		D890C8D7C4B176D36D48B555 /* FESaved */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FESaved; path = Packages/FESaved; sourceTree = SOURCE_ROOT; };
+		DD6E5C40096F4B681C34D0B8 /* PushNotificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationCoordinator.swift; sourceTree = "<group>"; };
 		DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButtonTests.swift; sourceTree = "<group>"; };
 		DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.light.png; sourceTree = "<group>"; };
 		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 				BBCC2314DD26A666A41A4FB6 /* DeepLinkRouter.swift */,
 				188C8EDD19850302A039CA4F /* FamilyEvents.entitlements */,
 				BE25634672A19F50ADD99C05 /* FamilyEventsApp.swift */,
+				DD6E5C40096F4B681C34D0B8 /* PushNotificationCoordinator.swift */,
 				0AA67236F4FFFB580DD258FF /* RootView.swift */,
 				8F62AF66C36F29653368CAFE /* Tab.swift */,
 				F65DD406E3CE274FFE1CC870 /* WhatsNewSheet.swift */,
@@ -504,6 +507,7 @@
 				A2AA8448CCB37D518CA39E2A /* AppRoute.swift in Sources */,
 				50241B51E784A24255804531 /* DeepLinkRouter.swift in Sources */,
 				9A32F4E906DA64D49B2675FC /* FamilyEventsApp.swift in Sources */,
+				2EBE1EF4D8C199505A3C3474 /* PushNotificationCoordinator.swift in Sources */,
 				64B0B73A2386B6BD9A2766FC /* RootView.swift in Sources */,
 				D3AD884267172C4D1ECD17E9 /* Tab.swift in Sources */,
 				9414CA2A0843BF6D8A3D2F47 /* WhatsNewSheet.swift in Sources */,
@@ -633,6 +637,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "https://family-events.org";
+				APS_ENVIRONMENT = production;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -716,6 +721,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "https://family-events.up.railway.app";
+				APS_ENVIRONMENT = development;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -805,6 +811,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "http://localhost:5173";
+				APS_ENVIRONMENT = development;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

@@ -1,5 +1,10 @@
 package com.familyevents.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +43,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -133,12 +140,28 @@ fun FamilyEventsApp(
         }
         is SessionState.SignedIn -> {
             val userId = state.userId
+            val context = LocalContext.current
             val profile by repositories.profileRepository.observeProfile(userId).collectAsStateWithLifecycle(initialValue = null)
             val activeCityId = profile?.currentCityId ?: CityId("chicago")
             val cities by repositories.cityRepository.observeCities().collectAsStateWithLifecycle(initialValue = emptyList())
             val scope = rememberCoroutineScope()
             var cityName by remember { mutableStateOf<String?>(null) }
             var showCityPicker by remember { mutableStateOf(false) }
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission(),
+            ) { granted ->
+                if (granted) {
+                    scope.launch {
+                        runCatching {
+                            registerAndroidPushToken(
+                                context = context,
+                                userId = userId,
+                                repository = repositories.pushRegistrationRepository,
+                            )
+                        }
+                    }
+                }
+            }
 
             // Lifecycle-aware foreground refresh
             var foregroundKey by remember { mutableIntStateOf(0) }
@@ -167,6 +190,31 @@ fun FamilyEventsApp(
             LaunchedEffect(userId) {
                 runCatching { repositories.cityRepository.refreshCities() }
                 runCatching { repositories.profileRepository.currentContext(userId) }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val permission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    )
+                    if (permission == PackageManager.PERMISSION_GRANTED) {
+                        runCatching {
+                            registerAndroidPushToken(
+                                context = context,
+                                userId = userId,
+                                repository = repositories.pushRegistrationRepository,
+                            )
+                        }
+                    } else {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                } else {
+                    runCatching {
+                        registerAndroidPushToken(
+                            context = context,
+                            userId = userId,
+                            repository = repositories.pushRegistrationRepository,
+                        )
+                    }
+                }
             }
             LaunchedEffect(activeCityId) {
                 cityName = runCatching { repositories.cityRepository.cityName(activeCityId) }.getOrNull()

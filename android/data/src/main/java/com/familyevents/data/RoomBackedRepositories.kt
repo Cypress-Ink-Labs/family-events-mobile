@@ -264,6 +264,15 @@ class RoomBackedProfileRepository(
     }
 }
 
+class SupabasePushRegistrationRepository(
+    private val api: SupabaseConsumerApi,
+) : PushRegistrationRepository {
+    override suspend fun registerMobilePushToken(userId: UserId, platform: PushPlatform, token: String) {
+        if (token.isBlank()) return
+        api.registerPushSubscription(platform, token)
+    }
+}
+
 class RoomBackedCityRepository(
     private val cityDao: CityDao,
     private val api: SupabaseConsumerApi? = null,
