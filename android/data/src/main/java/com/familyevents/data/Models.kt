@@ -51,6 +51,11 @@ data class EventQuery(
     val search: String? = null,
     val tagIds: List<String> = emptyList(),
     val dateKey: String? = null,
+    val ageMin: Int? = null,
+    val ageMax: Int? = null,
+    val isFree: Boolean? = null,
+    val dateFrom: Instant? = null,
+    val dateTo: Instant? = null,
     val limit: Int = 50,
     val offset: Int = 0,
 )

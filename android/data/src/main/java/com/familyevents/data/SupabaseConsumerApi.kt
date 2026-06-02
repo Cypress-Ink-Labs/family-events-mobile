@@ -174,13 +174,22 @@ class KtorSupabaseConsumerApi(
     }
 
     override suspend fun events(query: EventQuery): List<EventDto> {
-        val response = client.post("$baseUrl/rest/v1/rpc/events_enriched") {
+        val response = client.post("$baseUrl/rest/v1/rpc/search_events") {
             baseHeaders()
             bearer(optional = true)
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {
                     query.cityId?.let { put("p_city_id", it.rawValue) }
+                    query.search?.takeIf { it.isNotBlank() }?.let { put("p_keyword", it) }
+                    query.dateFrom?.let { put("p_date_from", it.toString()) }
+                    query.dateTo?.let { put("p_date_to", it.toString()) }
+                    query.ageMin?.let { put("p_age_min", it) }
+                    query.ageMax?.let { put("p_age_max", it) }
+                    query.isFree?.let { put("p_is_free", it) }
+                    if (query.tagIds.isNotEmpty()) {
+                        put("p_tag_slugs", buildJsonArray { query.tagIds.forEach { add(JsonPrimitive(it)) } })
+                    }
                     put("p_status", "published")
                     put("p_limit", query.limit)
                     put("p_offset", query.offset)
@@ -190,9 +199,6 @@ class KtorSupabaseConsumerApi(
         return response.requireOk()
             .decodeList<EventRow>()
             .mapNotNull { it.toDto() }
-            .filter { event -> query.search.isNullOrBlank() || event.title.contains(query.search, ignoreCase = true) }
-            .filter { event -> query.tagIds.isEmpty() || event.tags.any { it.id in query.tagIds } }
-            .filter { event -> query.dateKey == null || event.startsAt.toString().startsWith(query.dateKey) }
     }
 
     override suspend fun event(id: EventId): EventDto? = eventsByIds(listOf(id)).firstOrNull()

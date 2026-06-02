@@ -83,10 +83,12 @@ public enum AppleSignInCoordinator {
                   let tokenString = String(data: tokenData, encoding: .utf8) else {
                 authDebugLog("[AppleSignIn] missing idToken on credential")
                 continuation?.resume(throwing: AppError.appleSignInFailed(NSError(domain: "AppleSignIn", code: -1)))
+                continuation = nil
                 return
             }
             authDebugLog("[AppleSignIn] success email=\(credential.email ?? "nil") tokenLen=\(tokenString.count)")
             continuation?.resume(returning: AppleSignInResult(idToken: tokenString, nonce: rawNonce, email: credential.email))
+            continuation = nil
         }
 
         func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
@@ -98,6 +100,7 @@ public enum AppleSignInCoordinator {
             } else {
                 continuation?.resume(throwing: AppError.appleSignInFailed(error))
             }
+            continuation = nil
         }
     }
 
