@@ -1,0 +1,61 @@
+name: Sync design tokens
+
+on:
+  repository_dispatch:
+    types: [tokens-updated]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Pull token artifacts and open PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Extract token artifacts from npm package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISPATCH_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
+          VERSION=$(node -e "
+            const p = JSON.parse(process.env.DISPATCH_PAYLOAD || '{}');
+            const pkgs = JSON.parse(p.version || '[]');
+            const ds = pkgs.find(x => x.name === '@family-events/design-system');
+            console.log(ds ? ds.version : 'latest');
+          ")
+          echo "Syncing @family-events/design-system@${VERSION}"
+          echo "DESIGN_SYSTEM_VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+          npm pack "@family-events/design-system@${VERSION}" \
+            --registry https://npm.pkg.github.com \
+            --pack-destination /tmp/ds-pack
+
+          TARBALL=$(ls /tmp/ds-pack/*.tgz | head -1)
+          mkdir -p /tmp/ds-extracted
+          tar -xzf "$TARBALL" -C /tmp/ds-extracted
+
+          cp /tmp/ds-extracted/package/dist/ios/Tokens.swift \
+            ios/Packages/FEDesignSystem/Sources/FEDesignSystem/Generated/Tokens.swift
+
+          cp /tmp/ds-extracted/package/dist/android/Tokens.kt \
+            android/designsystem/src/main/java/com/familyevents/designsystem/generated/Tokens.kt
+
+      - name: Open sync PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: sync design tokens from @family-events/design-system@${{ env.DESIGN_SYSTEM_VERSION }}"
+          title: "chore: sync design tokens ${{ env.DESIGN_SYSTEM_VERSION }}"
+          body: "Automated token sync from `@family-events/design-system@${{ env.DESIGN_SYSTEM_VERSION }}`."
+          branch: chore/sync-tokens-${{ env.DESIGN_SYSTEM_VERSION }}
+          delete-branch: true
+          labels: tokens,automated
