@@ -73,7 +73,7 @@ jobs:
             android/designsystem/src/main/java/com/familyevents/designsystem/generated/Tokens.kt
 
       - name: Open sync PR
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore: sync design tokens from @cypress-ink-labs/design-system@${{ env.DESIGN_SYSTEM_VERSION }}"
           title: "chore: sync design tokens ${{ env.DESIGN_SYSTEM_VERSION }}"
