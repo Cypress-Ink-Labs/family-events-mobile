@@ -27,7 +27,7 @@ jobs:
 
       - name: Extract token artifacts from npm package
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
           # client_payload is attacker-controlled in repository_dispatch; keep in env,
           # never interpolate directly into run: shell commands.
           DISPATCH_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
