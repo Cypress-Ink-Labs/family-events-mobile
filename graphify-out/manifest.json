@@ -1,0 +1,1917 @@
+{
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/build.gradle.kts": {
+    "mtime": 1781148365.0824804,
+    "ast_hash": "757ab46b62771ee9fdf9ab89ec13e43e",
+    "semantic_hash": "757ab46b62771ee9fdf9ab89ec13e43e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/AndroidDataModule.kt": {
+    "mtime": 1781148365.0829334,
+    "ast_hash": "e75ae57db3e4dd25b101e843ea8935ce",
+    "semantic_hash": "e75ae57db3e4dd25b101e843ea8935ce"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/AndroidPushRegistration.kt": {
+    "mtime": 1781148365.0830057,
+    "ast_hash": "aed8fbbc72a90b62dc59f5b852b0ac24",
+    "semantic_hash": "aed8fbbc72a90b62dc59f5b852b0ac24"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/AppShell.kt": {
+    "mtime": 1781148365.083098,
+    "ast_hash": "3cb695f5b1aeb1ba4d3a97718dec8c7b",
+    "semantic_hash": "3cb695f5b1aeb1ba4d3a97718dec8c7b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/CityPickerSheet.kt": {
+    "mtime": 1781148365.0832183,
+    "ast_hash": "d4c76e1f0c3343f991a87cef8be8167f",
+    "semantic_hash": "d4c76e1f0c3343f991a87cef8be8167f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/EncryptedSessionStore.kt": {
+    "mtime": 1781148365.0832932,
+    "ast_hash": "cf39b8f830dc1b0d2398760e6c1748dc",
+    "semantic_hash": "cf39b8f830dc1b0d2398760e6c1748dc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/FamilyEventsApplication.kt": {
+    "mtime": 1781148365.0833724,
+    "ast_hash": "2ac38b4e54a2c24ca633745b43c8c922",
+    "semantic_hash": "2ac38b4e54a2c24ca633745b43c8c922"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/MainActivity.kt": {
+    "mtime": 1781148365.0834522,
+    "ast_hash": "e3307380ffe7e91b4a7eea913017f3b1",
+    "semantic_hash": "e3307380ffe7e91b4a7eea913017f3b1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/app/src/main/java/com/familyevents/app/ProfileDialog.kt": {
+    "mtime": 1781148365.0836139,
+    "ast_hash": "d4d68a7f8c47ac758518cd4d390e5b42",
+    "semantic_hash": "d4d68a7f8c47ac758518cd4d390e5b42"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/auth/build.gradle.kts": {
+    "mtime": 1781148365.0841367,
+    "ast_hash": "9252f05fad409ef7248f12eafbd6cbe1",
+    "semantic_hash": "9252f05fad409ef7248f12eafbd6cbe1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/auth/src/main/java/com/familyevents/auth/AuthScreen.kt": {
+    "mtime": 1781148365.0845237,
+    "ast_hash": "0ce42e8c82eb09383802ee375448b291",
+    "semantic_hash": "0ce42e8c82eb09383802ee375448b291"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/build.gradle.kts": {
+    "mtime": 1781148365.0845892,
+    "ast_hash": "0c822050958e2c3703a950d00c7f96da",
+    "semantic_hash": "0c822050958e2c3703a950d00c7f96da"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/calendar/build.gradle.kts": {
+    "mtime": 1781148365.0847034,
+    "ast_hash": "c2c7d87e877c637b25832066bd1080ab",
+    "semantic_hash": "c2c7d87e877c637b25832066bd1080ab"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/calendar/src/main/java/com/familyevents/calendar/CalendarScreen.kt": {
+    "mtime": 1781148365.0851324,
+    "ast_hash": "b90f8166615b11372b6258a22284be7e",
+    "semantic_hash": "b90f8166615b11372b6258a22284be7e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/build.gradle.kts": {
+    "mtime": 1781148365.0852594,
+    "ast_hash": "267f7b6f781c568026153cf157ea0614",
+    "semantic_hash": "267f7b6f781c568026153cf157ea0614"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/AppError.kt": {
+    "mtime": 1781148365.0855799,
+    "ast_hash": "67ab913969446e4fc722e936c52eb973",
+    "semantic_hash": "67ab913969446e4fc722e936c52eb973"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/ConsumerApiPath.kt": {
+    "mtime": 1781148365.0856733,
+    "ast_hash": "fd3e122c006723ff5fff2a5ed3e28014",
+    "semantic_hash": "fd3e122c006723ff5fff2a5ed3e28014"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/DateFormatting.kt": {
+    "mtime": 1781148365.0857854,
+    "ast_hash": "b07691c2fd51d720189a4b04b27d59bf",
+    "semantic_hash": "b07691c2fd51d720189a4b04b27d59bf"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/DeepLinkPolicy.kt": {
+    "mtime": 1781148365.0858753,
+    "ast_hash": "b78060a7c0de6717851104a0fbbc93c4",
+    "semantic_hash": "b78060a7c0de6717851104a0fbbc93c4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/EnvConfig.kt": {
+    "mtime": 1781148365.085935,
+    "ast_hash": "6debdf4a9d9d570beecbc156b3cab6ca",
+    "semantic_hash": "6debdf4a9d9d570beecbc156b3cab6ca"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/GeoCoordinate.kt": {
+    "mtime": 1781148365.0859885,
+    "ast_hash": "401f6e1cbf4062510f5dfb2c7ebde95b",
+    "semantic_hash": "401f6e1cbf4062510f5dfb2c7ebde95b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/HtmlText.kt": {
+    "mtime": 1781148365.086058,
+    "ast_hash": "d75a7c88ebe653db26a83d6a35a01f3d",
+    "semantic_hash": "d75a7c88ebe653db26a83d6a35a01f3d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/main/java/com/familyevents/core/Identifiers.kt": {
+    "mtime": 1781148365.086115,
+    "ast_hash": "a65dcd6c71f8cf8315b86646530a3fd6",
+    "semantic_hash": "a65dcd6c71f8cf8315b86646530a3fd6"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/test/java/com/familyevents/core/ConsumerApiPathTest.kt": {
+    "mtime": 1781148365.086358,
+    "ast_hash": "5972eb09ffda9d118285f0a99f02dbf7",
+    "semantic_hash": "5972eb09ffda9d118285f0a99f02dbf7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/test/java/com/familyevents/core/DateFormattingTest.kt": {
+    "mtime": 1781148365.086417,
+    "ast_hash": "c44502cc931e83a27f379d5e137a614d",
+    "semantic_hash": "c44502cc931e83a27f379d5e137a614d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/test/java/com/familyevents/core/DeepLinkPolicyTest.kt": {
+    "mtime": 1781148365.086476,
+    "ast_hash": "a23e6cebd089778c19b50720924a4d1c",
+    "semantic_hash": "a23e6cebd089778c19b50720924a4d1c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/core/src/test/java/com/familyevents/core/HtmlTextTest.kt": {
+    "mtime": 1781148365.0865412,
+    "ast_hash": "9f184b0f215036d3a85408bc15d669ec",
+    "semantic_hash": "9f184b0f215036d3a85408bc15d669ec"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/build.gradle.kts": {
+    "mtime": 1781148365.0866482,
+    "ast_hash": "76ac7c99e9dcc81650f3faff1fe0d0ab",
+    "semantic_hash": "76ac7c99e9dcc81650f3faff1fe0d0ab"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/CacheTtl.kt": {
+    "mtime": 1781148365.0869083,
+    "ast_hash": "b8ff6c62e60ec05ba6f35d3488555603",
+    "semantic_hash": "b8ff6c62e60ec05ba6f35d3488555603"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/InMemoryRepositories.kt": {
+    "mtime": 1781148365.0870407,
+    "ast_hash": "e3dd9a756f0716f574d8ed889c970945",
+    "semantic_hash": "e3dd9a756f0716f574d8ed889c970945"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/Models.kt": {
+    "mtime": 1781148365.0871153,
+    "ast_hash": "1bb1d719f4474ddf3a7283cabf94ffab",
+    "semantic_hash": "1bb1d719f4474ddf3a7283cabf94ffab"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/RealtimeLifecycleTelemetry.kt": {
+    "mtime": 1781148365.087173,
+    "ast_hash": "0147825b090be65b38a7dcf1e35a0968",
+    "semantic_hash": "0147825b090be65b38a7dcf1e35a0968"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/Repositories.kt": {
+    "mtime": 1781148365.0872502,
+    "ast_hash": "7d0d3338fd83263f6759018f3c3941c8",
+    "semantic_hash": "7d0d3338fd83263f6759018f3c3941c8"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/RoomBackedRepositories.kt": {
+    "mtime": 1781148365.0873148,
+    "ast_hash": "c8a2bf84e7b97806a18d00e4b24811b6",
+    "semantic_hash": "c8a2bf84e7b97806a18d00e4b24811b6"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/RoomCache.kt": {
+    "mtime": 1781148365.0874333,
+    "ast_hash": "195b276f9d36a1b937cb3ca14bc72264",
+    "semantic_hash": "195b276f9d36a1b937cb3ca14bc72264"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/SupabaseClientFactory.kt": {
+    "mtime": 1781148365.0874975,
+    "ast_hash": "6dd15c811cbbadbe2f3669874cd6af49",
+    "semantic_hash": "6dd15c811cbbadbe2f3669874cd6af49"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/main/java/com/familyevents/data/SupabaseConsumerApi.kt": {
+    "mtime": 1781148365.0876052,
+    "ast_hash": "a35555086dd7b39ddc60b2e0740bbf20",
+    "semantic_hash": "a35555086dd7b39ddc60b2e0740bbf20"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/CacheTtlTrackerTest.kt": {
+    "mtime": 1781148365.0878422,
+    "ast_hash": "0b676a2071fa19ed1488805031eb1eaa",
+    "semantic_hash": "0b676a2071fa19ed1488805031eb1eaa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/EventQueryFilterTest.kt": {
+    "mtime": 1781148365.0879142,
+    "ast_hash": "49daa9137bc7e53de58be7656de4d1a8",
+    "semantic_hash": "49daa9137bc7e53de58be7656de4d1a8"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/InMemoryAuthRepositoryTest.kt": {
+    "mtime": 1781148365.0879893,
+    "ast_hash": "f9832e0e10d1f2aa41df9efbf4d0472e",
+    "semantic_hash": "f9832e0e10d1f2aa41df9efbf4d0472e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/LocalAuthRepositoryTest.kt": {
+    "mtime": 1781148365.088054,
+    "ast_hash": "2eb7ec1db11e91ab682c988bccd734cc",
+    "semantic_hash": "2eb7ec1db11e91ab682c988bccd734cc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/PostgrestFilterTest.kt": {
+    "mtime": 1781148365.0881093,
+    "ast_hash": "ad6e29e674ec0ed2700d44289aa088d2",
+    "semantic_hash": "ad6e29e674ec0ed2700d44289aa088d2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/ProfileRepositoryTest.kt": {
+    "mtime": 1781148365.0881631,
+    "ast_hash": "f82f84ada7d134bcc5fbb04734869802",
+    "semantic_hash": "f82f84ada7d134bcc5fbb04734869802"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/PushRegistrationRepositoryTest.kt": {
+    "mtime": 1781148365.0882168,
+    "ast_hash": "402acdbed2db6c857e4ec9a23b9737a0",
+    "semantic_hash": "402acdbed2db6c857e4ec9a23b9737a0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/RealtimeLifecycleTelemetryTest.kt": {
+    "mtime": 1781148365.0882752,
+    "ast_hash": "55dfe2da325d6697f282815781c9e36d",
+    "semantic_hash": "55dfe2da325d6697f282815781c9e36d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/data/src/test/java/com/familyevents/data/RoomBackedRepositoryFailureTest.kt": {
+    "mtime": 1781148365.088348,
+    "ast_hash": "c710e877ce86af53aab476bd88cbcd61",
+    "semantic_hash": "c710e877ce86af53aab476bd88cbcd61"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/build.gradle.kts": {
+    "mtime": 1781148365.0884302,
+    "ast_hash": "82945ad4feedfda0a740e1af8bd9eadd",
+    "semantic_hash": "82945ad4feedfda0a740e1af8bd9eadd"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/src/main/java/com/familyevents/designsystem/AppThemePreference.kt": {
+    "mtime": 1781148365.0886776,
+    "ast_hash": "820a7ce468bf2e1e0e2d33c195e1284f",
+    "semantic_hash": "820a7ce468bf2e1e0e2d33c195e1284f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/src/main/java/com/familyevents/designsystem/Components.kt": {
+    "mtime": 1781148365.0887659,
+    "ast_hash": "68b23fb51cd0d2fc94ddff95bd3374e3",
+    "semantic_hash": "68b23fb51cd0d2fc94ddff95bd3374e3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/src/main/java/com/familyevents/designsystem/Theme.kt": {
+    "mtime": 1781148365.0888238,
+    "ast_hash": "79d50413f9edac3d42291d9ef0130289",
+    "semantic_hash": "79d50413f9edac3d42291d9ef0130289"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/src/test/java/com/familyevents/designsystem/AppThemePreferenceTest.kt": {
+    "mtime": 1781148365.092715,
+    "ast_hash": "e71c3e710c8c3ace071dfd5d205fdb97",
+    "semantic_hash": "e71c3e710c8c3ace071dfd5d205fdb97"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/designsystem/src/test/java/com/familyevents/designsystem/TokensTest.kt": {
+    "mtime": 1781148365.092783,
+    "ast_hash": "b1c4aad2c3be4b7d6e1cc5f6a327bb1f",
+    "semantic_hash": "b1c4aad2c3be4b7d6e1cc5f6a327bb1f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/eventdetail/build.gradle.kts": {
+    "mtime": 1781148365.0928836,
+    "ast_hash": "5f39a81bcb430e838477118876ad827f",
+    "semantic_hash": "5f39a81bcb430e838477118876ad827f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/eventdetail/src/main/java/com/familyevents/eventdetail/EventDetailScreen.kt": {
+    "mtime": 1781148365.0931983,
+    "ast_hash": "da44a728cb2ca4901dfb49e2b9d40901",
+    "semantic_hash": "da44a728cb2ca4901dfb49e2b9d40901"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/eventdetail/src/main/java/com/familyevents/eventdetail/PublicSharePreviewScreen.kt": {
+    "mtime": 1781148365.093307,
+    "ast_hash": "ef65ff7b24d6916c01eb902eb6dbc90d",
+    "semantic_hash": "ef65ff7b24d6916c01eb902eb6dbc90d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/explore/build.gradle.kts": {
+    "mtime": 1781148365.0934136,
+    "ast_hash": "7e95ff40541f803037deb1f842fc4294",
+    "semantic_hash": "7e95ff40541f803037deb1f842fc4294"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/explore/src/main/java/com/familyevents/explore/ExploreFilters.kt": {
+    "mtime": 1781148365.0936677,
+    "ast_hash": "a8882a628cb14cc6e3cb71333b7027df",
+    "semantic_hash": "a8882a628cb14cc6e3cb71333b7027df"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/explore/src/main/java/com/familyevents/explore/ExploreScreen.kt": {
+    "mtime": 1781148365.0937595,
+    "ast_hash": "2e0318cba6f6c8baa2ccf3bfa140adfc",
+    "semantic_hash": "2e0318cba6f6c8baa2ccf3bfa140adfc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/explore/src/test/java/com/familyevents/explore/ExploreFiltersTest.kt": {
+    "mtime": 1781148365.0939808,
+    "ast_hash": "bafc69922364fb2f84b3d1c8d6606f95",
+    "semantic_hash": "bafc69922364fb2f84b3d1c8d6606f95"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/gradlew": {
+    "mtime": 1781148365.094521,
+    "ast_hash": "45bf2667b1fbec0e07e42808dc662b6b",
+    "semantic_hash": "45bf2667b1fbec0e07e42808dc662b6b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/map/build.gradle.kts": {
+    "mtime": 1781148365.0946558,
+    "ast_hash": "9b11cc8624eb2ccd984b066cb11dff61",
+    "semantic_hash": "9b11cc8624eb2ccd984b066cb11dff61"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/map/src/main/java/com/familyevents/map/MapScreen.kt": {
+    "mtime": 1781148365.0949335,
+    "ast_hash": "312119cf0ee0128edcd068ff08ff4e6d",
+    "semantic_hash": "312119cf0ee0128edcd068ff08ff4e6d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/package.json": {
+    "mtime": 1781148365.0949864,
+    "ast_hash": "ba81a8e74ea0f8a0045243e6d43b303d",
+    "semantic_hash": "ba81a8e74ea0f8a0045243e6d43b303d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/plan/build.gradle.kts": {
+    "mtime": 1781148365.095073,
+    "ast_hash": "a1a96793abd47f45a13c21e1d6cbc522",
+    "semantic_hash": "a1a96793abd47f45a13c21e1d6cbc522"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/plan/src/main/java/com/familyevents/plan/PlanScreen.kt": {
+    "mtime": 1781148365.0953658,
+    "ast_hash": "ed0ac691b7607457b32f84cfe670b0df",
+    "semantic_hash": "ed0ac691b7607457b32f84cfe670b0df"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/platform/build.gradle.kts": {
+    "mtime": 1781148365.0954497,
+    "ast_hash": "5cf387213b0b0b86bb07985de38d448e",
+    "semantic_hash": "5cf387213b0b0b86bb07985de38d448e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/platform/src/main/java/com/familyevents/platform/LocationProvider.kt": {
+    "mtime": 1781148365.0957289,
+    "ast_hash": "6b7b576b4b4b5dbf33498b6b6cc9d3c4",
+    "semantic_hash": "6b7b576b4b4b5dbf33498b6b6cc9d3c4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/platform/src/main/java/com/familyevents/platform/PlatformActions.kt": {
+    "mtime": 1781148365.0957825,
+    "ast_hash": "c48701b76cb1ca68cde8c16f222840a7",
+    "semantic_hash": "c48701b76cb1ca68cde8c16f222840a7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/saved/build.gradle.kts": {
+    "mtime": 1781148365.09586,
+    "ast_hash": "898d9410e45aa63faa6816cc4944e2be",
+    "semantic_hash": "898d9410e45aa63faa6816cc4944e2be"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/saved/src/main/java/com/familyevents/saved/SavedCalendarView.kt": {
+    "mtime": 1781148365.0961273,
+    "ast_hash": "a29c336b9f8a741d58550107a2b65c04",
+    "semantic_hash": "a29c336b9f8a741d58550107a2b65c04"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/saved/src/main/java/com/familyevents/saved/SavedScreen.kt": {
+    "mtime": 1781148365.0962055,
+    "ast_hash": "29c422dc5759d84009a22db709ba12a0",
+    "semantic_hash": "29c422dc5759d84009a22db709ba12a0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/saved/src/test/java/com/familyevents/saved/SavedCalendarViewTest.kt": {
+    "mtime": 1781148365.0964396,
+    "ast_hash": "bdef2edbef9e1b5f8a6faca4cbda26a9",
+    "semantic_hash": "bdef2edbef9e1b5f8a6faca4cbda26a9"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/_common.sh": {
+    "mtime": 1781148365.0965965,
+    "ast_hash": "2f1f1ad8fea28cd18156fa2e3d833de4",
+    "semantic_hash": "2f1f1ad8fea28cd18156fa2e3d833de4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/clear.sh": {
+    "mtime": 1781148365.096661,
+    "ast_hash": "94b3950f73ced1cd0204a39694e59736",
+    "semantic_hash": "94b3950f73ced1cd0204a39694e59736"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/dev.sh": {
+    "mtime": 1781148365.0967147,
+    "ast_hash": "7302e847e0f889ce4e0f6f87e67a9532",
+    "semantic_hash": "7302e847e0f889ce4e0f6f87e67a9532"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/install.sh": {
+    "mtime": 1781148365.096772,
+    "ast_hash": "99d9b6f12b56276c1f0417d331c28ef5",
+    "semantic_hash": "99d9b6f12b56276c1f0417d331c28ef5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/launch.sh": {
+    "mtime": 1781148365.0968275,
+    "ast_hash": "1c918f3f2cc07477ea5f5f64e56078cd",
+    "semantic_hash": "1c918f3f2cc07477ea5f5f64e56078cd"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/log.sh": {
+    "mtime": 1781148365.0968864,
+    "ast_hash": "d7fe843b087ce80a544b1cf99d7f31db",
+    "semantic_hash": "d7fe843b087ce80a544b1cf99d7f31db"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/with-android-env.sh": {
+    "mtime": 1781148365.0969498,
+    "ast_hash": "5abfdec8e077c0c26efd656458ccda81",
+    "semantic_hash": "5abfdec8e077c0c26efd656458ccda81"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/settings.gradle.kts": {
+    "mtime": 1781148365.0970147,
+    "ast_hash": "deeccd7eed0682447f8e96eea1ffb45f",
+    "semantic_hash": "deeccd7eed0682447f8e96eea1ffb45f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/.mcp.json": {
+    "mtime": 1781148365.0971084,
+    "ast_hash": "1a6618c9486afd375cdf1135b5b2acc4",
+    "semantic_hash": "1a6618c9486afd375cdf1135b5b2acc4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/AppRoute.swift": {
+    "mtime": 1781148365.098042,
+    "ast_hash": "1c7ccc374eb6d079d37218ef45106ed8",
+    "semantic_hash": "1c7ccc374eb6d079d37218ef45106ed8"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/DeepLinkRouter.swift": {
+    "mtime": 1781148365.0981002,
+    "ast_hash": "1962d17cf4a73461b81d2ca4f33edc80",
+    "semantic_hash": "1962d17cf4a73461b81d2ca4f33edc80"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/FamilyEventsApp.swift": {
+    "mtime": 1781148365.0982425,
+    "ast_hash": "9420f714adca3b4ddd3e8b58a55e9c3c",
+    "semantic_hash": "9420f714adca3b4ddd3e8b58a55e9c3c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/PushNotificationCoordinator.swift": {
+    "mtime": 1781148365.0983036,
+    "ast_hash": "58842bfe8e2e3ab54aa0a361a284133e",
+    "semantic_hash": "58842bfe8e2e3ab54aa0a361a284133e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/RootView.swift": {
+    "mtime": 1781148365.098392,
+    "ast_hash": "dae632f098b8fb298056794f27f40f02",
+    "semantic_hash": "dae632f098b8fb298056794f27f40f02"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/Tab.swift": {
+    "mtime": 1781148365.0984533,
+    "ast_hash": "45365699451f533fb317ca943c482495",
+    "semantic_hash": "45365699451f533fb317ca943c482495"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/App/WhatsNewSheet.swift": {
+    "mtime": 1781148365.0985131,
+    "ast_hash": "86a124bd49cbfd2fe2a5ac186fb6f1d6",
+    "semantic_hash": "86a124bd49cbfd2fe2a5ac186fb6f1d6"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+    "mtime": 1781148365.0994625,
+    "ast_hash": "b7af4fdee464154b3c151f9f04ae0982",
+    "semantic_hash": "b7af4fdee464154b3c151f9f04ae0982"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/Contents.json": {
+    "mtime": 1781148365.0995224,
+    "ast_hash": "9deb2ada1cc834bbebf8bbad9c8978a1",
+    "semantic_hash": "9deb2ada1cc834bbebf8bbad9c8978a1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/AppModelContainerTests.swift": {
+    "mtime": 1781148365.0996838,
+    "ast_hash": "dd1db55c07150f4e9d07dd03aa9a071c",
+    "semantic_hash": "dd1db55c07150f4e9d07dd03aa9a071c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/DeepLinkRouterTests.swift": {
+    "mtime": 1781148365.0997472,
+    "ast_hash": "34c7ea14a37cbb88c86bed96f0054e47",
+    "semantic_hash": "34c7ea14a37cbb88c86bed96f0054e47"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/EndpointPolicyTests.swift": {
+    "mtime": 1781148365.0998065,
+    "ast_hash": "cbf7c06c7f9584962674c6c4381ff8ec",
+    "semantic_hash": "cbf7c06c7f9584962674c6c4381ff8ec"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/FamilyEventsTests.swift": {
+    "mtime": 1781148365.099867,
+    "ast_hash": "f08899dfba5d1cc5871942bf9106f322",
+    "semantic_hash": "f08899dfba5d1cc5871942bf9106f322"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/RootViewSmokeTests.swift": {
+    "mtime": 1781148365.0999358,
+    "ast_hash": "35658ca7c2066596bc9c77d044a95a81",
+    "semantic_hash": "35658ca7c2066596bc9c77d044a95a81"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsTests/TabTests.swift": {
+    "mtime": 1781148365.1000097,
+    "ast_hash": "65a0ee73954972b4a9102e101db99570",
+    "semantic_hash": "65a0ee73954972b4a9102e101db99570"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEventsUITests/PlanTabUITests.swift": {
+    "mtime": 1781148365.100116,
+    "ast_hash": "b07c3ba0a61954bae399013acf4bf0cd",
+    "semantic_hash": "b07c3ba0a61954bae399013acf4bf0cd"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAppIntents/Package.swift": {
+    "mtime": 1781148365.1003125,
+    "ast_hash": "aa905ce335dcf70016a58fe4c74c38a1",
+    "semantic_hash": "aa905ce335dcf70016a58fe4c74c38a1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAppIntents/Sources/FEAppIntents/AppIntentsRegistry.swift": {
+    "mtime": 1781148365.100495,
+    "ast_hash": "8d63d3f3685b421ad5b03cb630df4ca3",
+    "semantic_hash": "8d63d3f3685b421ad5b03cb630df4ca3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAppIntents/Tests/FEAppIntentsTests/AppIntentsRegistryTests.swift": {
+    "mtime": 1781148365.1006877,
+    "ast_hash": "b70f5f090357bdc756892d09dca8c610",
+    "semantic_hash": "b70f5f090357bdc756892d09dca8c610"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Package.swift": {
+    "mtime": 1781148365.1008787,
+    "ast_hash": "3bf2e82153c81666b85ac49b4967980a",
+    "semantic_hash": "3bf2e82153c81666b85ac49b4967980a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Components/ThemePickerCard.swift": {
+    "mtime": 1781148365.1010532,
+    "ast_hash": "7432283ee4b4cdef8210caf9c24fa390",
+    "semantic_hash": "7432283ee4b4cdef8210caf9c24fa390"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Form/EmailPasswordValidators.swift": {
+    "mtime": 1781148365.1011415,
+    "ast_hash": "9982e6bdd6dc6d54afb8e68ffd5093fa",
+    "semantic_hash": "9982e6bdd6dc6d54afb8e68ffd5093fa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Keychain/KeychainKey.swift": {
+    "mtime": 1781148365.1012344,
+    "ast_hash": "de448212186886501f80c42fc5ce7d8e",
+    "semantic_hash": "de448212186886501f80c42fc5ce7d8e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Keychain/KeychainStorage.swift": {
+    "mtime": 1781148365.1012967,
+    "ast_hash": "9f0621f1a223f5b10b962c375d687745",
+    "semantic_hash": "9f0621f1a223f5b10b962c375d687745"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Keychain/SecItemKeychainStorage.swift": {
+    "mtime": 1781148365.101347,
+    "ast_hash": "a0bf531e1718e3eea71920658ddbdf2a",
+    "semantic_hash": "a0bf531e1718e3eea71920658ddbdf2a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/AuthRootView.swift": {
+    "mtime": 1781148365.1014519,
+    "ast_hash": "a88169de6239994fd079198c6ad7dd2e",
+    "semantic_hash": "a88169de6239994fd079198c6ad7dd2e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/ForgotPasswordScreen.swift": {
+    "mtime": 1781148365.1015189,
+    "ast_hash": "b9d89cc999f7e990bd7836f46fa8b4b0",
+    "semantic_hash": "b9d89cc999f7e990bd7836f46fa8b4b0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/LinkAccountScreen.swift": {
+    "mtime": 1781148365.1015897,
+    "ast_hash": "1b476ad1dae6a0d0a648e0e8d30962e8",
+    "semantic_hash": "1b476ad1dae6a0d0a648e0e8d30962e8"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/NotificationPreferencesSection.swift": {
+    "mtime": 1781148365.1016421,
+    "ast_hash": "5615a58be3f42e839531d4cdbfb909a7",
+    "semantic_hash": "5615a58be3f42e839531d4cdbfb909a7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/NotificationPreferencesViewModel.swift": {
+    "mtime": 1781148365.1016953,
+    "ast_hash": "1d98fd991dc8fce1aed2204ff23e55b3",
+    "semantic_hash": "1d98fd991dc8fce1aed2204ff23e55b3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/ProfileSheet.swift": {
+    "mtime": 1781148365.1017733,
+    "ast_hash": "0470bf127819d2de4c5aa6ec3ef62a20",
+    "semantic_hash": "0470bf127819d2de4c5aa6ec3ef62a20"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/ResetPasswordScreen.swift": {
+    "mtime": 1781148365.1018426,
+    "ast_hash": "7be83fc7a25158ee10a622847ea703cb",
+    "semantic_hash": "7be83fc7a25158ee10a622847ea703cb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/SignInScreen.swift": {
+    "mtime": 1781148365.1019108,
+    "ast_hash": "6c09c2fffb79c7b34cb674119a499a0a",
+    "semantic_hash": "6c09c2fffb79c7b34cb674119a499a0a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Screens/SignUpScreen.swift": {
+    "mtime": 1781148365.1019592,
+    "ast_hash": "b6c1ceba9a4ff40ccf707c98f9702966",
+    "semantic_hash": "b6c1ceba9a4ff40ccf707c98f9702966"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Session/AuthService.swift": {
+    "mtime": 1781148365.1020453,
+    "ast_hash": "7ed94ca2d0ab73d389225fe1ceb8a57b",
+    "semantic_hash": "7ed94ca2d0ab73d389225fe1ceb8a57b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Session/SessionState.swift": {
+    "mtime": 1781148365.1020994,
+    "ast_hash": "b569a40dbbb571e91a6fc0854f383e1f",
+    "semantic_hash": "b569a40dbbb571e91a6fc0854f383e1f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/Session/SupabaseAuthService.swift": {
+    "mtime": 1781148365.1021698,
+    "ast_hash": "c44a8815f8318661fe3adf978e1fb3ee",
+    "semantic_hash": "c44a8815f8318661fe3adf978e1fb3ee"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/SessionStore.swift": {
+    "mtime": 1781148365.1022356,
+    "ast_hash": "272efce9364899c844ac03e8fad3f55e",
+    "semantic_hash": "272efce9364899c844ac03e8fad3f55e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/SignInWithApple/AppleSignInButton.swift": {
+    "mtime": 1781148365.1023235,
+    "ast_hash": "9332fa9f75d15c08e569c90db0797fe5",
+    "semantic_hash": "9332fa9f75d15c08e569c90db0797fe5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/SignInWithApple/AppleSignInCoordinator.swift": {
+    "mtime": 1781148365.1023939,
+    "ast_hash": "524a7787f64d90e7ad56d466b278dac3",
+    "semantic_hash": "524a7787f64d90e7ad56d466b278dac3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/SignInWithGoogle/GoogleSignInButton.swift": {
+    "mtime": 1781148365.1024787,
+    "ast_hash": "44d9d51afe025b3b6debcc3520b1dc3a",
+    "semantic_hash": "44d9d51afe025b3b6debcc3520b1dc3a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/SignInWithGoogle/GoogleSignInCoordinator.swift": {
+    "mtime": 1781148365.1025505,
+    "ast_hash": "9f0ed676e48128054cbb8f4c67fb8b28",
+    "semantic_hash": "9f0ed676e48128054cbb8f4c67fb8b28"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/ForgotPasswordViewModel.swift": {
+    "mtime": 1781148365.1026418,
+    "ast_hash": "ac7fb6d5e25150230bf1c932583467fe",
+    "semantic_hash": "ac7fb6d5e25150230bf1c932583467fe"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/LinkAccountViewModel.swift": {
+    "mtime": 1781148365.1026897,
+    "ast_hash": "1539bb48959920abba5ce27aad86747e",
+    "semantic_hash": "1539bb48959920abba5ce27aad86747e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/ProfileViewModel.swift": {
+    "mtime": 1781148365.1027613,
+    "ast_hash": "eec8725977f5a3eec06d38f3ac38baa5",
+    "semantic_hash": "eec8725977f5a3eec06d38f3ac38baa5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/ResetPasswordViewModel.swift": {
+    "mtime": 1781148365.1028116,
+    "ast_hash": "58318ecdd7cb5a996aca1506930ffc62",
+    "semantic_hash": "58318ecdd7cb5a996aca1506930ffc62"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/SignInViewModel.swift": {
+    "mtime": 1781148365.1028647,
+    "ast_hash": "dd05f0441e44142e988cb6ebc3f5978e",
+    "semantic_hash": "dd05f0441e44142e988cb6ebc3f5978e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuth/ViewModels/SignUpViewModel.swift": {
+    "mtime": 1781148365.1029158,
+    "ast_hash": "3df80f521a2b0d23b600d0891d279989",
+    "semantic_hash": "3df80f521a2b0d23b600d0891d279989"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuthTesting/FakeAuthService.swift": {
+    "mtime": 1781148365.102999,
+    "ast_hash": "a4e99aa76fad9c9f9242b57aee0cf520",
+    "semantic_hash": "a4e99aa76fad9c9f9242b57aee0cf520"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Sources/FEAuthTesting/InMemoryKeychainStorage.swift": {
+    "mtime": 1781148365.1030502,
+    "ast_hash": "5584dbec348152f4f0dc447f22651fce",
+    "semantic_hash": "5584dbec348152f4f0dc447f22651fce"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/Form/EmailPasswordValidatorsTests.swift": {
+    "mtime": 1781148365.1032095,
+    "ast_hash": "aa90294955caa584e31af8c76e791444",
+    "semantic_hash": "aa90294955caa584e31af8c76e791444"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/Keychain/KeychainStorageTests.swift": {
+    "mtime": 1781148365.103294,
+    "ast_hash": "c93389b9b14c52b0d148196012547a8e",
+    "semantic_hash": "c93389b9b14c52b0d148196012547a8e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/NotificationPreferencesViewModelTests.swift": {
+    "mtime": 1781148365.1033492,
+    "ast_hash": "c9653ddb155407c0882aa2b1050f434d",
+    "semantic_hash": "c9653ddb155407c0882aa2b1050f434d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/Session/AccountDeletionIntegrationTests.swift": {
+    "mtime": 1781148365.1034324,
+    "ast_hash": "017d9b7283610620e64630f0d0af0ed0",
+    "semantic_hash": "017d9b7283610620e64630f0d0af0ed0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/Session/FakeAuthServiceTests.swift": {
+    "mtime": 1781148365.103493,
+    "ast_hash": "f43a80c6b64d4df8d93959053e03d678",
+    "semantic_hash": "f43a80c6b64d4df8d93959053e03d678"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/Session/SupabaseAuthServiceTests.swift": {
+    "mtime": 1781148365.1035457,
+    "ast_hash": "b0f3dcaf0ed528425adac83f5f79611c",
+    "semantic_hash": "b0f3dcaf0ed528425adac83f5f79611c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/SessionStoreTests.swift": {
+    "mtime": 1781148365.1036115,
+    "ast_hash": "be09e3aa6cd883acbd3203a39bb760d2",
+    "semantic_hash": "be09e3aa6cd883acbd3203a39bb760d2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/SignInWithApple/AppleSignInCoordinatorTests.swift": {
+    "mtime": 1781148365.1037052,
+    "ast_hash": "d84aa1c67d7277f496b190e61bfcc375",
+    "semantic_hash": "d84aa1c67d7277f496b190e61bfcc375"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ThemePickerCardTests.swift": {
+    "mtime": 1781148365.103761,
+    "ast_hash": "31af038d38252962c646094b0068b15e",
+    "semantic_hash": "31af038d38252962c646094b0068b15e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/ForgotPasswordViewModelTests.swift": {
+    "mtime": 1781148365.1038532,
+    "ast_hash": "58cf7c1de524413b7e988c9279f9db63",
+    "semantic_hash": "58cf7c1de524413b7e988c9279f9db63"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/LinkAccountViewModelTests.swift": {
+    "mtime": 1781148365.1039033,
+    "ast_hash": "3fc8c21f4fb911b3a8b9908a4af3934a",
+    "semantic_hash": "3fc8c21f4fb911b3a8b9908a4af3934a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/ProfileViewModelTests.swift": {
+    "mtime": 1781148365.1039703,
+    "ast_hash": "2cd114afc8aeccdbc3f72949a86b18aa",
+    "semantic_hash": "2cd114afc8aeccdbc3f72949a86b18aa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/ResetPasswordViewModelTests.swift": {
+    "mtime": 1781148365.1040232,
+    "ast_hash": "7e5f6759b969bbd4f4daa5f2eefe033e",
+    "semantic_hash": "7e5f6759b969bbd4f4daa5f2eefe033e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/SignInViewModelTests.swift": {
+    "mtime": 1781148365.1040742,
+    "ast_hash": "8268a1f298b79610c8b2b8e7051abe38",
+    "semantic_hash": "8268a1f298b79610c8b2b8e7051abe38"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEAuth/Tests/FEAuthTests/ViewModels/SignUpViewModelTests.swift": {
+    "mtime": 1781148365.1041188,
+    "ast_hash": "fe395d1e7687c0b36e06bf3b8018d50c",
+    "semantic_hash": "fe395d1e7687c0b36e06bf3b8018d50c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Package.swift": {
+    "mtime": 1781148365.1042616,
+    "ast_hash": "9e68f64446f6021ec45b2cac46e81c9e",
+    "semantic_hash": "9e68f64446f6021ec45b2cac46e81c9e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Sources/FECalendar/CalendarScreen.swift": {
+    "mtime": 1781148365.1043856,
+    "ast_hash": "2ce6aadee59062c027ebecbfe9d16b24",
+    "semantic_hash": "2ce6aadee59062c027ebecbfe9d16b24"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Sources/FECalendar/CalendarTab.swift": {
+    "mtime": 1781148365.1044385,
+    "ast_hash": "1af97e8c88f4ee4ac1ff6daec6619ac0",
+    "semantic_hash": "1af97e8c88f4ee4ac1ff6daec6619ac0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Sources/FECalendar/Components/CalendarDayList.swift": {
+    "mtime": 1781148365.104535,
+    "ast_hash": "da0a264aa3086bc5d5242b6f400e959a",
+    "semantic_hash": "da0a264aa3086bc5d5242b6f400e959a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Sources/FECalendar/Components/CalendarMonthGrid.swift": {
+    "mtime": 1781148365.1045928,
+    "ast_hash": "ef2ee1e4b34016e4a13a2b6ae5bcaff7",
+    "semantic_hash": "ef2ee1e4b34016e4a13a2b6ae5bcaff7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Sources/FECalendar/ViewModels/CalendarViewModel.swift": {
+    "mtime": 1781148365.1046808,
+    "ast_hash": "0f2c1514b6aeb03b410f57e8349b8711",
+    "semantic_hash": "0f2c1514b6aeb03b410f57e8349b8711"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECalendar/Tests/FECalendarTests/CalendarViewModelTests.swift": {
+    "mtime": 1781148365.1047978,
+    "ast_hash": "67bcc8690d39688cf8a2c5426814e4ab",
+    "semantic_hash": "67bcc8690d39688cf8a2c5426814e4ab"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECityPicker/Package.swift": {
+    "mtime": 1781148365.1049578,
+    "ast_hash": "358ea8f90e303be9fa7bbbe2912783ae",
+    "semantic_hash": "358ea8f90e303be9fa7bbbe2912783ae"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECityPicker/Sources/FECityPicker/CityPickerSheet.swift": {
+    "mtime": 1781148365.1050935,
+    "ast_hash": "6876a72943f9c081f9dfdd6c2c42ce58",
+    "semantic_hash": "6876a72943f9c081f9dfdd6c2c42ce58"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECityPicker/Sources/FECityPicker/CityPickerToolbarButton.swift": {
+    "mtime": 1781148365.1051452,
+    "ast_hash": "0b1dd62549c5dc131819a23bc6f86f89",
+    "semantic_hash": "0b1dd62549c5dc131819a23bc6f86f89"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECityPicker/Sources/FECityPicker/CityPickerViewModel.swift": {
+    "mtime": 1781148365.1051998,
+    "ast_hash": "4ac2a5aedf59c90ec08a8322f0ffd24c",
+    "semantic_hash": "4ac2a5aedf59c90ec08a8322f0ffd24c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECityPicker/Tests/FECityPickerTests/CityPickerViewModelTests.swift": {
+    "mtime": 1781148365.1053183,
+    "ast_hash": "0bf37f5682230050bac9842b136748e5",
+    "semantic_hash": "0bf37f5682230050bac9842b136748e5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Package.swift": {
+    "mtime": 1781148365.1054435,
+    "ast_hash": "612cac0aebf9d421fa09acffb6307a39",
+    "semantic_hash": "612cac0aebf9d421fa09acffb6307a39"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/AppError.swift": {
+    "mtime": 1781148365.1055624,
+    "ast_hash": "878fd48b845f9a9328d8b846600fe841",
+    "semantic_hash": "878fd48b845f9a9328d8b846600fe841"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/CacheTTL.swift": {
+    "mtime": 1781148365.1056159,
+    "ast_hash": "16dc4d7eb59835a2d99f967015e4c55c",
+    "semantic_hash": "16dc4d7eb59835a2d99f967015e4c55c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/ConsumerAPIPath.swift": {
+    "mtime": 1781148365.1056662,
+    "ast_hash": "e4b84fb5c394e7caaa8916a07c1c01a5",
+    "semantic_hash": "e4b84fb5c394e7caaa8916a07c1c01a5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/DateFormatting.swift": {
+    "mtime": 1781148365.1057155,
+    "ast_hash": "217adbfbbfe82d80b028f37fac55f9e6",
+    "semantic_hash": "217adbfbbfe82d80b028f37fac55f9e6"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/DescriptionSanitizer.swift": {
+    "mtime": 1781148365.1057851,
+    "ast_hash": "9f7fa9d31cece04614c290393972b102",
+    "semantic_hash": "9f7fa9d31cece04614c290393972b102"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/EnvConfig.swift": {
+    "mtime": 1781148365.105837,
+    "ast_hash": "42df8dcaab62cf455e9772f4741c2284",
+    "semantic_hash": "42df8dcaab62cf455e9772f4741c2284"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/FECore.swift": {
+    "mtime": 1781148365.1058822,
+    "ast_hash": "2bd947f6c2947cdf054b6008fc152301",
+    "semantic_hash": "2bd947f6c2947cdf054b6008fc152301"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/GeoCoordinate.swift": {
+    "mtime": 1781148365.1059344,
+    "ast_hash": "87a898082e9069e1be5a0ed7d6531bcc",
+    "semantic_hash": "87a898082e9069e1be5a0ed7d6531bcc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/Identifiers.swift": {
+    "mtime": 1781148365.1059844,
+    "ast_hash": "fc55a2707850f366940fcd42cd68a067",
+    "semantic_hash": "fc55a2707850f366940fcd42cd68a067"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/Refreshable.swift": {
+    "mtime": 1781148365.1060367,
+    "ast_hash": "e34fbc5fb77edef06547d3d7c8400816",
+    "semantic_hash": "e34fbc5fb77edef06547d3d7c8400816"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/SafeImageURL.swift": {
+    "mtime": 1781148365.106091,
+    "ast_hash": "961a99cf64db4860ecf81eeb229f20de",
+    "semantic_hash": "961a99cf64db4860ecf81eeb229f20de"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Sources/FECore/ScenePhaseRefreshController.swift": {
+    "mtime": 1781148365.1061506,
+    "ast_hash": "54a89cf8625095b54449bb0e11236456",
+    "semantic_hash": "54a89cf8625095b54449bb0e11236456"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/AppErrorTests.swift": {
+    "mtime": 1781148365.1062672,
+    "ast_hash": "f257731ffaa21b09f85b5fe053284667",
+    "semantic_hash": "f257731ffaa21b09f85b5fe053284667"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/CacheTTLTests.swift": {
+    "mtime": 1781148365.1063175,
+    "ast_hash": "a73d4820c0b53a8d116ca1ef6da9403e",
+    "semantic_hash": "a73d4820c0b53a8d116ca1ef6da9403e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/ConsumerAPIPathTests.swift": {
+    "mtime": 1781148365.1063673,
+    "ast_hash": "429433d2cd6578c866f4bfec98adf366",
+    "semantic_hash": "429433d2cd6578c866f4bfec98adf366"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/DateFormattingTests.swift": {
+    "mtime": 1781148365.10642,
+    "ast_hash": "4fbcc016206e0cf9a50a30561815d9c6",
+    "semantic_hash": "4fbcc016206e0cf9a50a30561815d9c6"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/DescriptionSanitizerTests.swift": {
+    "mtime": 1781148365.1064723,
+    "ast_hash": "910a06df18585a83db651b8a60847e30",
+    "semantic_hash": "910a06df18585a83db651b8a60847e30"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/EnvConfigTests.swift": {
+    "mtime": 1781148365.1065323,
+    "ast_hash": "02590a5941a61c904b7717e73c9cb033",
+    "semantic_hash": "02590a5941a61c904b7717e73c9cb033"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/FECoreTests.swift": {
+    "mtime": 1781148365.1065824,
+    "ast_hash": "948bdda817383d18c0547b2bf2987cd1",
+    "semantic_hash": "948bdda817383d18c0547b2bf2987cd1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/GeoCoordinateTests.swift": {
+    "mtime": 1781148365.1066334,
+    "ast_hash": "8b7be13b2c59edb461b035c3fb05a3ed",
+    "semantic_hash": "8b7be13b2c59edb461b035c3fb05a3ed"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/IdentifiersTests.swift": {
+    "mtime": 1781148365.1066942,
+    "ast_hash": "f4f24f3bfface541aff448a93ccea222",
+    "semantic_hash": "f4f24f3bfface541aff448a93ccea222"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/SafeImageURLTests.swift": {
+    "mtime": 1781148365.1067479,
+    "ast_hash": "79f424ee27c9e4d022764e2d91492a82",
+    "semantic_hash": "79f424ee27c9e4d022764e2d91492a82"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FECore/Tests/FECoreTests/ScenePhaseRefreshControllerTests.swift": {
+    "mtime": 1781148365.106798,
+    "ast_hash": "d613756a21657b054b047798255eda75",
+    "semantic_hash": "d613756a21657b054b047798255eda75"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Package.swift": {
+    "mtime": 1781148365.106923,
+    "ast_hash": "4de03e3ddafdb05da9f124bc489c8655",
+    "semantic_hash": "4de03e3ddafdb05da9f124bc489c8655"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/APIClient.swift": {
+    "mtime": 1781148365.107034,
+    "ast_hash": "10c6fb6efcb99d0026653d13c1331d27",
+    "semantic_hash": "10c6fb6efcb99d0026653d13c1331d27"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/CalendarEventDTO.swift": {
+    "mtime": 1781148365.1071177,
+    "ast_hash": "f165d28f6896eb499ff82d0e98e8b6e1",
+    "semantic_hash": "f165d28f6896eb499ff82d0e98e8b6e1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/CommentDTO.swift": {
+    "mtime": 1781148365.107164,
+    "ast_hash": "23d4cf3dcd7bba7a516787d0d3b53b34",
+    "semantic_hash": "23d4cf3dcd7bba7a516787d0d3b53b34"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/EventDTO.swift": {
+    "mtime": 1781148365.1072528,
+    "ast_hash": "f80ec1570f8f432b824297d14cda96f7",
+    "semantic_hash": "f80ec1570f8f432b824297d14cda96f7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/EventQuery.swift": {
+    "mtime": 1781148365.1073048,
+    "ast_hash": "998727e553c557052db76d614eb05d5e",
+    "semantic_hash": "998727e553c557052db76d614eb05d5e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/FavoriteDTO.swift": {
+    "mtime": 1781148365.1073525,
+    "ast_hash": "066cc2d66e055ee05818aa4600f239eb",
+    "semantic_hash": "066cc2d66e055ee05818aa4600f239eb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/PlanEventsRowDTO.swift": {
+    "mtime": 1781148365.107405,
+    "ast_hash": "403f48705d0733f01c16d3a916b29f49",
+    "semantic_hash": "403f48705d0733f01c16d3a916b29f49"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/RatingDTO.swift": {
+    "mtime": 1781148365.1074557,
+    "ast_hash": "20370be1a399d6999d526e7231cf9881",
+    "semantic_hash": "20370be1a399d6999d526e7231cf9881"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/TagDTO.swift": {
+    "mtime": 1781148365.1075141,
+    "ast_hash": "568f4c6e0f14c48b9f0ec6ea5e842234",
+    "semantic_hash": "568f4c6e0f14c48b9f0ec6ea5e842234"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/DTOs/WeatherSnapshot.swift": {
+    "mtime": 1781148365.107564,
+    "ast_hash": "09fd73a6ad53d42983948b321cb76344",
+    "semantic_hash": "09fd73a6ad53d42983948b321cb76344"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/FEData.swift": {
+    "mtime": 1781148365.1076102,
+    "ast_hash": "906d3f9ed9dd44a6107677c16e11d1a3",
+    "semantic_hash": "906d3f9ed9dd44a6107677c16e11d1a3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/ModelContainer+App.swift": {
+    "mtime": 1781148365.107885,
+    "ast_hash": "7f64f138b6494523e2851434ec959f22",
+    "semantic_hash": "7f64f138b6494523e2851434ec959f22"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedCalendarEvent.swift": {
+    "mtime": 1781148365.108093,
+    "ast_hash": "4f446665165415aca14b4cd364eb8467",
+    "semantic_hash": "4f446665165415aca14b4cd364eb8467"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedCity.swift": {
+    "mtime": 1781148365.108162,
+    "ast_hash": "2424e3513007b02b7b2e2764f9fb53fd",
+    "semantic_hash": "2424e3513007b02b7b2e2764f9fb53fd"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedEvent.swift": {
+    "mtime": 1781148365.1082973,
+    "ast_hash": "d3c2f2cffd8130be5d5f126e7d1595cf",
+    "semantic_hash": "d3c2f2cffd8130be5d5f126e7d1595cf"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedExploreEvent.swift": {
+    "mtime": 1781148365.1083496,
+    "ast_hash": "5ed48b778d81333cabba27fd91ddc632",
+    "semantic_hash": "5ed48b778d81333cabba27fd91ddc632"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedFavorite.swift": {
+    "mtime": 1781148365.1084166,
+    "ast_hash": "47f12024a53615e57980c211ab50b98d",
+    "semantic_hash": "47f12024a53615e57980c211ab50b98d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Models/CachedPlannedEvent.swift": {
+    "mtime": 1781148365.1084654,
+    "ast_hash": "9c65f1fda34c34e12f6749abcd836120",
+    "semantic_hash": "9c65f1fda34c34e12f6749abcd836120"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/CalendarEventRepo.swift": {
+    "mtime": 1781148365.108568,
+    "ast_hash": "aa95c9ef468b39302cdfcce8d52d85e1",
+    "semantic_hash": "aa95c9ef468b39302cdfcce8d52d85e1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/CityRepository.swift": {
+    "mtime": 1781148365.1086237,
+    "ast_hash": "670ddf954d4864fa7653d92408de54a0",
+    "semantic_hash": "670ddf954d4864fa7653d92408de54a0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/CommentRepo.swift": {
+    "mtime": 1781148365.108676,
+    "ast_hash": "c56bbee756583890a5885422336a16e5",
+    "semantic_hash": "c56bbee756583890a5885422336a16e5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/EventRepository.swift": {
+    "mtime": 1781148365.108732,
+    "ast_hash": "dfb23812f8ad5460c9e438c350a39b8c",
+    "semantic_hash": "dfb23812f8ad5460c9e438c350a39b8c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/FavoriteRepo.swift": {
+    "mtime": 1781148365.1087823,
+    "ast_hash": "f92cdf740cee95571ac97c840c5a121b",
+    "semantic_hash": "f92cdf740cee95571ac97c840c5a121b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/MobilePushRegistrationRepo.swift": {
+    "mtime": 1781148365.1088378,
+    "ast_hash": "b3ee177e6d12430315771a918288c969",
+    "semantic_hash": "b3ee177e6d12430315771a918288c969"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/NotificationPreferencesRepo.swift": {
+    "mtime": 1781148365.1088984,
+    "ast_hash": "a4d63f00dae83264c8300ddf43b49ed3",
+    "semantic_hash": "a4d63f00dae83264c8300ddf43b49ed3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/PlanComposer.swift": {
+    "mtime": 1781148365.1090617,
+    "ast_hash": "b89adeecdcf7056f8cddcff03f2edf2f",
+    "semantic_hash": "b89adeecdcf7056f8cddcff03f2edf2f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/PlanRepository.swift": {
+    "mtime": 1781148365.1091866,
+    "ast_hash": "30b8f348a361d349f6a7ad66cfcc160e",
+    "semantic_hash": "30b8f348a361d349f6a7ad66cfcc160e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/ProfileRepo.swift": {
+    "mtime": 1781148365.1093702,
+    "ast_hash": "be2e28f8018a0f3e4983ea27be03cf73",
+    "semantic_hash": "be2e28f8018a0f3e4983ea27be03cf73"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/RatingRepo.swift": {
+    "mtime": 1781148365.1094897,
+    "ast_hash": "c8b455f75ac6b3ad051fe34d97dcc567",
+    "semantic_hash": "c8b455f75ac6b3ad051fe34d97dcc567"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/SupabaseCalendarEventRepo.swift": {
+    "mtime": 1781148365.109587,
+    "ast_hash": "fac8badb44b024b8e25deb74b437a3bf",
+    "semantic_hash": "fac8badb44b024b8e25deb74b437a3bf"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/SupabaseCommentRepo.swift": {
+    "mtime": 1781148365.1097052,
+    "ast_hash": "1a9941aeac48c9459c7eeea9a52eeb18",
+    "semantic_hash": "1a9941aeac48c9459c7eeea9a52eeb18"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/SupabaseFavoriteRepo.swift": {
+    "mtime": 1781148365.1098802,
+    "ast_hash": "012487b3677a36ad2fd9b0ce725c687a",
+    "semantic_hash": "012487b3677a36ad2fd9b0ce725c687a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repositories/SupabaseRatingRepo.swift": {
+    "mtime": 1781148365.1099896,
+    "ast_hash": "39ad2035f6438eaff8375f5e3b91173f",
+    "semantic_hash": "39ad2035f6438eaff8375f5e3b91173f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Repository.swift": {
+    "mtime": 1781148365.1100633,
+    "ast_hash": "df0d0123c8907673bf4a7e13261c6fce",
+    "semantic_hash": "df0d0123c8907673bf4a7e13261c6fce"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/CLLocationUpdatesProvider.swift": {
+    "mtime": 1781148365.1101823,
+    "ast_hash": "0ed2894c5ff865e6b3b1b0d64cba26cf",
+    "semantic_hash": "0ed2894c5ff865e6b3b1b0d64cba26cf"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/CoreLocationService.swift": {
+    "mtime": 1781148365.110242,
+    "ast_hash": "0d8714c2bdcd4df677d57c6f2bd14b6b",
+    "semantic_hash": "0d8714c2bdcd4df677d57c6f2bd14b6b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/LocationAuthorizationProvider.swift": {
+    "mtime": 1781148365.110303,
+    "ast_hash": "e5eaf9a4a2a33b838078d3cc8b549bd1",
+    "semantic_hash": "e5eaf9a4a2a33b838078d3cc8b549bd1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/LocationService.swift": {
+    "mtime": 1781148365.1103632,
+    "ast_hash": "7d1f88002f341b0e8ed82a01d3f69d8b",
+    "semantic_hash": "7d1f88002f341b0e8ed82a01d3f69d8b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/WeatherKitMapper.swift": {
+    "mtime": 1781148365.1104217,
+    "ast_hash": "99842cbb98326d6e619b02d9368c0b86",
+    "semantic_hash": "99842cbb98326d6e619b02d9368c0b86"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/WeatherKitService.swift": {
+    "mtime": 1781148365.1105208,
+    "ast_hash": "133e1ecc232516ebe42125020132933d",
+    "semantic_hash": "133e1ecc232516ebe42125020132933d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Services/WeatherProviding.swift": {
+    "mtime": 1781148365.1105802,
+    "ast_hash": "49e0984bb618f8a049a4a11d197bfb1b",
+    "semantic_hash": "49e0984bb618f8a049a4a11d197bfb1b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/SupabaseClient.swift": {
+    "mtime": 1781148365.110645,
+    "ast_hash": "7b4b5f9f20a34be4893f145009ff4f23",
+    "semantic_hash": "7b4b5f9f20a34be4893f145009ff4f23"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEData/Telemetry/RealtimeSubscriptionLifecycleAudit.swift": {
+    "mtime": 1781148365.1108437,
+    "ast_hash": "53942bb753b1c53788f70cf5a475a79b",
+    "semantic_hash": "53942bb753b1c53788f70cf5a475a79b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeCalendarEventRepo.swift": {
+    "mtime": 1781148365.1110175,
+    "ast_hash": "db9420a40d5ac1c2f0c1499a1f2b5cd0",
+    "semantic_hash": "db9420a40d5ac1c2f0c1499a1f2b5cd0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeCityRepository.swift": {
+    "mtime": 1781148365.1111352,
+    "ast_hash": "b2411addd6f2b0e8929becfa057ebb74",
+    "semantic_hash": "b2411addd6f2b0e8929becfa057ebb74"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeCommentRepo.swift": {
+    "mtime": 1781148365.11129,
+    "ast_hash": "2c6825e7980b4c897d85d5b4ad8010bb",
+    "semantic_hash": "2c6825e7980b4c897d85d5b4ad8010bb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeEventRepository.swift": {
+    "mtime": 1781148365.1113558,
+    "ast_hash": "5ab28b5984268873450e9cfb3c171b2d",
+    "semantic_hash": "5ab28b5984268873450e9cfb3c171b2d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeFavoriteRepo.swift": {
+    "mtime": 1781148365.11141,
+    "ast_hash": "a2ff16fda16a973a74cd31c35bd5cd34",
+    "semantic_hash": "a2ff16fda16a973a74cd31c35bd5cd34"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeLocationProviders.swift": {
+    "mtime": 1781148365.1114645,
+    "ast_hash": "c1bc7d50b13d02fc911b84cff96f01f0",
+    "semantic_hash": "c1bc7d50b13d02fc911b84cff96f01f0"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeLocationService.swift": {
+    "mtime": 1781148365.1115506,
+    "ast_hash": "fb26468a03be8669c6e60a8b5f9caae5",
+    "semantic_hash": "fb26468a03be8669c6e60a8b5f9caae5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeMobilePushRegistrationRepo.swift": {
+    "mtime": 1781148365.111733,
+    "ast_hash": "c5f0a5aa042c5140c60e889d1e5af1ec",
+    "semantic_hash": "c5f0a5aa042c5140c60e889d1e5af1ec"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeNotificationPreferencesRepo.swift": {
+    "mtime": 1781148365.1118617,
+    "ast_hash": "2d42cf7ebbeee58f2f9e91c81c17b140",
+    "semantic_hash": "2d42cf7ebbeee58f2f9e91c81c17b140"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakePlanRepository.swift": {
+    "mtime": 1781148365.111937,
+    "ast_hash": "624f29f503ecada86d7f57c7f2a21083",
+    "semantic_hash": "624f29f503ecada86d7f57c7f2a21083"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeProfileRepo.swift": {
+    "mtime": 1781148365.1120028,
+    "ast_hash": "1dc6b883460e987882c0a2de7ac6c9c1",
+    "semantic_hash": "1dc6b883460e987882c0a2de7ac6c9c1"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeRatingRepo.swift": {
+    "mtime": 1781148365.112067,
+    "ast_hash": "9d1f64d5a75e80a24e938a04f22617e5",
+    "semantic_hash": "9d1f64d5a75e80a24e938a04f22617e5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Sources/FEDataTesting/FakeWeatherProviding.swift": {
+    "mtime": 1781148365.1121402,
+    "ast_hash": "aaa1151c8a08e3fb362e9d7110320ad3",
+    "semantic_hash": "aaa1151c8a08e3fb362e9d7110320ad3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/APIClientTests.swift": {
+    "mtime": 1781148365.1124492,
+    "ast_hash": "ca2f30fffe1398da5cba7b83d772cc27",
+    "semantic_hash": "ca2f30fffe1398da5cba7b83d772cc27"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/DTOs/CalendarEventDTOTests.swift": {
+    "mtime": 1781148365.1126256,
+    "ast_hash": "b6e3301b6a93f5c76ff485b509360152",
+    "semantic_hash": "b6e3301b6a93f5c76ff485b509360152"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/DTOs/EventDTOTests.swift": {
+    "mtime": 1781148365.1127145,
+    "ast_hash": "b480ed228f65917e4520d069e1d0ef0b",
+    "semantic_hash": "b480ed228f65917e4520d069e1d0ef0b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/DTOs/PlanEventsRowDTOTests.swift": {
+    "mtime": 1781148365.1127768,
+    "ast_hash": "3c3585b0a9dc7f67bb40d817fa313680",
+    "semantic_hash": "3c3585b0a9dc7f67bb40d817fa313680"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/DTOs/WeatherSnapshotTests.swift": {
+    "mtime": 1781148365.1128857,
+    "ast_hash": "186689bd374e675d883f59c73742be54",
+    "semantic_hash": "186689bd374e675d883f59c73742be54"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/FEDataTests.swift": {
+    "mtime": 1781148365.113033,
+    "ast_hash": "38c611e1b82810708e395f8145e11bbe",
+    "semantic_hash": "38c611e1b82810708e395f8145e11bbe"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/MobilePushRegistrationRepoTests.swift": {
+    "mtime": 1781148365.113176,
+    "ast_hash": "d029beed2e9062015e7b9eda38eeec4c",
+    "semantic_hash": "d029beed2e9062015e7b9eda38eeec4c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Models/CachedCalendarEventTests.swift": {
+    "mtime": 1781148365.1133084,
+    "ast_hash": "7925006f105af9ec2874db540bf69dca",
+    "semantic_hash": "7925006f105af9ec2874db540bf69dca"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Models/CachedEventTests.swift": {
+    "mtime": 1781148365.113391,
+    "ast_hash": "a8ae977183820726dcdfb878d1ddb976",
+    "semantic_hash": "a8ae977183820726dcdfb878d1ddb976"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Models/CachedExploreEventTests.swift": {
+    "mtime": 1781148365.113483,
+    "ast_hash": "a2357a910d4d32f5248c6971315ee061",
+    "semantic_hash": "a2357a910d4d32f5248c6971315ee061"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/NotificationPreferencesRepoTests.swift": {
+    "mtime": 1781148365.1135738,
+    "ast_hash": "a75bcd6f0825edee7c273cb548f76939",
+    "semantic_hash": "a75bcd6f0825edee7c273cb548f76939"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/CalendarEventRepoTests.swift": {
+    "mtime": 1781148365.1136823,
+    "ast_hash": "e3b9669aa491f85e21152d19bc94910c",
+    "semantic_hash": "e3b9669aa491f85e21152d19bc94910c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/CityRepositoryTests.swift": {
+    "mtime": 1781148365.1138182,
+    "ast_hash": "8d8af0979ec148afcb4ff66e32822a4e",
+    "semantic_hash": "8d8af0979ec148afcb4ff66e32822a4e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/EventRepositoryTests.swift": {
+    "mtime": 1781148365.113927,
+    "ast_hash": "919e5aee1a9d7b00abcc5b8117f8b2a2",
+    "semantic_hash": "919e5aee1a9d7b00abcc5b8117f8b2a2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/FavoriteRepoTests.swift": {
+    "mtime": 1781148365.1139877,
+    "ast_hash": "7d8359b69760f534a52b540fea5bf7d5",
+    "semantic_hash": "7d8359b69760f534a52b540fea5bf7d5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/PlanComposerTests.swift": {
+    "mtime": 1781148365.1140916,
+    "ast_hash": "60991e20aa6de4c692f7b9efaf21a46d",
+    "semantic_hash": "60991e20aa6de4c692f7b9efaf21a46d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/PlanRepositoryTests.swift": {
+    "mtime": 1781148365.1141553,
+    "ast_hash": "fa01eb546a29556c0c3c515d83f00612",
+    "semantic_hash": "fa01eb546a29556c0c3c515d83f00612"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Repositories/ProfileRepoTests.swift": {
+    "mtime": 1781148365.1142225,
+    "ast_hash": "6c87399eac43f6922f0ae93e5287fdaa",
+    "semantic_hash": "6c87399eac43f6922f0ae93e5287fdaa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/RepositoryTests.swift": {
+    "mtime": 1781148365.1143076,
+    "ast_hash": "3902039db2304cd82293008b35bd55a4",
+    "semantic_hash": "3902039db2304cd82293008b35bd55a4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Services/CoreLocationServiceTests.swift": {
+    "mtime": 1781148365.114424,
+    "ast_hash": "beec6215791b4def78621ef673bdef26",
+    "semantic_hash": "beec6215791b4def78621ef673bdef26"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Services/LocationServiceTests.swift": {
+    "mtime": 1781148365.1144881,
+    "ast_hash": "2cf01e497844656bd9408eae122b3978",
+    "semantic_hash": "2cf01e497844656bd9408eae122b3978"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Services/WeatherKitMapperTests.swift": {
+    "mtime": 1781148365.1145494,
+    "ast_hash": "52f3b28f44f9f23d734d2fc784faccab",
+    "semantic_hash": "52f3b28f44f9f23d734d2fc784faccab"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Services/WeatherProvidingTests.swift": {
+    "mtime": 1781148365.1146116,
+    "ast_hash": "4d9bef5a75e9a1352abcad7192ec8a43",
+    "semantic_hash": "4d9bef5a75e9a1352abcad7192ec8a43"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/SupabaseClientTests.swift": {
+    "mtime": 1781148365.1146822,
+    "ast_hash": "3562fc53c0a0e3e49d1338d8881f843c",
+    "semantic_hash": "3562fc53c0a0e3e49d1338d8881f843c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEData/Tests/FEDataTests/Telemetry/RealtimeSubscriptionLifecycleAuditTests.swift": {
+    "mtime": 1781148365.1147828,
+    "ast_hash": "ad30219e33aeff8fdc0a4c0eb586bdad",
+    "semantic_hash": "ad30219e33aeff8fdc0a4c0eb586bdad"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Package.swift": {
+    "mtime": 1781148365.1149447,
+    "ast_hash": "8c9adfc306aa5eea0b0e77bd9b410232",
+    "semantic_hash": "8c9adfc306aa5eea0b0e77bd9b410232"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/AffordancePill.swift": {
+    "mtime": 1781148365.115078,
+    "ast_hash": "2feeb275c3ea4d894388074578b0597a",
+    "semantic_hash": "2feeb275c3ea4d894388074578b0597a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/AppAppearancePreference.swift": {
+    "mtime": 1781148365.1151319,
+    "ast_hash": "b1b6ce0df7f1cce021a58d484d9b5c3c",
+    "semantic_hash": "b1b6ce0df7f1cce021a58d484d9b5c3c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/EventCard.swift": {
+    "mtime": 1781148365.1154761,
+    "ast_hash": "41c3a5bac09b54f3c37a80511c8486f4",
+    "semantic_hash": "41c3a5bac09b54f3c37a80511c8486f4"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/FavoriteButton.swift": {
+    "mtime": 1781148365.115544,
+    "ast_hash": "cd72b57ff444c60ec2f34c7b9587d52e",
+    "semantic_hash": "cd72b57ff444c60ec2f34c7b9587d52e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/FontRegistration.swift": {
+    "mtime": 1781148365.1156237,
+    "ast_hash": "cfa67aa779986d07fcb428abc60e3f75",
+    "semantic_hash": "cfa67aa779986d07fcb428abc60e3f75"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/PlaceholderView.swift": {
+    "mtime": 1781148365.1158276,
+    "ast_hash": "5e8ed258ef3d39edc4b828529eedc172",
+    "semantic_hash": "5e8ed258ef3d39edc4b828529eedc172"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/AppAppearancePreferenceTests.swift": {
+    "mtime": 1781148365.1202648,
+    "ast_hash": "ffe880e3a187b6274f94b3d012209366",
+    "semantic_hash": "ffe880e3a187b6274f94b3d012209366"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/EventCardTests.swift": {
+    "mtime": 1781148365.120335,
+    "ast_hash": "4c7c81a6f6b9417275e014e38356d077",
+    "semantic_hash": "4c7c81a6f6b9417275e014e38356d077"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/FavoriteButtonTests.swift": {
+    "mtime": 1781148365.1204412,
+    "ast_hash": "3f492030a4338cd6ff5867ae564e3de7",
+    "semantic_hash": "3f492030a4338cd6ff5867ae564e3de7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/FontRegistrationTests.swift": {
+    "mtime": 1781148365.120571,
+    "ast_hash": "7084c6ac4b05d587366938bcc3de704f",
+    "semantic_hash": "7084c6ac4b05d587366938bcc3de704f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/PlaceholderViewTests.swift": {
+    "mtime": 1781148365.1206505,
+    "ast_hash": "aa1c7ca479cd52f0e030f7195dbef101",
+    "semantic_hash": "aa1c7ca479cd52f0e030f7195dbef101"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/SnapshotHelpers.swift": {
+    "mtime": 1781148365.1207767,
+    "ast_hash": "ba7237f21f4e52132c1c8284186da52a",
+    "semantic_hash": "ba7237f21f4e52132c1c8284186da52a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Package.swift": {
+    "mtime": 1781148365.1244316,
+    "ast_hash": "9d24948a4cf38bdbdb9acd3641d85b99",
+    "semantic_hash": "9d24948a4cf38bdbdb9acd3641d85b99"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventDetailCommentSection.swift": {
+    "mtime": 1781148365.1247098,
+    "ast_hash": "0a09abbe5f6a5b35063631cafd0b57aa",
+    "semantic_hash": "0a09abbe5f6a5b35063631cafd0b57aa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventDetailHeroImage.swift": {
+    "mtime": 1781148365.124813,
+    "ast_hash": "4a60a2e8cc39f67e060f814cf04240ae",
+    "semantic_hash": "4a60a2e8cc39f67e060f814cf04240ae"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventDetailInfoGrid.swift": {
+    "mtime": 1781148365.124925,
+    "ast_hash": "8018e2f2a5df4e3c4c856b70f95e0a1d",
+    "semantic_hash": "8018e2f2a5df4e3c4c856b70f95e0a1d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventDetailScreen.swift": {
+    "mtime": 1781148365.1250756,
+    "ast_hash": "70f2fee5cf4ca119443bcfeb16a928be",
+    "semantic_hash": "70f2fee5cf4ca119443bcfeb16a928be"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventDetailViewModel.swift": {
+    "mtime": 1781148365.1252398,
+    "ast_hash": "cf6cb6aae928f8470bbf1a7e64ab1777",
+    "semantic_hash": "cf6cb6aae928f8470bbf1a7e64ab1777"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventKitWriter.swift": {
+    "mtime": 1781148365.1253414,
+    "ast_hash": "56a1e69a4147e7b86c3fc900dd8c1c0f",
+    "semantic_hash": "56a1e69a4147e7b86c3fc900dd8c1c0f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/EventShareURL.swift": {
+    "mtime": 1781148365.1254027,
+    "ast_hash": "45f7d75d7111e53eeef6b18d86645518",
+    "semantic_hash": "45f7d75d7111e53eeef6b18d86645518"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Sources/FEEventDetail/StarRatingView.swift": {
+    "mtime": 1781148365.1254659,
+    "ast_hash": "9a6c2ff91b7111056685e984a662325f",
+    "semantic_hash": "9a6c2ff91b7111056685e984a662325f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventDetailRatingCommentTests.swift": {
+    "mtime": 1781148365.1256144,
+    "ast_hash": "4f9f93e86d70c788b5d97698ecf5593e",
+    "semantic_hash": "4f9f93e86d70c788b5d97698ecf5593e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventDetailRefreshTests.swift": {
+    "mtime": 1781148365.1257017,
+    "ast_hash": "406af8a5c137832e92afe35c17b1bf38",
+    "semantic_hash": "406af8a5c137832e92afe35c17b1bf38"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventDetailScreenTests.swift": {
+    "mtime": 1781148365.1257546,
+    "ast_hash": "5ff9d1ea874c2e7670b5fcd0dc9fa247",
+    "semantic_hash": "5ff9d1ea874c2e7670b5fcd0dc9fa247"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventDetailViewModelTests.swift": {
+    "mtime": 1781148365.1258142,
+    "ast_hash": "add586b79e5f1fc002a5ca257ded0c78",
+    "semantic_hash": "add586b79e5f1fc002a5ca257ded0c78"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventKitWriterTests.swift": {
+    "mtime": 1781148365.1258738,
+    "ast_hash": "bfaa0d3ba2d3409ef45facbbd8204223",
+    "semantic_hash": "bfaa0d3ba2d3409ef45facbbd8204223"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEEventDetail/Tests/FEEventDetailTests/EventShareURLTests.swift": {
+    "mtime": 1781148365.1259663,
+    "ast_hash": "0ac3f6bf93b294895cfd7aac72a1eade",
+    "semantic_hash": "0ac3f6bf93b294895cfd7aac72a1eade"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Package.swift": {
+    "mtime": 1781148365.1261287,
+    "ast_hash": "b0062696fe3568a5f6b9a0b78888cea7",
+    "semantic_hash": "b0062696fe3568a5f6b9a0b78888cea7"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreActiveFiltersBar.swift": {
+    "mtime": 1781148365.126301,
+    "ast_hash": "2e5089fd0014f1df64e0532245073729",
+    "semantic_hash": "2e5089fd0014f1df64e0532245073729"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreCard.swift": {
+    "mtime": 1781148365.1263654,
+    "ast_hash": "3af06b27d9d324b086813260e652d7e3",
+    "semantic_hash": "3af06b27d9d324b086813260e652d7e3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreCategoryChipRow.swift": {
+    "mtime": 1781148365.1264267,
+    "ast_hash": "32187f64b7a078e7fb7e0c2e01d7c4a2",
+    "semantic_hash": "32187f64b7a078e7fb7e0c2e01d7c4a2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreFilterButton.swift": {
+    "mtime": 1781148365.1264894,
+    "ast_hash": "50ac42c1d0dad1a40d75ec49a8143c32",
+    "semantic_hash": "50ac42c1d0dad1a40d75ec49a8143c32"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreFilterSheet.swift": {
+    "mtime": 1781148365.1265702,
+    "ast_hash": "8c6ad8f4f269e0d843fca4049e2b429d",
+    "semantic_hash": "8c6ad8f4f269e0d843fca4049e2b429d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Components/ExploreSearchBar.swift": {
+    "mtime": 1781148365.1267126,
+    "ast_hash": "33f649feabe7442b073b40bb76c904f9",
+    "semantic_hash": "33f649feabe7442b073b40bb76c904f9"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/ExploreTab.swift": {
+    "mtime": 1781148365.1267834,
+    "ast_hash": "8b99363b17dd3a1ecbd7011963736885",
+    "semantic_hash": "8b99363b17dd3a1ecbd7011963736885"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/Screens/ExploreScreen.swift": {
+    "mtime": 1781148365.1269276,
+    "ast_hash": "d0ee0f9e410ee7b9ddf94a123a4ce5a8",
+    "semantic_hash": "d0ee0f9e410ee7b9ddf94a123a4ce5a8"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/ViewModels/ExploreFilters.swift": {
+    "mtime": 1781148365.1270392,
+    "ast_hash": "9ab52dd09d667ef1e20a211662f7af3c",
+    "semantic_hash": "9ab52dd09d667ef1e20a211662f7af3c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Sources/FEExplore/ViewModels/ExploreViewModel.swift": {
+    "mtime": 1781148365.127113,
+    "ast_hash": "265a8747f7756b884f6d1f2aa1c5abbc",
+    "semantic_hash": "265a8747f7756b884f6d1f2aa1c5abbc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Tests/FEExploreTests/ExploreFiltersTests.swift": {
+    "mtime": 1781148365.1272686,
+    "ast_hash": "731923d6843b27b804e357b40fea7d33",
+    "semantic_hash": "731923d6843b27b804e357b40fea7d33"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Tests/FEExploreTests/ExploreTabTests.swift": {
+    "mtime": 1781148365.12744,
+    "ast_hash": "af2ddd3ddf6841ef92b0c7823d2905d3",
+    "semantic_hash": "af2ddd3ddf6841ef92b0c7823d2905d3"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEExplore/Tests/FEExploreTests/ExploreViewModelTests.swift": {
+    "mtime": 1781148365.127598,
+    "ast_hash": "ac9f26a1bfa0f6de0ad61e13eb245ded",
+    "semantic_hash": "ac9f26a1bfa0f6de0ad61e13eb245ded"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Package.swift": {
+    "mtime": 1781148365.1278186,
+    "ast_hash": "ed2d5852b183259223fb153ea1dcb54d",
+    "semantic_hash": "ed2d5852b183259223fb153ea1dcb54d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/Components/ClusterBubble.swift": {
+    "mtime": 1781148365.127984,
+    "ast_hash": "a6bac32e9035f357eb4589bb971f3631",
+    "semantic_hash": "a6bac32e9035f357eb4589bb971f3631"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/Components/EventPin.swift": {
+    "mtime": 1781148365.1281152,
+    "ast_hash": "d942fee7696f4be3b22ff92288872b96",
+    "semantic_hash": "d942fee7696f4be3b22ff92288872b96"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/Components/EventPopupCard.swift": {
+    "mtime": 1781148365.1281853,
+    "ast_hash": "85d16e50ef395579a7c104f56b3d0903",
+    "semantic_hash": "85d16e50ef395579a7c104f56b3d0903"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/MapScreen.swift": {
+    "mtime": 1781148365.1282349,
+    "ast_hash": "fe891f05583741a9cae4ed5e5edf3f65",
+    "semantic_hash": "fe891f05583741a9cae4ed5e5edf3f65"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/MapTab.swift": {
+    "mtime": 1781148365.1283157,
+    "ast_hash": "1f97cf1a0088942508889073f5f72f66",
+    "semantic_hash": "1f97cf1a0088942508889073f5f72f66"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Sources/FEMap/ViewModels/MapViewModel.swift": {
+    "mtime": 1781148365.1284196,
+    "ast_hash": "21e6711b0b2d55ae5ad51975c770eecb",
+    "semantic_hash": "21e6711b0b2d55ae5ad51975c770eecb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEMap/Tests/FEMapTests/MapViewModelTests.swift": {
+    "mtime": 1781148365.1285675,
+    "ast_hash": "8f76cd73cd527994294af0c5fb331d36",
+    "semantic_hash": "8f76cd73cd527994294af0c5fb331d36"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Package.swift": {
+    "mtime": 1781148365.1287024,
+    "ast_hash": "23e3caf71d8331cf9bf7d0884a2e958d",
+    "semantic_hash": "23e3caf71d8331cf9bf7d0884a2e958d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/InlineNavTitle.swift": {
+    "mtime": 1781148365.1288671,
+    "ast_hash": "885724f1091757b6c133a6f050ef0c45",
+    "semantic_hash": "885724f1091757b6c133a6f050ef0c45"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/PlanCarouselCard.swift": {
+    "mtime": 1781148365.129066,
+    "ast_hash": "637a78ee74a802da571a558a6ff25638",
+    "semantic_hash": "637a78ee74a802da571a558a6ff25638"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/PlanContextBar.swift": {
+    "mtime": 1781148365.1291754,
+    "ast_hash": "d73112439dfd666b3f6bea9834386147",
+    "semantic_hash": "d73112439dfd666b3f6bea9834386147"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/PlanEmptyStateView.swift": {
+    "mtime": 1781148365.129284,
+    "ast_hash": "a6ac3c142dda161bd968597e956bcd6f",
+    "semantic_hash": "a6ac3c142dda161bd968597e956bcd6f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/PlanHeroCard.swift": {
+    "mtime": 1781148365.1293943,
+    "ast_hash": "f75dbc64d83bb11cbc35b2e0a3787952",
+    "semantic_hash": "f75dbc64d83bb11cbc35b2e0a3787952"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/PlanThumbCard.swift": {
+    "mtime": 1781148365.1294668,
+    "ast_hash": "afd84daccb033908a989bcb210360726",
+    "semantic_hash": "afd84daccb033908a989bcb210360726"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Components/WeatherStrip.swift": {
+    "mtime": 1781148365.1295378,
+    "ast_hash": "5fc4f5aaadf7c9d9e505b0347e9f1bcb",
+    "semantic_hash": "5fc4f5aaadf7c9d9e505b0347e9f1bcb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/PlanModule.swift": {
+    "mtime": 1781148365.1295984,
+    "ast_hash": "3d0b394dac6445dd0ba882da13d0c913",
+    "semantic_hash": "3d0b394dac6445dd0ba882da13d0c913"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/PlanTab.swift": {
+    "mtime": 1781148365.1296618,
+    "ast_hash": "e21301fc9fcae0e3c048515fcd8eb957",
+    "semantic_hash": "e21301fc9fcae0e3c048515fcd8eb957"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/Screens/SaturdayPlanScreen.swift": {
+    "mtime": 1781148365.1297894,
+    "ast_hash": "a39c6e6b537978d09c5f6d6f226dc91d",
+    "semantic_hash": "a39c6e6b537978d09c5f6d6f226dc91d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/ViewModels/PlanContext.swift": {
+    "mtime": 1781148365.129876,
+    "ast_hash": "048a33974b9479681cdf1383574a0209",
+    "semantic_hash": "048a33974b9479681cdf1383574a0209"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Sources/FEPlan/ViewModels/PlanViewModel.swift": {
+    "mtime": 1781148365.129958,
+    "ast_hash": "d30f3b56834cd30e772132f3abd4793a",
+    "semantic_hash": "d30f3b56834cd30e772132f3abd4793a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Tests/FEPlanTests/PlanCardSubtitleTests.swift": {
+    "mtime": 1781148365.1301165,
+    "ast_hash": "9a8325f086955ba04d22be91888fcc30",
+    "semantic_hash": "9a8325f086955ba04d22be91888fcc30"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Tests/FEPlanTests/PlanContextTests.swift": {
+    "mtime": 1781148365.130179,
+    "ast_hash": "e0cd00b6bd61d9f37680dbb6eb50b2bc",
+    "semantic_hash": "e0cd00b6bd61d9f37680dbb6eb50b2bc"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Tests/FEPlanTests/PlanTabTests.swift": {
+    "mtime": 1781148365.130232,
+    "ast_hash": "05258dd628ad6109fd01d75736d8d18d",
+    "semantic_hash": "05258dd628ad6109fd01d75736d8d18d"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEPlan/Tests/FEPlanTests/PlanViewModelTests.swift": {
+    "mtime": 1781148365.1303,
+    "ast_hash": "192bb7514473d08456356072f83d168b",
+    "semantic_hash": "192bb7514473d08456356072f83d168b"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Package.swift": {
+    "mtime": 1781148365.13044,
+    "ast_hash": "7ff754dcbb182083c26fa22c48e5b647",
+    "semantic_hash": "7ff754dcbb182083c26fa22c48e5b647"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Sources/FESaved/SavedFilter.swift": {
+    "mtime": 1781148365.1305554,
+    "ast_hash": "6a1f102425acb19a943513cae34ea611",
+    "semantic_hash": "6a1f102425acb19a943513cae34ea611"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Sources/FESaved/SavedTab.swift": {
+    "mtime": 1781148365.1306074,
+    "ast_hash": "a6066d41a41dd482ea5d1898b60150a9",
+    "semantic_hash": "a6066d41a41dd482ea5d1898b60150a9"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Sources/FESaved/Screens/SavedScreen.swift": {
+    "mtime": 1781148365.1307204,
+    "ast_hash": "41195e5e5b130bfc983aecb2456e0782",
+    "semantic_hash": "41195e5e5b130bfc983aecb2456e0782"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Sources/FESaved/ViewModels/SavedSyncCoordinator.swift": {
+    "mtime": 1781148365.1308336,
+    "ast_hash": "8291f17eb8493677d7ea8f186002b59c",
+    "semantic_hash": "8291f17eb8493677d7ea8f186002b59c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Tests/FESavedTests/SavedFilterTests.swift": {
+    "mtime": 1781148365.1309493,
+    "ast_hash": "a6487cafa91720d24d61329280ec0199",
+    "semantic_hash": "a6487cafa91720d24d61329280ec0199"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Tests/FESavedTests/SavedSyncCoordinatorTests.swift": {
+    "mtime": 1781148365.131026,
+    "ast_hash": "de16252445312de6ece14403749caf3f",
+    "semantic_hash": "de16252445312de6ece14403749caf3f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FESaved/Tests/FESavedTests/SavedTabTests.swift": {
+    "mtime": 1781148365.1310773,
+    "ast_hash": "7a9c70e51cb442ffd8215f4d7a72a2f5",
+    "semantic_hash": "7a9c70e51cb442ffd8215f4d7a72a2f5"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/package.json": {
+    "mtime": 1781148365.131147,
+    "ast_hash": "dc7eb1b9cdeae6cf090d5118a6fc0e3e",
+    "semantic_hash": "dc7eb1b9cdeae6cf090d5118a6fc0e3e"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/tests/guards/android-scope.test.mjs": {
+    "mtime": 1781148359.724585,
+    "ast_hash": "a961db0acbf2320c89113a92a87fee62",
+    "semantic_hash": "a961db0acbf2320c89113a92a87fee62"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/tests/guards/ios-scope.test.mjs": {
+    "mtime": 1781148359.724994,
+    "ast_hash": "1bb8a0d72d834c938a6bcf5b20c82c35",
+    "semantic_hash": "1bb8a0d72d834c938a6bcf5b20c82c35"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/tests/guards/ios-token-adoption.test.mjs": {
+    "mtime": 1781148359.725055,
+    "ast_hash": "ce330a427e4fc216fe9e43b6a19fc67f",
+    "semantic_hash": "ce330a427e4fc216fe9e43b6a19fc67f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/.github/workflows/android-release.yml": {
+    "mtime": 1781148359.6142786,
+    "ast_hash": "18d084e56c40ea30518f8fd300c16f63",
+    "semantic_hash": "18d084e56c40ea30518f8fd300c16f63"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/.github/workflows/codeql.yml": {
+    "mtime": 1781148359.614456,
+    "ast_hash": "d606bd6eefc00aa622b927afd188ae66",
+    "semantic_hash": "d606bd6eefc00aa622b927afd188ae66"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/.github/workflows/dependency-review.yml": {
+    "mtime": 1781148359.6145096,
+    "ast_hash": "8356883e65e09edafd9f6fdf08ff6ecb",
+    "semantic_hash": "8356883e65e09edafd9f6fdf08ff6ecb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/.github/workflows/mobile-release.yml": {
+    "mtime": 1781148359.6145768,
+    "ast_hash": "10f9a9d46848aa0f5c7aab8909720f25",
+    "semantic_hash": "10f9a9d46848aa0f5c7aab8909720f25"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/AGENTS.md": {
+    "mtime": 1781148365.0822623,
+    "ast_hash": "0f83429ef0b3df2cf89e791adddafc57",
+    "semantic_hash": "0f83429ef0b3df2cf89e791adddafc57"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/README.md": {
+    "mtime": 1781148365.0823398,
+    "ast_hash": "2b2f046d7155560545ce9e6acf7cc585",
+    "semantic_hash": "2b2f046d7155560545ce9e6acf7cc585"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/android/scripts/README.md": {
+    "mtime": 1781148365.096532,
+    "ast_hash": "168b9de489242954346538c067088d9a",
+    "semantic_hash": "168b9de489242954346538c067088d9a"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/AGENTS.md": {
+    "mtime": 1781148365.0971715,
+    "ast_hash": "a55c1c36f219fcdc6e06e343d8d933a9",
+    "semantic_hash": "a55c1c36f219fcdc6e06e343d8d933a9"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/CLAUDE.md": {
+    "mtime": 1781148365.097255,
+    "ast_hash": "25467feefcf756c7adf96256e747c401",
+    "semantic_hash": "25467feefcf756c7adf96256e747c401"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/Resources/Fonts/README.md": {
+    "mtime": 1781148365.1200662,
+    "ast_hash": "1c3302f86b39080db942eab1967a8c02",
+    "semantic_hash": "1c3302f86b39080db942eab1967a8c02"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/SNAPSHOTS.md": {
+    "mtime": 1781148365.1207123,
+    "ast_hash": "3bde5b660cd7d2955f3357fd3a44b111",
+    "semantic_hash": "3bde5b660cd7d2955f3357fd3a44b111"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/project.yml": {
+    "mtime": 1781148365.131215,
+    "ast_hash": "b7c9114fec9452c1a05f7e7fa9da09aa",
+    "semantic_hash": "b7c9114fec9452c1a05f7e7fa9da09aa"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png": {
+    "mtime": 1781148365.0986724,
+    "ast_hash": "609f19a5e64557b5f811bf79881d5022",
+    "semantic_hash": "609f19a5e64557b5f811bf79881d5022"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-120.png": {
+    "mtime": 1781148365.0987303,
+    "ast_hash": "45f2971723d5a9782a532b6d7a779494",
+    "semantic_hash": "45f2971723d5a9782a532b6d7a779494"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-152.png": {
+    "mtime": 1781148365.09879,
+    "ast_hash": "d4a2ec33d02e36b9c93819815cca1546",
+    "semantic_hash": "d4a2ec33d02e36b9c93819815cca1546"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-167.png": {
+    "mtime": 1781148365.098845,
+    "ast_hash": "adf67e537a102598c44849892f08728f",
+    "semantic_hash": "adf67e537a102598c44849892f08728f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-180.png": {
+    "mtime": 1781148365.0989037,
+    "ast_hash": "376ff91e2a5e70c435b06d506e4a4e03",
+    "semantic_hash": "376ff91e2a5e70c435b06d506e4a4e03"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-20.png": {
+    "mtime": 1781148365.0989618,
+    "ast_hash": "7e7efff849dcf0c23c8243832ad0b806",
+    "semantic_hash": "7e7efff849dcf0c23c8243832ad0b806"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-29.png": {
+    "mtime": 1781148365.099021,
+    "ast_hash": "d46a96c1bb2c7c39d6d853bc69ca66da",
+    "semantic_hash": "d46a96c1bb2c7c39d6d853bc69ca66da"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-40.png": {
+    "mtime": 1781148365.0990818,
+    "ast_hash": "4fa1b64e5bb797ce9870c7c026103a78",
+    "semantic_hash": "4fa1b64e5bb797ce9870c7c026103a78"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-58.png": {
+    "mtime": 1781148365.0991378,
+    "ast_hash": "6442f3e467511369eff4ff0027bfed08",
+    "semantic_hash": "6442f3e467511369eff4ff0027bfed08"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-60.png": {
+    "mtime": 1781148365.0992014,
+    "ast_hash": "bcf6f05eb8c8d3ab741eb2adace56dac",
+    "semantic_hash": "bcf6f05eb8c8d3ab741eb2adace56dac"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-76.png": {
+    "mtime": 1781148365.0992632,
+    "ast_hash": "23c8fd5690b104aaa23ca6ec6ed50304",
+    "semantic_hash": "23c8fd5690b104aaa23ca6ec6ed50304"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-80.png": {
+    "mtime": 1781148365.0993378,
+    "ast_hash": "532a26367f6b6b91764d703605a54eb2",
+    "semantic_hash": "532a26367f6b6b91764d703605a54eb2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/FamilyEvents/Assets.xcassets/AppIcon.appiconset/AppIcon-87.png": {
+    "mtime": 1781148365.0994024,
+    "ast_hash": "6885b700fed8e11995836dc4a773cc79",
+    "semantic_hash": "6885b700fed8e11995836dc4a773cc79"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardLongTitleWraps.dark.png": {
+    "mtime": 1781148365.1210763,
+    "ast_hash": "943716d8f73452f525a89f0c32ce80db",
+    "semantic_hash": "943716d8f73452f525a89f0c32ce80db"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardLongTitleWraps.light.png": {
+    "mtime": 1781148365.121401,
+    "ast_hash": "a13cf5caf220760fcbc3c9251d2a91f2",
+    "semantic_hash": "a13cf5caf220760fcbc3c9251d2a91f2"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardLongTitleWraps.xxl-type.png": {
+    "mtime": 1781148365.1218812,
+    "ast_hash": "9eb6cb8b8e4543b74f115752fbc3b1eb",
+    "semantic_hash": "9eb6cb8b8e4543b74f115752fbc3b1eb"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithImageAndBadge.dark.png": {
+    "mtime": 1781148365.1221561,
+    "ast_hash": "62654cad9870d75ce9c2c4a6f20e1493",
+    "semantic_hash": "62654cad9870d75ce9c2c4a6f20e1493"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithImageAndBadge.light.png": {
+    "mtime": 1781148365.1223187,
+    "ast_hash": "62dc484185dfa70eb4427ab72d830aad",
+    "semantic_hash": "62dc484185dfa70eb4427ab72d830aad"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithImageAndBadge.xxl-type.png": {
+    "mtime": 1781148365.122602,
+    "ast_hash": "eba4608a6e8e719b7d3349b1a97645ff",
+    "semantic_hash": "eba4608a6e8e719b7d3349b1a97645ff"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithoutBadge.dark.png": {
+    "mtime": 1781148365.122691,
+    "ast_hash": "ad49605832ebf59de836d2a5623a2a2c",
+    "semantic_hash": "ad49605832ebf59de836d2a5623a2a2c"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithoutBadge.light.png": {
+    "mtime": 1781148365.122928,
+    "ast_hash": "21503d1b91fb85f0679740314e0fd5e9",
+    "semantic_hash": "21503d1b91fb85f0679740314e0fd5e9"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/EventCardTests/testEventCardWithoutBadge.xxl-type.png": {
+    "mtime": 1781148365.1231825,
+    "ast_hash": "0e2690cd6ee66c72d74a9370e7306a22",
+    "semantic_hash": "0e2690cd6ee66c72d74a9370e7306a22"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonFavoritedState.dark.png": {
+    "mtime": 1781148365.123326,
+    "ast_hash": "b43cfe63599c7065153818c0ec2cf172",
+    "semantic_hash": "b43cfe63599c7065153818c0ec2cf172"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonFavoritedState.light.png": {
+    "mtime": 1781148365.12341,
+    "ast_hash": "ad6f41fcbd8a9edaa6c59be056f1286f",
+    "semantic_hash": "ad6f41fcbd8a9edaa6c59be056f1286f"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonFavoritedState.xxl-type.png": {
+    "mtime": 1781148365.123512,
+    "ast_hash": "9026317fadfd03135912554bc230c986",
+    "semantic_hash": "9026317fadfd03135912554bc230c986"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonUnfavoritedState.dark.png": {
+    "mtime": 1781148365.123641,
+    "ast_hash": "e5a948958f4c191e2ca441ef55586768",
+    "semantic_hash": "e5a948958f4c191e2ca441ef55586768"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonUnfavoritedState.light.png": {
+    "mtime": 1781148365.1237648,
+    "ast_hash": "2ff7fca457a01ce736b4a7bc48469443",
+    "semantic_hash": "2ff7fca457a01ce736b4a7bc48469443"
+  },
+  "/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonUnfavoritedState.xxl-type.png": {
+    "mtime": 1781148365.1241484,
+    "ast_hash": "aed41f41b3ee21df6ff687e000c15126",
+    "semantic_hash": "aed41f41b3ee21df6ff687e000c15126"
+  }
+}

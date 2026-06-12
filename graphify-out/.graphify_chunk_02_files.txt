@@ -1,0 +1,1 @@
+/Users/lecoqjacob/Developer/personal/family-events-mobile/ios/Packages/FEDesignSystem/Tests/FEDesignSystemTests/__Snapshots__/FavoriteButtonTests/testFavoriteButtonUnfavoritedState.xxl-type.png
