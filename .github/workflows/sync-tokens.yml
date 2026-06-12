@@ -25,18 +25,25 @@ jobs:
       - name: Extract token artifacts from npm package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # client_payload is attacker-controlled in repository_dispatch; keep in env,
+          # never interpolate directly into run: shell commands.
           DISPATCH_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
         run: |
           VERSION=$(node -e "
             const p = JSON.parse(process.env.DISPATCH_PAYLOAD || '{}');
             const pkgs = JSON.parse(p.version || '[]');
-            const ds = pkgs.find(x => x.name === '@family-events/design-system');
+            const ds = pkgs.find(x => x.name === '@cypress-ink-labs/design-system');
             console.log(ds ? ds.version : 'latest');
           ")
-          echo "Syncing @family-events/design-system@${VERSION}"
+          # Validate version matches semver before using in shell/npm commands
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?$|^latest$'; then
+            echo "ERROR: unexpected version value from payload; aborting" >&2
+            exit 1
+          fi
+          echo "Syncing @cypress-ink-labs/design-system@${VERSION}"
           echo "DESIGN_SYSTEM_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-          npm pack "@family-events/design-system@${VERSION}" \
+          npm pack "@cypress-ink-labs/design-system@${VERSION}" \
             --registry https://npm.pkg.github.com \
             --pack-destination /tmp/ds-pack
 
@@ -53,9 +60,9 @@ jobs:
       - name: Open sync PR
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: sync design tokens from @family-events/design-system@${{ env.DESIGN_SYSTEM_VERSION }}"
+          commit-message: "chore: sync design tokens from @cypress-ink-labs/design-system@${{ env.DESIGN_SYSTEM_VERSION }}"
           title: "chore: sync design tokens ${{ env.DESIGN_SYSTEM_VERSION }}"
-          body: "Automated token sync from `@family-events/design-system@${{ env.DESIGN_SYSTEM_VERSION }}`."
+          body: "Automated token sync from `@cypress-ink-labs/design-system@${{ env.DESIGN_SYSTEM_VERSION }}`."
           branch: chore/sync-tokens-${{ env.DESIGN_SYSTEM_VERSION }}
           delete-branch: true
           labels: tokens,automated
