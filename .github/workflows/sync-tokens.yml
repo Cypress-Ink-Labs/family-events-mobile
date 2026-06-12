@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
   pull-requests: write
 
 jobs:
@@ -21,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          registry-url: https://npm.pkg.github.com
+          scope: "@cypress-ink-labs"
 
       - name: Extract token artifacts from npm package
         env:
@@ -31,8 +34,15 @@ jobs:
         run: |
           VERSION=$(node -e "
             const p = JSON.parse(process.env.DISPATCH_PAYLOAD || '{}');
-            const pkgs = JSON.parse(p.version || '[]');
-            const ds = pkgs.find(x => x.name === '@cypress-ink-labs/design-system');
+            const value = p.version;
+            let pkgs = [];
+            if (Array.isArray(value)) {
+              pkgs = value;
+            } else if (typeof value === 'string' && value.trim()) {
+              const parsed = JSON.parse(value);
+              pkgs = Array.isArray(parsed) ? parsed : [];
+            }
+            const ds = pkgs.find(x => x && x.name === '@cypress-ink-labs/design-system');
             console.log(ds ? ds.version : 'latest');
           ")
           # Validate version matches semver before using in shell/npm commands
@@ -43,11 +53,16 @@ jobs:
           echo "Syncing @cypress-ink-labs/design-system@${VERSION}"
           echo "DESIGN_SYSTEM_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
+          mkdir -p /tmp/ds-pack
           npm pack "@cypress-ink-labs/design-system@${VERSION}" \
             --registry https://npm.pkg.github.com \
             --pack-destination /tmp/ds-pack
 
-          TARBALL=$(ls /tmp/ds-pack/*.tgz | head -1)
+          TARBALL=$(find /tmp/ds-pack -maxdepth 1 -type f -name '*.tgz' -print -quit)
+          if [ -z "$TARBALL" ]; then
+            echo "ERROR: npm pack did not produce a tarball" >&2
+            exit 1
+          fi
           mkdir -p /tmp/ds-extracted
           tar -xzf "$TARBALL" -C /tmp/ds-extracted
 
