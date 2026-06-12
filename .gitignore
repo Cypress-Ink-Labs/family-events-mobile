@@ -21,3 +21,6 @@ local.properties
 .env
 .env.*
 !.env.example
+
+# Signing materials (local only — use GH Actions secrets in CI)
+signing/
