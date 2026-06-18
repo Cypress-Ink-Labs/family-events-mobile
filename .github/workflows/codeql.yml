@@ -2,29 +2,17 @@ name: codeql
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - "apps/web/**"
-  #     - "apps/android/**"
-  #     - "packages/**"
-  #     - "supabase/functions/**"
-  #     - "package.json"
-  #     - "pnpm-lock.yaml"
-  #     - "pnpm-workspace.yaml"
-  #     - "turbo.json"
-  #     - ".github/workflows/codeql.yml"
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - "ios/**"
+      - ".github/workflows/codeql.yml"
   pull_request:
     branches: [main]
     paths:
-      - "apps/web/**"
-      - "apps/android/**"
-      - "packages/**"
-      - "supabase/functions/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "turbo.json"
+      - "android/**"
+      - "ios/**"
       - ".github/workflows/codeql.yml"
   schedule:
     - cron: "0 4 * * 1"
@@ -47,7 +35,6 @@ jobs:
     outputs:
       android: ${{ steps.filter.outputs.android }}
       ios: ${{ steps.filter.outputs.ios }}
-      web: ${{ steps.filter.outputs.web }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -65,7 +52,6 @@ jobs:
             {
               echo "android=true"
               echo "ios=true"
-              echo "web=true"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -80,7 +66,6 @@ jobs:
             {
               echo "android=true"
               echo "ios=true"
-              echo "web=true"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -99,59 +84,18 @@ jobs:
 
           android=false
           ios=false
-          web=false
 
-          if matches '^(apps/web|packages|supabase/functions)/' '^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|turbo\.json|\.github/workflows/codeql\.yml)$'; then
-            web=true
-          fi
-
-          if matches '^apps/android/' '^\.github/workflows/codeql\.yml$'; then
+          if matches '^android/' '^\.github/workflows/codeql\.yml$'; then
             android=true
+          fi
+          if matches '^ios/' '^\.github/workflows/codeql\.yml$'; then
+            ios=true
           fi
 
           {
             echo "android=$android"
             echo "ios=$ios"
-            echo "web=$web"
           } >> "$GITHUB_OUTPUT"
-
-  web:
-    name: web javascript-typescript
-    needs: changes
-    if: needs.changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
-        with:
-          languages: javascript-typescript
-          queries: +security-extended,security-and-quality
-          source-root: .
-
-      - name: Analyze
-        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
-        with:
-          category: /language:javascript-typescript
-          output: codeql-results
-          upload: never
-          upload-database: false
-
-      - name: Upload SARIF
-        uses: actions/upload-artifact@v7
-        with:
-          name: codeql-web-sarif
-          path: codeql-results/
-          if-no-files-found: ignore
-          retention-days: 14
 
   android:
     name: android java-kotlin
@@ -204,10 +148,10 @@ jobs:
           build-mode: manual
           languages: java-kotlin
           queries: +security-extended,security-and-quality
-          source-root: apps/android
+          source-root: android
 
       - name: Build for CodeQL
-        run: cd apps/android && scripts/with-android-env.sh ./gradlew --no-build-cache --no-configuration-cache clean assembleDebug
+        run: cd android && scripts/with-android-env.sh ./gradlew --no-build-cache --no-configuration-cache clean assembleDebug
 
       - name: Analyze
         uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
@@ -256,7 +200,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Caches/family-events-swiftpm
-          key: ${{ runner.os }}-swiftpm-${{ hashFiles('apps/ios/project.yml', 'apps/ios/Packages/**/Package.swift', 'apps/ios/Packages/**/Package.resolved') }}
+          key: ${{ runner.os }}-swiftpm-${{ hashFiles('ios/project.yml', 'ios/Packages/**/Package.swift', 'ios/Packages/**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-swiftpm-
 
@@ -264,7 +208,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData/FamilyEventsCodeQL
-          key: ${{ runner.os }}-xcode-codeql-familyevents-${{ hashFiles('apps/ios/project.yml', 'apps/ios/**/*.swift', 'apps/ios/Packages/**/Package.swift', 'apps/ios/Packages/**/Package.resolved') }}
+          key: ${{ runner.os }}-xcode-codeql-familyevents-${{ hashFiles('ios/project.yml', 'ios/**/*.swift', 'ios/Packages/**/Package.swift', 'ios/Packages/**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-xcode-codeql-familyevents-
 
@@ -274,14 +218,14 @@ jobs:
           build-mode: manual
           languages: swift
           queries: +security-extended,security-and-quality
-          source-root: apps/ios
+          source-root: ios
 
       - name: Generate iOS project
-        run: cd apps/ios && xcodegen generate
+        run: cd ios && xcodegen generate
 
       - name: Build for CodeQL
         run: |
-          cd apps/ios
+          cd ios
           mkdir -p "$HOME/Library/Caches/family-events-swiftpm"
           xcodebuild \
             -project FamilyEvents.xcodeproj \
