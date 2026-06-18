@@ -4,7 +4,7 @@ import path from "node:path"
 import test from "node:test"
 
 const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..")
-const packagesRoot = path.join(repoRoot, "apps", "ios", "Packages")
+const packagesRoot = path.join(repoRoot, "ios", "Packages")
 
 // Consumer packages whose Sources/ must use FEDesignSystem tokens instead of
 // SwiftUI default Colors / hex literals / Color.accentColor. The token bridge

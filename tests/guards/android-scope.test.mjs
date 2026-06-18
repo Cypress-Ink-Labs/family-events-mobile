@@ -4,7 +4,7 @@ import path from "node:path"
 import test from "node:test"
 
 const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..")
-const androidRoot = path.join(repoRoot, "apps", "android")
+const androidRoot = path.join(repoRoot, "android")
 const settingsPath = path.join(androidRoot, "settings.gradle.kts")
 const pathPolicyPath = path.join(androidRoot, "core", "src", "main", "java", "com", "familyevents", "core", "ConsumerApiPath.kt")
 
