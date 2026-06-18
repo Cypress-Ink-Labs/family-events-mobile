@@ -10,11 +10,14 @@ Native Kotlin/Jetpack Compose consumer app for Family Events.
 
 ## Commands
 
+Run from `android/` — either the pnpm scripts (which wrap
+`scripts/with-android-env.sh` to locate JDK 17 + the SDK) or gradle directly:
+
 ```bash
-pnpm --filter @family-events/android check
-pnpm --filter @family-events/android test
-pnpm --filter @family-events/android build
-pnpm --filter @family-events/android lint
+pnpm run check     # or: ./gradlew check
+pnpm run test      # or: ./gradlew test
+pnpm run build     # or: ./gradlew assembleDebug
+pnpm run lint      # or: ./gradlew lint
 ```
 
 ## Environment

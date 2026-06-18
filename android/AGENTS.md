@@ -1,16 +1,17 @@
-# apps/android
+# android
 
 Scope: native Kotlin/Jetpack Compose consumer Android app.
 
 ## Commands
 
-Run from repo root:
+Run from `android/` — either the pnpm scripts (which wrap
+`scripts/with-android-env.sh` to locate JDK 17 + the SDK) or gradle directly:
 
 ```bash
-pnpm --filter @family-events/android check
-pnpm --filter @family-events/android test
-pnpm --filter @family-events/android build
-pnpm --filter @family-events/android lint
+pnpm run check     # or: ./gradlew check
+pnpm run test      # or: ./gradlew test
+pnpm run build     # or: ./gradlew assembleDebug
+pnpm run lint      # or: ./gradlew lint
 ```
 
 ## Boundaries
@@ -29,25 +30,19 @@ pnpm --filter @family-events/android lint
 Do not hand-edit:
 
 ```text
-apps/android/designsystem/src/main/java/com/familyevents/designsystem/generated/Tokens.kt
+android/designsystem/src/main/java/com/familyevents/designsystem/generated/Tokens.kt
 ```
 
-Change `packages/design-system/tokens/tokens.json`, then run:
-
-```bash
-pnpm --filter @family-events/design-system build
-```
+Tokens are generated from the external `@cypress-ink-labs/design-system` package
+and synced by the `sync-tokens` GitHub Actions workflow. Token changes are made
+upstream in the design-system package, not here.
 
 ## Verification
 
-For Android-only changes:
+Verify Android changes from `android/`:
 
 ```bash
-pnpm run verify:android
+pnpm run check
 ```
 
-For shared contract or design-token changes, also run:
-
-```bash
-pnpm run verify:web
-```
+No cross-platform aggregate verify task exists in this standalone repo.
