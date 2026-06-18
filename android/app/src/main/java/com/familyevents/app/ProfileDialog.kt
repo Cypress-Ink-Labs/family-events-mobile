@@ -18,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +39,7 @@ import com.familyevents.core.CityId
 import com.familyevents.core.UserId
 import com.familyevents.data.AuthRepository
 import com.familyevents.data.CityRepository
+import com.familyevents.data.NotificationPreferences
 import com.familyevents.data.ProfileRepository
 import com.familyevents.data.UserProfileUpdate
 import com.familyevents.designsystem.AppThemePreference
@@ -67,6 +69,7 @@ fun ProfileDialog(
     var newPassword by remember(userId) { mutableStateOf("") }
     var confirmPassword by remember(userId) { mutableStateOf("") }
     var passwordMessage by remember(userId) { mutableStateOf<String?>(null) }
+    var notificationPrefs by remember(userId) { mutableStateOf(NotificationPreferences()) }
 
     LaunchedEffect(userId) {
         loading = true
@@ -83,6 +86,8 @@ fun ProfileDialog(
         }.onFailure { error ->
             errorMessage = error.toUserMessage()
         }
+        runCatching { profileRepository.fetchNotificationPreferences(userId) }
+            .onSuccess { notificationPrefs = it }
         loading = false
     }
 
@@ -152,6 +157,53 @@ fun ProfileDialog(
                             )
                         }
                     }
+                    HorizontalDivider()
+                    Text("Notifications", style = MaterialTheme.typography.labelLarge)
+                    val applyPrefs: (NotificationPreferences) -> Unit = { next ->
+                        val previous = notificationPrefs
+                        notificationPrefs = next
+                        scope.launch {
+                            runCatching { profileRepository.updateNotificationPreferences(userId, next) }
+                                .onSuccess { notificationPrefs = it }
+                                .onFailure { error ->
+                                    notificationPrefs = previous
+                                    errorMessage = error.toUserMessage()
+                                }
+                        }
+                    }
+                    Text("Event reminders", style = MaterialTheme.typography.titleSmall)
+                    NotificationToggleRow(
+                        label = "Email",
+                        checked = notificationPrefs.reminderEmail,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(reminderEmail = it)) },
+                    )
+                    NotificationToggleRow(
+                        label = "Push",
+                        checked = notificationPrefs.reminderPush,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(reminderPush = it)) },
+                    )
+                    Text("Event changes", style = MaterialTheme.typography.titleSmall)
+                    NotificationToggleRow(
+                        label = "Email",
+                        checked = notificationPrefs.changeEmail,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(changeEmail = it)) },
+                    )
+                    NotificationToggleRow(
+                        label = "Push",
+                        checked = notificationPrefs.changePush,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(changePush = it)) },
+                    )
+                    Text("Weekly digest", style = MaterialTheme.typography.titleSmall)
+                    NotificationToggleRow(
+                        label = "Email",
+                        checked = notificationPrefs.digestEmail,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(digestEmail = it)) },
+                    )
+                    NotificationToggleRow(
+                        label = "Push",
+                        checked = notificationPrefs.digestPush,
+                        onCheckedChange = { applyPrefs(notificationPrefs.copy(digestPush = it)) },
+                    )
                     HorizontalDivider()
                     Text("Password", style = MaterialTheme.typography.labelLarge)
                     passwordMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -235,6 +287,18 @@ fun ProfileDialog(
         },
         dismissButton = { TextButton(onClick = onDismissRequest) { Text("Cancel") } },
     )
+}
+
+@Composable
+private fun NotificationToggleRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
 }
 
 @Composable

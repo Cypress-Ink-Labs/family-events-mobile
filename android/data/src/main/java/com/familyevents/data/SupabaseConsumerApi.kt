@@ -60,6 +60,8 @@ interface SupabaseConsumerApi {
     ): List<PlanEventRowDto>
     suspend fun profile(userId: UserId): UserProfile?
     suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
+    suspend fun notificationPreferences(userId: UserId): NotificationPreferences? = null
+    suspend fun upsertNotificationPreferences(prefs: NotificationPreferences): NotificationPreferences = prefs
     suspend fun favorite(userId: UserId, eventId: EventId)
     suspend fun unfavorite(userId: UserId, eventId: EventId)
     suspend fun userRating(userId: UserId, eventId: EventId): RatingDto? = null
@@ -260,6 +262,37 @@ class KtorSupabaseConsumerApi(
             )
         }.requireOk()
         return response.decodeList<ProfileRow>().firstOrNull()?.toDto() ?: profile(userId) ?: throw AppError.AuthRequired
+    }
+
+    override suspend fun notificationPreferences(userId: UserId): NotificationPreferences? {
+        if (!userId.rawValue.isUuid()) return null
+        val response = client.get("$baseUrl/rest/v1/user_notification_preferences") {
+            baseHeaders()
+            bearer()
+            parameter("select", "reminder_email,reminder_push,change_email,change_push,digest_email,digest_push")
+            parameter("user_id", "eq.${userId.rawValue}")
+            parameter("limit", "1")
+        }
+        return response.requireOk().decodeList<NotificationPreferencesRow>().firstOrNull()?.toPreferences()
+    }
+
+    override suspend fun upsertNotificationPreferences(prefs: NotificationPreferences): NotificationPreferences {
+        val response = client.post("$baseUrl/rest/v1/rpc/upsert_notification_preferences") {
+            baseHeaders()
+            bearer()
+            contentType(ContentType.Application.Json)
+            setBody(
+                buildJsonObject {
+                    put("p_reminder_email", prefs.reminderEmail)
+                    put("p_reminder_push", prefs.reminderPush)
+                    put("p_change_email", prefs.changeEmail)
+                    put("p_change_push", prefs.changePush)
+                    put("p_digest_email", prefs.digestEmail)
+                    put("p_digest_push", prefs.digestPush)
+                }.toString(),
+            )
+        }.requireOk()
+        return response.decodeList<NotificationPreferencesRow>().firstOrNull()?.toPreferences() ?: prefs
     }
 
     override suspend fun favorite(userId: UserId, eventId: EventId) {
@@ -535,6 +568,25 @@ private data class ProfileRow(
         childAge = childAge,
         notificationsEnabled = false,
         role = role ?: "user",
+    )
+}
+
+@Serializable
+private data class NotificationPreferencesRow(
+    @SerialName("reminder_email") val reminderEmail: Boolean = true,
+    @SerialName("reminder_push") val reminderPush: Boolean = true,
+    @SerialName("change_email") val changeEmail: Boolean = true,
+    @SerialName("change_push") val changePush: Boolean = true,
+    @SerialName("digest_email") val digestEmail: Boolean = true,
+    @SerialName("digest_push") val digestPush: Boolean = false,
+) {
+    fun toPreferences(): NotificationPreferences = NotificationPreferences(
+        reminderEmail = reminderEmail,
+        reminderPush = reminderPush,
+        changeEmail = changeEmail,
+        changePush = changePush,
+        digestEmail = digestEmail,
+        digestPush = digestPush,
     )
 }
 

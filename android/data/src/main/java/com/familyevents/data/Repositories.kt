@@ -26,6 +26,19 @@ interface AuthRepository {
     suspend fun requestInvite(email: String, message: String?): Boolean
 }
 
+// Mirrors iOS `NotificationPreferences` (FEData). Six categories over the shared
+// backend contract: table `user_notification_preferences`, RPC
+// `upsert_notification_preferences`. Keep field defaults in lockstep with iOS
+// (digestPush defaults false).
+data class NotificationPreferences(
+    val reminderEmail: Boolean = true,
+    val reminderPush: Boolean = true,
+    val changeEmail: Boolean = true,
+    val changePush: Boolean = true,
+    val digestEmail: Boolean = true,
+    val digestPush: Boolean = false,
+)
+
 interface ProfileRepository {
     fun observeProfile(userId: UserId): Flow<ProfileContext?>
     suspend fun currentContext(userId: UserId): ProfileContext
@@ -33,6 +46,8 @@ interface ProfileRepository {
     suspend fun updateProfile(userId: UserId, update: UserProfileUpdate): UserProfile
     suspend fun updateContext(userId: UserId, cityId: CityId?, kidAge: Int?)
     suspend fun updateNotificationPreference(userId: UserId, enabled: Boolean)
+    suspend fun fetchNotificationPreferences(userId: UserId): NotificationPreferences
+    suspend fun updateNotificationPreferences(userId: UserId, prefs: NotificationPreferences): NotificationPreferences
     suspend fun deleteAccount(userId: UserId)
 }
 

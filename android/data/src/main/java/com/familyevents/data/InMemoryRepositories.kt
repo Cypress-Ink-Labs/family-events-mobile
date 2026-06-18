@@ -83,6 +83,16 @@ class InMemoryProfileRepository : ProfileRepository {
         }
     }
 
+    private val notificationPreferences = MutableStateFlow<Map<String, NotificationPreferences>>(emptyMap())
+
+    override suspend fun fetchNotificationPreferences(userId: UserId): NotificationPreferences =
+        notificationPreferences.value[userId.rawValue] ?: NotificationPreferences()
+
+    override suspend fun updateNotificationPreferences(userId: UserId, prefs: NotificationPreferences): NotificationPreferences {
+        notificationPreferences.update { it + (userId.rawValue to prefs) }
+        return prefs
+    }
+
     override suspend fun deleteAccount(userId: UserId) {
         profiles.update { it - userId.rawValue }
     }
