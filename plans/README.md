@@ -23,7 +23,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 | 006 | Log swallowed errors in Android repositories | P2 | S | 001 | TODO |
 | 007 | Make Android session persistence testable + unit-test it | P2 | M | 001 | TODO |
 | 008 | Stop rebuilding event lookups per SwiftUI body (iOS) | P2 | S | — | TODO |
-| 009 | Extract shared Android event-query filter | P3 | M | 001 | TODO |
+| 009 | Extract shared Android event-query filter | P3 | M | 001 | DONE |
 | 010 | Split oversized iOS views (EventDetail/Profile) | P3 | M | — | TODO |
 | 011 | Android granular notification prefs (iOS parity) | P2 | M | 001, 006 | TODO |
 | 012 | Android calendar: add location + notes (iOS parity) | P3 | S | — | TODO |

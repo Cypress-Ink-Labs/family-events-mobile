@@ -119,12 +119,7 @@ class InMemoryEventRepository : EventRepository {
     override fun observeEventList(query: EventQuery): Flow<List<EventDto>> =
         events.map { rows ->
             rows.filter { query.cityId == null || it.cityId == query.cityId }
-                .filter { query.search.isNullOrBlank() || it.title.contains(query.search, ignoreCase = true) }
-                .filter { query.ageMin == null || (it.ageMax ?: Int.MAX_VALUE) >= query.ageMin }
-                .filter { query.ageMax == null || (it.ageMin ?: 0) <= query.ageMax }
-                .filter { query.isFree == null || it.isFree == query.isFree }
-                .filter { query.dateFrom == null || !it.startsAt.isBefore(query.dateFrom) }
-                .filter { query.dateTo == null || !it.startsAt.isAfter(query.dateTo) }
+                .filter { it.matchesQuery(query) }
                 .drop(query.offset)
                 .take(query.limit)
         }
