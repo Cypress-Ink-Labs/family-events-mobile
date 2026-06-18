@@ -118,14 +118,7 @@ class RoomBackedEventRepository(
             .map { rows ->
                 rows.map { it.toDto() }
                     .ifEmpty { seedEvents().filterByCity(query.cityId).ifEmpty { seedEvents() } }
-                    .filter { event -> query.search.isNullOrBlank() || event.title.contains(query.search, ignoreCase = true) }
-                    .filter { event -> query.tagIds.isEmpty() || event.tags.any { it.id in query.tagIds } }
-                    .filter { event -> query.dateKey == null || event.startsAt.toString().startsWith(query.dateKey) }
-                    .filter { event -> query.ageMin == null || (event.ageMax ?: Int.MAX_VALUE) >= query.ageMin }
-                    .filter { event -> query.ageMax == null || (event.ageMin ?: 0) <= query.ageMax }
-                    .filter { event -> query.isFree == null || event.isFree == query.isFree }
-                    .filter { event -> query.dateFrom == null || !event.startsAt.isBefore(query.dateFrom) }
-                    .filter { event -> query.dateTo == null || !event.startsAt.isAfter(query.dateTo) }
+                    .filter { it.matchesQuery(query) }
                     .drop(query.offset)
                     .take(query.limit)
             }
