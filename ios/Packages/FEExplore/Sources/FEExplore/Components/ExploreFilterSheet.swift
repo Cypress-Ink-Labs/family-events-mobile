@@ -1,3 +1,4 @@
+import FEDesignSystem
 import SwiftUI
 
 public struct ExploreFilterSheet: View {
@@ -50,11 +51,11 @@ public struct ExploreFilterSheet: View {
                         } label: {
                             HStack {
                                 Text(label)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(Color.dsTextPrimary)
                                 Spacer()
                                 if filters.activeCategory == slug {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentColor)
+                                        .foregroundStyle(Color.dsAccentPrimary)
                                 }
                             }
                         }

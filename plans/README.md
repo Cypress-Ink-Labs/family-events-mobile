@@ -15,7 +15,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001 | Repair guard tests + add PR CI (verification baseline) | P1 | S | — | TODO |
+| 001 | Repair guard tests + add PR CI (verification baseline) | P1 | S | — | DONE (superseded by 014) |
 | 002 | Repair release CI workflows (apps/ paths) | P1 | S | — | TODO |
 | 003 | Repair CodeQL + dependency-review; re-enable scanning | P1 | S | — | TODO |
 | 004 | Fix monorepo-drift docs + add root README/.env.example | P2 | M | (after 001–003) | TODO |
@@ -28,6 +28,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 | 011 | Android granular notification prefs (iOS parity) | P2 | M | 001, 006 | TODO |
 | 012 | Android calendar: add location + notes (iOS parity) | P3 | S | — | TODO |
 | 013 | Spike: Android Shortcuts/App Actions parity (design doc) | P3 | M | — | TODO |
+| 014 | Complete 001 — fix token violations + repair guards + verify.yml | P1 | S | — | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
