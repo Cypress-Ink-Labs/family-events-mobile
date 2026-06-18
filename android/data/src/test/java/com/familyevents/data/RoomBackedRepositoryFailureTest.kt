@@ -43,6 +43,16 @@ class RoomBackedRepositoryFailureTest {
         assertTrue(eventDao.rows.value.any { it.id == "demo-library-storytime" })
         assertTrue(planDao.rows.value.any { it.eventId == "demo-library-storytime" })
     }
+
+    @Test
+    fun refreshEventDetailFallsBackToSeedEventWhenRemoteFails() = runTest {
+        val eventDao = FakeEventDao()
+        val repository = RoomBackedEventRepository(eventDao, FakePlanDao(), FailingConsumerApi)
+
+        repository.refreshEventDetail(EventId("demo-library-storytime"))
+
+        assertTrue(eventDao.rows.value.any { it.id == "demo-library-storytime" })
+    }
 }
 
 private object FailingConsumerApi : SupabaseConsumerApi {
