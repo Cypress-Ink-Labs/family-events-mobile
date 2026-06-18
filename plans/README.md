@@ -18,7 +18,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 | 001 | Repair guard tests + add PR CI (verification baseline) | P1 | S | — | TODO |
 | 002 | Repair release CI workflows (apps/ paths) | P1 | S | — | DONE |
 | 003 | Repair CodeQL + dependency-review; re-enable scanning | P1 | S | — | TODO |
-| 004 | Fix monorepo-drift docs + add root README/.env.example | P2 | M | (after 001–003) | TODO |
+| 004 | Fix monorepo-drift docs + add root README/.env.example | P2 | M | (after 001–003) | DONE |
 | 005 | Fix Android `.env` fallback path | P3 | S | — | TODO |
 | 006 | Log swallowed errors in Android repositories | P2 | S | 001 | TODO |
 | 007 | Make Android session persistence testable + unit-test it | P2 | M | 001 | TODO |

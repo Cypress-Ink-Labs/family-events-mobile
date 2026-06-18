@@ -1,4 +1,4 @@
-# apps/ios
+# ios
 
 Scope: native SwiftUI consumer iOS app.
 
@@ -6,23 +6,20 @@ Scope: native SwiftUI consumer iOS app.
 
 If using XcodeBuildMCP, use the installed XcodeBuildMCP skill before calling XcodeBuildMCP tools.
 
-`apps/ios/project.yml` is the XcodeGen source of truth for project structure. Do not hand-edit generated Xcode project structure unless the task explicitly requires investigating generated output.
+`ios/project.yml` is the XcodeGen source of truth for project structure. Do not hand-edit generated Xcode project structure unless the task explicitly requires investigating generated output.
 
 ## Commands
 
-Run from repo root:
+Run from `ios/`:
 
 ```bash
-pnpm run ios:generate
-pnpm run ios:test
-```
-
-Run from `apps/ios` when needed:
-
-```bash
+pnpm run generate         # xcodegen generate
 pnpm run test:packages
 pnpm run test:app
+pnpm run test             # test:packages + test:app
 ```
+
+This standalone repo has no root pnpm workspace — run the scripts from `ios/`.
 
 ## Boundaries
 
@@ -40,26 +37,20 @@ pnpm run test:app
 Do not hand-edit:
 
 ```text
-apps/ios/Packages/FEDesignSystem/Sources/FEDesignSystem/Generated/Tokens.swift
+ios/Packages/FEDesignSystem/Sources/FEDesignSystem/Generated/Tokens.swift
 ```
 
-Change `packages/design-system/tokens/tokens.json`, then run:
-
-```bash
-pnpm --filter @family-events/design-system build
-```
+Tokens are generated from the external `@cypress-ink-labs/design-system` package
+and synced by the `sync-tokens` GitHub Actions workflow. Token changes are made
+upstream in the design-system package, not here.
 
 ## Verification
 
-For iOS-only changes:
+Verify iOS changes from `ios/`:
 
 ```bash
-pnpm run verify:ios
+pnpm run test
 ```
 
-For shared contract or design-token changes, also run:
-
-```bash
-pnpm run verify:web
-pnpm run verify:android
-```
+There is no cross-platform aggregate verify task in this standalone repo; run each
+platform's tests directly.

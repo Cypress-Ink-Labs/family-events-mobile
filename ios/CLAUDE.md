@@ -1,4 +1,4 @@
-# apps/ios — Claude Code Context
+# ios — Claude Code Context
 
 Root agent instructions: [`../../AGENTS.md`](../../AGENTS.md). This file scopes Claude to the iOS workspace only.
 
@@ -7,7 +7,7 @@ Root agent instructions: [`../../AGENTS.md`](../../AGENTS.md). This file scopes 
 - **Platform**: iOS 17.0+ (SwiftUI)
 - **Language**: Swift 5.10 (`SWIFT_VERSION` in `project.yml`; not Swift 6 yet)
 - **UI**: SwiftUI with `@Observable`, `NavigationStack`, SwiftData persistence
-- **Project gen**: XcodeGen — `apps/ios/project.yml` is the source of truth, NOT `FamilyEvents.xcodeproj`
+- **Project gen**: XcodeGen — `ios/project.yml` is the source of truth, NOT `FamilyEvents.xcodeproj`
 - **Package manager**: Swift Package Manager (local + pinned remote)
 - **Backend**: Supabase Swift SDK + Google Sign-In SPM
 - **Bundle ID**: `com.familyevents.app`
@@ -19,14 +19,14 @@ Switch via Xcode scheme picker:
 
 | Scheme | Config | Supabase | APP_WEB_URL |
 |--------|--------|----------|-------------|
-| `FamilyEvents` | `Debug` | `http://127.0.0.1:55321` (requires `supabase start` from repo root) | `http://localhost:5173` |
+| `FamilyEvents` | `Debug` | `http://127.0.0.1:55321` (requires a local Supabase stack — see Gotchas) | `http://localhost:5173` |
 | `FamilyEvents-Cloud` | `DebugCloud` | hosted dev project | Railway preview |
 | Release | `Release` | hosted prod | `https://family-events.org` |
 
 ## Project Structure
 
 ```bash
-apps/ios/
+ios/
 ├── project.yml              # XcodeGen source of truth — edit this, not .xcodeproj
 ├── package.json             # pnpm scripts (generate, test:packages, test:app)
 ├── FamilyEvents/            # App target sources
@@ -55,7 +55,7 @@ Per-package layout: `Sources/<Module>/`, `Tests/<Module>Tests/`, own `Package.sw
 
 When `XcodeBuildMCP` is configured, prefer it for build/test/run:
 
-- Build sim: `mcp__xcodebuildmcp__build_sim_name_proj` (project `apps/ios/FamilyEvents.xcodeproj`, scheme `FamilyEvents`, sim `iPhone 17`)
+- Build sim: `mcp__xcodebuildmcp__build_sim_name_proj` (project `ios/FamilyEvents.xcodeproj`, scheme `FamilyEvents`, sim `iPhone 17`)
 - Test sim: `mcp__xcodebuildmcp__test_sim_name_proj`
 - Swift package build/test: `mcp__xcodebuildmcp__swift_package_build`, `mcp__xcodebuildmcp__swift_package_test`
 - Boot/install/launch/logs/screenshot: `mcp__xcodebuildmcp__{boot_simulator,install_app,launch_app,capture_logs,screenshot}`
@@ -65,7 +65,7 @@ If MCP is unavailable, fall back to pnpm scripts (below) — both work; the MCP 
 
 ## Key Commands
 
-Run from `apps/ios/`:
+Run from `ios/`:
 
 ```bash
 pnpm run generate         # xcodegen generate — REQUIRED after editing project.yml
@@ -75,12 +75,8 @@ pnpm run test             # both of the above
 pnpm run clean            # nuke .build and xcuserdata
 ```
 
-From repo root:
-
-```bash
-pnpm run ios:generate
-pnpm run ios:test
-```
+This standalone repo has no root pnpm workspace and no root-level iOS aggregate
+scripts. Run the iOS scripts from `ios/`.
 
 Per-package iteration (fastest):
 
@@ -103,7 +99,7 @@ cd Packages/FEPlan && swift test
 ### Module Boundaries
 
 - App target depends on `FECore`, `FEData`, `FEDesignSystem`, `FEAuth`, `FEPlan`, `FEExplore`, `FESaved`, `FEEventDetail`, `FEAppIntents`. New feature → new local package, not a folder under `FamilyEvents/`.
-- `FEDesignSystem.Tokens` is **generated** from `packages/design-system` via codegen. Never hand-edit `Tokens.swift`; change `tokens/tokens.json` and run `pnpm --filter @family-events/design-system build`.
+- `FEDesignSystem.Tokens` is **generated** from the external `@cypress-ink-labs/design-system` package and synced by the `sync-tokens` GitHub Actions workflow. Do not hand-edit `Tokens.swift`; token changes are made upstream in the design-system package.
 - Admin endpoints: blocked by `FamilyEventsTests/EndpointPolicyTests.swift`. Do not add admin RPC calls.
 
 ### Bootstrap pattern
@@ -131,7 +127,7 @@ cd Packages/FEPlan && swift test
 
 ## Gotchas
 
-- `Debug` scheme needs the local Supabase stack: `pnpm run db:start` + `bash scripts/setup-local.sh` from the repo root.
+- Local Supabase setup (`supabase start`, `scripts/setup-local.sh`) lived in the original monorepo and is not part of this standalone repo. Use the `FamilyEvents-Cloud` scheme (hosted dev Supabase) for local development, or obtain the local-stack scripts from the team.
 - iOS targets only build on macOS with full Xcode (`xcode-select -s /Applications/Xcode.app`). CLI-only systems will skip `test:app`.
 - The Google Sign-In button auto-hides when `IOS_GOOGLE_CLIENT_ID` is missing from the build config — check `project.yml` first when sign-in looks broken.
 - `Packages/FEAdmin` exists but is **not** added to the app target. Leave it that way (consumer-only constraint).
