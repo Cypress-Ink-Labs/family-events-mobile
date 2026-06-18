@@ -258,6 +258,12 @@ class RoomBackedProfileRepository(
         profileDao.upsert(updated.toEntity())
     }
 
+    override suspend fun fetchNotificationPreferences(userId: UserId): NotificationPreferences =
+        runCatching { api?.notificationPreferences(userId) }.getOrNull() ?: NotificationPreferences()
+
+    override suspend fun updateNotificationPreferences(userId: UserId, prefs: NotificationPreferences): NotificationPreferences =
+        runCatching { api?.upsertNotificationPreferences(prefs) }.getOrNull() ?: prefs
+
     override suspend fun deleteAccount(userId: UserId) {
         api?.deleteAccount()
         profileDao.upsert(defaultProfile(userId).copy(currentCityId = null, childAge = null).toEntity())
