@@ -26,7 +26,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 | 009 | Extract shared Android event-query filter | P3 | M | 001 | TODO |
 | 010 | Split oversized iOS views (EventDetail/Profile) | P3 | M | — | TODO |
 | 011 | Android granular notification prefs (iOS parity) | P2 | M | 001, 006 | TODO |
-| 012 | Android calendar: add location + notes (iOS parity) | P3 | S | — | TODO |
+| 012 | Android calendar: add location + notes (iOS parity) | P3 | S | — | DONE |
 | 013 | Spike: Android Shortcuts/App Actions parity (design doc) | P3 | M | — | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)

@@ -76,7 +76,7 @@ fun EventDetailScreen(
     onBack: () -> Unit,
     onShare: (EventId) -> Unit,
     onDirections: (String) -> Unit,
-    onAddToCalendar: (String, Long, Long?) -> Unit,
+    onAddToCalendar: (String, Long, Long?, String?, String?) -> Unit,
 ) {
     val event by eventRepository.observeEventDetail(eventId).collectAsStateWithLifecycle(initialValue = null)
     val favoriteIds by userId?.let {
@@ -241,10 +241,20 @@ fun EventDetailScreen(
                     Text("Directions", softWrap = false, maxLines = 1)
                 }
                 Button(onClick = {
+                    val calendarLocation = listOf(text(current.venueName), text(current.address))
+                        .filter { it.isNotBlank() }
+                        .joinToString(", ")
+                        .ifBlank { null }
+                    val calendarNotes = listOfNotNull(
+                        text(current.description).ifBlank { null },
+                        current.sourceUrl?.takeIf { it.isNotBlank() }?.let { "Source: $it" },
+                    ).joinToString("\n\n").ifBlank { null }
                     onAddToCalendar(
                         text(current.title),
                         current.startsAt.toEpochMilli(),
                         current.endsAt?.toEpochMilli(),
+                        calendarLocation,
+                        calendarNotes,
                     )
                 }) {
                     Text("Calendar", softWrap = false, maxLines = 1)
