@@ -18,7 +18,7 @@ fun getEnvValue(key: String, allowViteFallback: Boolean = true): String? {
     if (!prop.isNullOrBlank()) return prop
 
     // 3. .env file in root
-    val envFile = project.rootProject.file("../../.env")
+    val envFile = project.rootProject.file("../.env")
     if (envFile.exists()) {
         val properties = Properties()
         envFile.inputStream().use { properties.load(it) }
