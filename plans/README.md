@@ -21,7 +21,7 @@ drift**: CI, guard tests, gradle, and docs still reference the old `apps/ios` /
 | 004 | Fix monorepo-drift docs + add root README/.env.example | P2 | M | (after 001–003) | TODO |
 | 005 | Fix Android `.env` fallback path | P3 | S | — | TODO |
 | 006 | Log swallowed errors in Android repositories | P2 | S | 001 | TODO |
-| 007 | Make Android session persistence testable + unit-test it | P2 | M | 001 | TODO |
+| 007 | Make Android session persistence testable + unit-test it | P2 | M | 001 | DONE |
 | 008 | Stop rebuilding event lookups per SwiftUI body (iOS) | P2 | S | — | TODO |
 | 009 | Extract shared Android event-query filter | P3 | M | 001 | TODO |
 | 010 | Split oversized iOS views (EventDetail/Profile) | P3 | M | — | TODO |
