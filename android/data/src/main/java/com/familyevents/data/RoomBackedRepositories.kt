@@ -80,7 +80,7 @@ class LocalAuthRepository(
     }
 
     override suspend fun signOut() {
-        runCatching { api?.signOut() }
+        repoOrNull("signOut") { api?.signOut() }
         sessionStore.writeSession(null)
         state.value = SessionState.SignedOut
     }
@@ -134,9 +134,9 @@ class RoomBackedEventRepository(
         eventDao.observeEvent(id.rawValue).map { row -> row?.toDto() ?: seedEvents().firstOrNull { it.id == id } }
 
     override suspend fun refreshPlan(userId: UserId, cityId: CityId?, kidAge: Int?, lat: Double?, lng: Double?) {
-        val remotePlan = runCatching { api?.planEvents(userId, cityId, kidAge, lat, lng) }.getOrNull()
+        val remotePlan = repoOrNull("planEvents") { api?.planEvents(userId, cityId, kidAge, lat, lng) }
         val events = remotePlan?.map { it.event }.takeUnless { it.isNullOrEmpty() }
-            ?: runCatching { api?.events(EventQuery(cityId = cityId, limit = 50)) }.getOrNull().takeUnless { it.isNullOrEmpty() }
+            ?: repoOrNull("events") { api?.events(EventQuery(cityId = cityId, limit = 50)) }.takeUnless { it.isNullOrEmpty() }
             ?: seedEvents().filterByCity(cityId)
         eventDao.upsert(events.map { it.toEntity() })
         planDao.deleteForUser(userId.rawValue)
@@ -155,13 +155,13 @@ class RoomBackedEventRepository(
     }
 
     override suspend fun refreshEventList(query: EventQuery) {
-        val events = runCatching { api?.events(query) }.getOrNull().takeUnless { it.isNullOrEmpty() }
+        val events = repoOrNull("events") { api?.events(query) }.takeUnless { it.isNullOrEmpty() }
             ?: seedEvents().filterByCity(query.cityId)
         eventDao.upsert(events.map { it.toEntity() })
     }
 
     override suspend fun refreshEventDetail(id: EventId) {
-        (runCatching { api?.event(id) }.getOrNull() ?: seedEvents().firstOrNull { it.id == id })
+        (repoOrNull("event") { api?.event(id) } ?: seedEvents().firstOrNull { it.id == id })
             ?.let { eventDao.upsert(listOf(it.toEntity())) }
     }
 
@@ -284,7 +284,7 @@ class RoomBackedCityRepository(
 
     override suspend fun refreshCities() {
         cityDao.upsert(
-            runCatching { api?.cities() }.getOrNull()
+            repoOrNull("cities") { api?.cities() }
                 ?.takeIf { it.isNotEmpty() }
                 ?.map { it.toEntity() }
                 ?: listOf(CachedCityEntity("chicago", "Chicago", "IL")),

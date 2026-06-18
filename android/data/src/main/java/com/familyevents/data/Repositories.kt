@@ -83,7 +83,7 @@ interface CommentRepository {
     suspend fun addComment(userId: UserId, eventId: EventId, body: String): CommentDto
     fun observeComments(eventId: EventId): Flow<List<CommentDto>> = flow {
         while (true) {
-            emit(runCatching { comments(eventId) }.getOrDefault(emptyList()))
+            emit(repoOrNull("comments(${eventId.rawValue})") { comments(eventId) } ?: emptyList())
             delay(CacheTtlTracker.COMMENTS_POLL_MS)
         }
     }
