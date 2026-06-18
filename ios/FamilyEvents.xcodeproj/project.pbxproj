@@ -79,7 +79,7 @@
 /* Begin PBXFileReference section */
 		0AA67236F4FFFB580DD258FF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		0B26CBDC6A802FA9178A3F6B /* testEventCardLongTitleWraps.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEventCardLongTitleWraps.light.png; sourceTree = "<group>"; };
-		0BB6A6A083B4A46D1DB47612 /* FEDesignSystemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FEDesignSystemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BB6A6A083B4A46D1DB47612 /* FEDesignSystemTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FEDesignSystemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0ED7E52CA65CBCCB4FA2D33F /* FEAppIntents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEAppIntents; path = Packages/FEAppIntents; sourceTree = SOURCE_ROOT; };
 		141BE55DA40D69FD31C2BE54 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		188C8EDD19850302A039CA4F /* FamilyEvents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FamilyEvents.entitlements; sourceTree = "<group>"; };
@@ -87,7 +87,7 @@
 		1A5DCAD3EBE7E70B91FABBF8 /* SNAPSHOTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SNAPSHOTS.md; sourceTree = "<group>"; };
 		2730E4B6201A36BB8AE2AB51 /* testFavoriteButtonFavoritedState.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testFavoriteButtonFavoritedState.xxl-type.png"; sourceTree = "<group>"; };
 		2970B6037618A85B61BB7ADC /* FEEventDetail */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEEventDetail; path = Packages/FEEventDetail; sourceTree = SOURCE_ROOT; };
-		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BE6426A86C916F2AD1D657A /* FamilyEventsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FamilyEventsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		385EA97ECED02A4A5AD91292 /* PlaceholderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViewTests.swift; sourceTree = "<group>"; };
 		3BF6FBC26FDA39DF5BCEC4F2 /* testEventCardWithoutBadge.xxl-type.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "testEventCardWithoutBadge.xxl-type.png"; sourceTree = "<group>"; };
 		3F8E92F1A307575ADADCD915 /* FEMap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEMap; path = Packages/FEMap; sourceTree = SOURCE_ROOT; };
@@ -122,7 +122,7 @@
 		DDC5B57FA5F07145FD0A933C /* FavoriteButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButtonTests.swift; sourceTree = "<group>"; };
 		DDF719CAABF3DE5A1AAC0855 /* testFavoriteButtonFavoritedState.light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testFavoriteButtonFavoritedState.light.png; sourceTree = "<group>"; };
 		DDF79B5230EC3037D78EEF6D /* RootViewSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewSmokeTests.swift; sourceTree = "<group>"; };
-		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E464D298BFB56808512883BC /* FamilyEvents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FamilyEvents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE9CF4EEF16EBEB1C2DEA632 /* FECalendar */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FECalendar; path = Packages/FECalendar; sourceTree = SOURCE_ROOT; };
 		F30DD56DC40DC5C679F79DC8 /* FEExplore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEExplore; path = Packages/FEExplore; sourceTree = SOURCE_ROOT; };
 		F6288D8480EB0B4748EB77C8 /* FEDesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FEDesignSystem; path = Packages/FEDesignSystem; sourceTree = SOURCE_ROOT; };
@@ -398,7 +398,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = FCC7E55DDA9D7FA440B4C754 /* Build configuration list for PBXProject "FamilyEvents" */;
 			compatibilityVersion = "Xcode 15.3";
@@ -547,7 +549,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -619,7 +620,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -638,7 +638,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "https://family-events.org";
 				APS_ENVIRONMENT = production;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -675,7 +674,6 @@
 				EAGER_LINKING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -692,7 +690,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPABASE_ANON_KEY = sb_publishable_5SvbRT9MxYeLxn9lBAkSdA_xGVy430_;
 				SUPABASE_URL = "https://ufrjcnozcapskjtoakvf.supabase.co";
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -725,7 +722,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "https://family-events.up.railway.app";
 				APS_ENVIRONMENT = development;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -762,7 +758,6 @@
 				EAGER_LINKING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -786,7 +781,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPABASE_ANON_KEY = sb_publishable_5SvbRT9MxYeLxn9lBAkSdA_xGVy430_;
 				SUPABASE_URL = "https://ufrjcnozcapskjtoakvf.supabase.co";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -818,7 +812,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_WEB_URL = "http://localhost:5173";
 				APS_ENVIRONMENT = development;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -855,7 +848,6 @@
 				EAGER_LINKING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -879,7 +871,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.familyevents.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPABASE_ANON_KEY = sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH;
 				SUPABASE_URL = "http://127.0.0.1:55321";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -894,7 +885,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FamilyEvents/App/FamilyEvents.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = MG77MU456K;
 				INFOPLIST_FILE = FamilyEvents/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
