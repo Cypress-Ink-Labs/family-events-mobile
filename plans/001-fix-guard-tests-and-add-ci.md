@@ -62,7 +62,7 @@ baseline every later plan depends on.
   missing dirs with `try/catch { continue }`, this test currently reports zero
   violations and passes even though it scans nothing — fixing the path will make
   it actually scan the consumer packages for the first time.
-- Confirmed broken: `node --test tests/guards/` currently fails with
+- Confirmed broken: `node --test tests/guards/*.test.mjs` currently fails with
   `Cannot find module '.../tests/guards'` on some node versions, and the
   individual tests assert on `existsSync(...apps/ios...)` which is false.
 - There is **no** CI workflow that runs these guards. Existing workflows
@@ -76,7 +76,7 @@ The fix is a pure search-and-replace of `"apps", "ios"` → `"ios"` and
 
 | Purpose | Command | Expected on success |
 |---------|---------|---------------------|
-| Run guards | `node --test tests/guards/` | all tests pass, exit 0 |
+| Run guards | `node --test tests/guards/*.test.mjs` | all tests pass, exit 0 |
 | Node version | `node --version` | v18+ (repo uses node 24 in CI) |
 
 ## Scope
@@ -109,7 +109,7 @@ In `tests/guards/ios-scope.test.mjs`, replace every `path.join(repoRoot, "apps",
 with `path.join(repoRoot, "ios", ...)`. There are 4 such constants (lines 7-10).
 Remove the `"apps",` segment only; keep everything else identical.
 
-**Verify**: `node --test tests/guards/ios-scope.test.mjs` → all tests pass, exit 0.
+**Verify**: `node --test tests/guards/*.test.mjsios-scope.test.mjs` → all tests pass, exit 0.
 
 ### Step 2: Fix the Android scope guard paths
 
@@ -118,7 +118,7 @@ In `tests/guards/android-scope.test.mjs`, change line 7
 `const androidRoot = path.join(repoRoot, "android")`. That single constant feeds
 all other paths, so no other edits are needed.
 
-**Verify**: `node --test tests/guards/android-scope.test.mjs` → all tests pass, exit 0.
+**Verify**: `node --test tests/guards/*.test.mjsandroid-scope.test.mjs` → all tests pass, exit 0.
 
 ### Step 3: Fix the iOS token-adoption guard path
 
@@ -126,7 +126,7 @@ In `tests/guards/ios-token-adoption.test.mjs`, change line 7
 `const packagesRoot = path.join(repoRoot, "apps", "ios", "Packages")` to
 `const packagesRoot = path.join(repoRoot, "ios", "Packages")`.
 
-**Verify**: `node --test tests/guards/ios-token-adoption.test.mjs` → test passes,
+**Verify**: `node --test tests/guards/*.test.mjsios-token-adoption.test.mjs` → test passes,
 exit 0. If it now FAILS with a list of "non-token color usage(s)", that is a
 real pre-existing violation surfaced for the first time — STOP (see STOP conditions).
 
@@ -161,7 +161,7 @@ jobs:
         with:
           node-version: "24"
       - name: Run guard tests
-        run: node --test tests/guards/
+        run: node --test tests/guards/*.test.mjs
 ```
 
 **Verify**: file exists and is valid YAML —
@@ -171,7 +171,7 @@ jobs:
 
 ### Step 5: Full guard run
 
-**Verify**: `node --test tests/guards/` → all tests across all three files pass,
+**Verify**: `node --test tests/guards/*.test.mjs` → all tests across all three files pass,
 exit 0.
 
 ## Test plan
@@ -179,15 +179,15 @@ exit 0.
 - No new unit tests to author — this plan repairs existing tests.
 - The added `verify.yml` is the regression guard: it ensures the path drift
   cannot silently return.
-- Verification: `node --test tests/guards/` → all pass.
+- Verification: `node --test tests/guards/*.test.mjs` → all pass.
 
 ## Done criteria
 
 Machine-checkable. ALL must hold:
 
-- [ ] `node --test tests/guards/` exits 0 with all tests passing
+- [ ] `node --test tests/guards/*.test.mjs` exits 0 with all tests passing
 - [ ] `grep -rn "\"apps\"" tests/guards/` returns no matches
-- [ ] `.github/workflows/verify.yml` exists and runs `node --test tests/guards/`
+- [ ] `.github/workflows/verify.yml` exists and runs `node --test tests/guards/*.test.mjs`
 - [ ] No files outside the in-scope list are modified (`git status`)
 - [ ] `plans/README.md` status row updated
 

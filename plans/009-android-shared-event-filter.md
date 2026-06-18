@@ -1,41 +1,79 @@
-# Plan 009: Extract the duplicated Android event-query filter into one shared predicate
+# Plan 009 (revised): Extract a shared Android event-query predicate — reconciling the divergent filter chains
 
 > **Executor instructions**: Follow this plan step by step. Run every
-> verification command and confirm the expected result before moving to the
-> next step. If anything in the "STOP conditions" section occurs, stop and
-> report — do not improvise. When done, update the status row for this plan
-> in `plans/README.md`.
+> verification command and confirm the expected result before moving on. If a
+> STOP condition occurs, stop and report. When done, update the status row for
+> plan 009 in `plans/README.md`.
 >
-> **Drift check (run first)**: `git diff --stat 744e1c6..HEAD -- android/data/`
-> If any in-scope file changed since this plan was written, compare the
-> "Current state" excerpts against the live code before proceeding; on a
-> mismatch, treat it as a STOP condition.
+> **Drift check (run first)**: `git diff --stat 39dcd14..HEAD -- android/data`
+> If any in-scope file changed since this plan was written, compare against the
+> "Current state" excerpts before proceeding; on a mismatch, STOP.
 
 ## Status
 
 - **Priority**: P3
 - **Effort**: M
-- **Risk**: MED (two code paths must stay behaviorally identical; a wrong
-  extraction silently changes query results)
-- **Depends on**: 001 (so the new test runs in CI)
+- **Risk**: MED (production filtering must not change; the in-memory test double
+  intentionally gains two filters — this must be verified, not assumed)
+- **Depends on**: none
 - **Category**: tech-debt
-- **Planned at**: commit `744e1c6`, 2026-06-17
+- **Planned at**: commit `39dcd14`, 2026-06-18
+- **Supersedes**: the original plan 009 (which assumed the two repos applied
+  identical filters — they do NOT; that STOP condition is resolved here).
 
-## Why this matters
+## Why this matters — and what the first attempt found
 
-The event-list query filter (search, age range, free, date range) is implemented
-twice with the same chain of `.filter {}` calls: once in `InMemoryEventRepository`
-(the demo/test double) and once in `RoomBackedEventRepository` (production). When
-filtering rules change, both must be edited in lockstep, and they have already
-diverged in style. Divergence here is dangerous because the in-memory repo backs
-tests — if it filters differently from the Room repo, tests pass while production
-behaves differently. This plan extracts a single `EventDto.matchesQuery(query)`
-predicate that both repositories call, and adds a unit test pinning its behavior.
+The event-list filter is implemented twice (in-memory test double + Room-backed
+production repo). The original plan assumed both applied the same 7 per-row
+filters and proposed unifying them. The executor correctly STOPPED: the chains are
+**not** identical, so a naive single predicate would silently change behavior.
+This revision reconciles them deliberately.
+
+Divergence (verified):
+- `RoomBackedEventRepository.observeEventList` applies **8 per-row filters** —
+  `search, tagIds, dateKey, ageMin, ageMax, isFree, dateFrom, dateTo` — filters
+  `cityId` at the DAO level (`eventDao.observeEvents(query.cityId?…)`), and has an
+  `.ifEmpty { seedEvents()… }` fallback before filtering.
+- `InMemoryEventRepository.observeEventList` applies **7 per-row filters** —
+  per-row `cityId` plus `search, ageMin, ageMax, isFree, dateFrom, dateTo`. It does
+  **not** filter `tagIds` or `dateKey`.
+
+**Decision (canonical = production):** the shared predicate covers the per-row
+SEMANTIC filters both repos should apply — `search, tagIds, dateKey, ageMin,
+ageMax, isFree, dateFrom, dateTo` — and **excludes `cityId`** (the two repos
+legitimately differ on *where* cityId is applied: Room at the DAO, in-memory
+per-row; that stays untouched in each). Consequence: **production (Room) behavior
+is unchanged**; the **in-memory double gains `tagIds` + `dateKey` filtering**,
+aligning the test double with production semantics. This is a deliberate,
+documented behavior change to the *test double only* — it must be confirmed not to
+break existing `:data` tests.
 
 ## Current state
 
+`android/data/src/main/java/com/familyevents/data/RoomBackedRepositories.kt`
+(`observeEventList`, ~lines 116-131):
+
+```kotlin
+override fun observeEventList(query: EventQuery): Flow<List<EventDto>> =
+    eventDao.observeEvents(query.cityId?.rawValue, limit = 250, offset = 0)
+        .map { rows ->
+            rows.map { it.toDto() }
+                .ifEmpty { seedEvents().filterByCity(query.cityId).ifEmpty { seedEvents() } }
+                .filter { event -> query.search.isNullOrBlank() || event.title.contains(query.search, ignoreCase = true) }
+                .filter { event -> query.tagIds.isEmpty() || event.tags.any { it.id in query.tagIds } }
+                .filter { event -> query.dateKey == null || event.startsAt.toString().startsWith(query.dateKey) }
+                .filter { event -> query.ageMin == null || (event.ageMax ?: Int.MAX_VALUE) >= query.ageMin }
+                .filter { event -> query.ageMax == null || (event.ageMin ?: 0) <= query.ageMax }
+                .filter { event -> query.isFree == null || event.isFree == query.isFree }
+                .filter { event -> query.dateFrom == null || !event.startsAt.isBefore(query.dateFrom) }
+                .filter { event -> query.dateTo == null || !event.startsAt.isAfter(query.dateTo) }
+                .drop(query.offset)
+                .take(query.limit)
+        }
+```
+
 `android/data/src/main/java/com/familyevents/data/InMemoryRepositories.kt`
-(`InMemoryEventRepository.observeEventList`, lines 119-130):
+(`observeEventList`, ~lines 129-141):
 
 ```kotlin
 override fun observeEventList(query: EventQuery): Flow<List<EventDto>> =
@@ -52,59 +90,52 @@ override fun observeEventList(query: EventQuery): Flow<List<EventDto>> =
     }
 ```
 
-`android/data/src/main/java/com/familyevents/data/RoomBackedRepositories.kt`
-(`RoomBackedEventRepository.observeEventList`, lines ~115-131) has the SAME 7
-filter conditions (verify by reading; line numbers approximate) followed by
-`.drop(query.offset).take(query.limit)`, differing only in the upstream source
-(`eventDao.observe...().map { ... }` vs the in-memory `MutableStateFlow`).
-
-`EventDto` and `EventQuery` are defined in the `com.familyevents.data` package.
-`EventDto` exposes `cityId`, `title`, `ageMin`, `ageMax`, `isFree`, `startsAt`
-(a `java.time`/`kotlinx` instant supporting `isBefore`/`isAfter`).
+`EventQuery` (Models.kt:49+) defines `cityId, search, tagIds: List<String>,
+dateKey: String?, ageMin, ageMax, isFree, dateFrom, dateTo, offset, limit`.
+`EventDto` exposes `tags` (each with `.id`), `title`, `ageMin/ageMax`, `isFree`,
+`startsAt`, `cityId`.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---------|---------|---------------------|
-| Compile data | `cd android && scripts/with-android-env.sh ./gradlew :data:compileDebugKotlin` | BUILD SUCCESSFUL |
-| Test data | `cd android && scripts/with-android-env.sh ./gradlew :data:testDebugUnitTest` | BUILD SUCCESSFUL |
+| Purpose | Command | Expected |
+|---------|---------|----------|
+| Compile | `cd android && scripts/with-android-env.sh ./gradlew :data:compileDebugKotlin` | BUILD SUCCESSFUL |
+| Test | `cd android && scripts/with-android-env.sh ./gradlew :data:testDebugUnitTest` | BUILD SUCCESSFUL |
 
 ## Scope
 
 **In scope**:
-- A new file `android/data/src/main/java/com/familyevents/data/EventQueryFilter.kt`
-- `android/data/src/main/java/com/familyevents/data/InMemoryRepositories.kt`
-- `android/data/src/main/java/com/familyevents/data/RoomBackedRepositories.kt`
+- `android/data/src/main/java/com/familyevents/data/EventQueryFilter.kt` (create)
+- `android/data/src/main/java/com/familyevents/data/RoomBackedRepositories.kt` (`observeEventList` only)
+- `android/data/src/main/java/com/familyevents/data/InMemoryRepositories.kt` (`observeEventList` only)
 - `android/data/src/test/java/com/familyevents/data/EventQueryFilterTest.kt` (create)
 
-**Out of scope** (do NOT touch):
-- `.drop(query.offset).take(query.limit)` paging — leave it in each repo's flow;
-  only the per-row predicate is extracted.
-- The data source (`MutableStateFlow` vs `eventDao`) — unchanged.
-- `EventDto` / `EventQuery` definitions.
+**Out of scope**:
+- `cityId` handling — leave Room's DAO-level call and InMemory's per-row cityId line exactly as they are. `cityId` is NOT in the shared predicate.
+- The `.ifEmpty { seedEvents()… }` fallback in Room, and `.drop/.take` paging in both — leave as-is.
+- `EventQuery` / `EventDto` definitions.
 
 ## Git workflow
 
-- Branch: `advisor/009-android-event-filter`
-- Commit style: `refactor(android): extract shared EventDto.matchesQuery predicate`
-- Do NOT push unless instructed.
+- Branch: `advisor/009-android-shared-event-filter` (force-create with `git switch -C`)
+- Commit style: `refactor(android): extract shared EventDto.matchesQuery (excl. cityId)`
 
 ## Steps
 
-### Step 1: Create the shared predicate
+### Step 1: Create the shared predicate (excludes cityId)
 
-Create `android/data/src/main/java/com/familyevents/data/EventQueryFilter.kt`,
-copying the EXACT 7 conditions from `InMemoryEventRepository` (the canonical form)
-so behavior is preserved bit-for-bit:
+`android/data/src/main/java/com/familyevents/data/EventQueryFilter.kt`:
 
 ```kotlin
 package com.familyevents.data
 
-/** Single source of truth for event-list filtering. Both the in-memory and
- *  Room-backed repositories MUST use this so test and production agree. */
+/** Per-row event-list filtering shared by the in-memory and Room-backed repos.
+ *  EXCLUDES cityId on purpose: Room filters cityId at the DAO level and the
+ *  in-memory repo filters it per-row, so each keeps its own cityId handling. */
 internal fun EventDto.matchesQuery(query: EventQuery): Boolean =
-    (query.cityId == null || cityId == query.cityId) &&
     (query.search.isNullOrBlank() || title.contains(query.search, ignoreCase = true)) &&
+    (query.tagIds.isEmpty() || tags.any { it.id in query.tagIds }) &&
+    (query.dateKey == null || startsAt.toString().startsWith(query.dateKey)) &&
     (query.ageMin == null || (ageMax ?: Int.MAX_VALUE) >= query.ageMin) &&
     (query.ageMax == null || (ageMin ?: 0) <= query.ageMax) &&
     (query.isFree == null || isFree == query.isFree) &&
@@ -112,76 +143,84 @@ internal fun EventDto.matchesQuery(query: EventQuery): Boolean =
     (query.dateTo == null || !startsAt.isAfter(query.dateTo))
 ```
 
-Confirm the exact property/method names against `EventDto` before compiling.
+Verify exact property/method names against `EventDto` before compiling.
 
 **Verify**: `cd android && scripts/with-android-env.sh ./gradlew :data:compileDebugKotlin` → BUILD SUCCESSFUL.
 
-### Step 2: Use it in `InMemoryEventRepository`
+### Step 2: Use it in Room (production behavior unchanged)
 
-Replace the 7 chained `.filter {}` calls (lines 121-127) with a single
-`.filter { it.matchesQuery(query) }`, keeping `.drop(query.offset).take(query.limit)`:
+Replace Room's 8 per-row `.filter {}` calls with a single `.filter { it.matchesQuery(query) }`,
+keeping `eventDao.observeEvents(query.cityId?…)`, the `.ifEmpty { … }` fallback,
+and `.drop/.take`:
 
 ```kotlin
-rows.filter { it.matchesQuery(query) }
-    .drop(query.offset)
-    .take(query.limit)
+                rows.map { it.toDto() }
+                    .ifEmpty { seedEvents().filterByCity(query.cityId).ifEmpty { seedEvents() } }
+                    .filter { it.matchesQuery(query) }
+                    .drop(query.offset)
+                    .take(query.limit)
 ```
 
-**Verify**: compile as above; `grep -c "\.filter {" InMemoryRepositories.kt` shows
-the event-list block reduced to one filter.
+This is behavior-preserving for Room (same 8 filters, same order of effect).
 
-### Step 3: Use it in `RoomBackedEventRepository`
+### Step 3: Use it in InMemory (gains tagIds + dateKey — intentional)
 
-Apply the same single-predicate replacement in `RoomBackedEventRepository.observeEventList`.
+Keep the per-row cityId line, then replace the remaining filters with the shared predicate:
+
+```kotlin
+        rows.filter { query.cityId == null || it.cityId == query.cityId }
+            .filter { it.matchesQuery(query) }
+            .drop(query.offset)
+            .take(query.limit)
+```
+
+This ADDS `tagIds` + `dateKey` filtering to the in-memory double (it had neither),
+aligning it with production. That is the intended reconciliation.
 
 **Verify**: `cd android && scripts/with-android-env.sh ./gradlew :data:compileDebugKotlin` → BUILD SUCCESSFUL.
 
 ### Step 4: Pin behavior with a unit test
 
-Create `android/data/src/test/java/com/familyevents/data/EventQueryFilterTest.kt`
-(JUnit 4). Build a small set of `EventDto` fixtures and assert `matchesQuery`
-for: empty query (matches all), city filter, search (case-insensitive),
-age-overlap edges, `isFree`, and date bounds (inclusive on the boundary, per the
-`!isBefore`/`!isAfter` semantics). Model fixture construction after the
-`seedEvents()` shape in `InMemoryRepositories.kt` (same `EventDto` constructor).
+Create `EventQueryFilterTest.kt` (JUnit 4) building `EventDto` fixtures (model the
+constructor after `seedEvents()` in `InMemoryRepositories.kt`). Assert
+`matchesQuery` for: empty query matches all; search case-insensitive; `tagIds`
+match/non-match; `dateKey` prefix match; ageMin/ageMax overlap including boundary;
+isFree true/false; dateFrom/dateTo inclusive boundaries. (cityId is NOT tested here
+— it's not part of the predicate.)
 
 **Verify**: `cd android && scripts/with-android-env.sh ./gradlew :data:testDebugUnitTest` → BUILD SUCCESSFUL, new tests pass.
 
-## Test plan
+### Step 5: Confirm no existing test regressed
 
-- New `EventQueryFilterTest.kt` covering: no-op query, city match/non-match,
-  search case-insensitivity, ageMin/ageMax overlap including boundary values,
-  isFree true/false, dateFrom/dateTo inclusive boundaries.
-- Existing `:data` tests must still pass (they exercise the repos that now call
-  the shared predicate) — that is the equivalence guard.
-- Verification: `./gradlew :data:testDebugUnitTest` → all pass.
+**Verify**: the full `:data:testDebugUnitTest` run is green. If any PRE-EXISTING
+in-memory-repo test now fails because the double newly filters `tagIds`/`dateKey`,
+STOP and report it — that test encodes an expectation about the old under-filtering
+and a human must decide whether to update the test or revisit the reconciliation.
 
 ## Done criteria
 
-Machine-checkable. ALL must hold:
+ALL must hold:
 
-- [ ] `cd android && scripts/with-android-env.sh ./gradlew :data:testDebugUnitTest` → BUILD SUCCESSFUL with new passing tests
-- [ ] `matchesQuery` exists once and is called by both `InMemoryEventRepository` and `RoomBackedEventRepository`
-- [ ] Neither repo contains the 7-line `.filter{}` chain anymore (`grep` shows a single `matchesQuery` filter in each event-list flow)
+- [ ] `cd android && scripts/with-android-env.sh ./gradlew :data:testDebugUnitTest` → BUILD SUCCESSFUL, new tests pass
+- [ ] `matchesQuery` exists once and is called by both repos' `observeEventList`
+- [ ] Room's `observeEventList` keeps DAO-level cityId + `.ifEmpty` fallback; InMemory keeps its per-row cityId line
+- [ ] `cityId` does NOT appear in `matchesQuery`
 - [ ] No files outside the in-scope list are modified (`git status`)
-- [ ] `plans/README.md` status row updated
+- [ ] `plans/README.md` status row for 009 updated
 
 ## STOP conditions
 
-Stop and report back (do not improvise) if:
+Stop and report if:
 
-- The two repos' filter chains are NOT actually identical (e.g. one has an 8th
-  condition or different boundary logic) — extracting a single predicate would
-  change behavior. Report the divergence; do not pick one silently.
-- `EventDto` property names differ from those assumed above.
-- `:data` tests fail after the change for a filtering reason — that signals a
-  behavior change; revert and report.
+- A pre-existing `:data` test fails due to the in-memory double's new tagIds/dateKey filtering (Step 5).
+- `EventDto`/`EventQuery` field names differ from the excerpts.
+- Room's per-row filter set differs from the 8 documented here (the file drifted).
 
 ## Maintenance notes
 
-- `matchesQuery` is now the single place to change list-filter rules; any new
-  filter field on `EventQuery` is added here once.
-- A reviewer should diff the predicate against the original 7 conditions
-  character-by-character to confirm equivalence.
-- Note: the Room repo filters in memory after a DAO read; pushing filters into SQL
-  is a larger perf change explicitly deferred.
+- `matchesQuery` is now the one place to change per-row list-filter rules. cityId
+  is deliberately outside it — if cityId handling is ever unified, that is a
+  separate change touching the DAO query.
+- Reviewer: diff `matchesQuery` against Room's original 8 filters character-by-
+  character to confirm production semantics are preserved, and confirm the
+  in-memory double's new filtering is the intended alignment.

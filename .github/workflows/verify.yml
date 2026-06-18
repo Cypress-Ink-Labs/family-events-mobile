@@ -24,4 +24,4 @@ jobs:
         with:
           node-version: "24"
       - name: Run guard tests
-        run: node --test tests/guards/
+        run: node --test tests/guards/*.test.mjs

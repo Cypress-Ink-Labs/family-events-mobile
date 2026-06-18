@@ -24,3 +24,6 @@ local.properties
 
 # Signing materials (local only — use GH Actions secrets in CI)
 signing/
+
+# Claude Code session artifacts (agent worktrees, transcripts)
+.claude/
