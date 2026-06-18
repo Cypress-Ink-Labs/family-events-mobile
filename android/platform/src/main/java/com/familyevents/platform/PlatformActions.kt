@@ -20,13 +20,21 @@ class PlatformActions(private val context: Context) {
         context.startActivity(intent)
     }
 
-    fun addToCalendar(title: String, startMillis: Long, endMillis: Long?) {
+    fun addToCalendar(
+        title: String,
+        startMillis: Long,
+        endMillis: Long?,
+        location: String? = null,
+        description: String? = null,
+    ) {
         val intent = Intent(Intent.ACTION_INSERT)
             .setData(CalendarContract.Events.CONTENT_URI)
             .putExtra(CalendarContract.Events.TITLE, title)
             .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (endMillis != null) intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
+        if (!location.isNullOrBlank()) intent.putExtra(CalendarContract.Events.EVENT_LOCATION, location)
+        if (!description.isNullOrBlank()) intent.putExtra(CalendarContract.Events.DESCRIPTION, description)
         context.startActivity(intent)
     }
 }
