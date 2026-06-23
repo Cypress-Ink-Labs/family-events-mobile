@@ -8,12 +8,6 @@ on:
       - "android/**"
       - "ios/**"
       - ".github/workflows/codeql.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "android/**"
-      - "ios/**"
-      - ".github/workflows/codeql.yml"
   schedule:
     - cron: "0 4 * * 1"
 
@@ -56,10 +50,7 @@ jobs:
             exit 0
           fi
 
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="${{ github.event.pull_request.base.sha }}"
-            head="${{ github.event.pull_request.head.sha }}"
-          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+          if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
             base="${{ github.event.before }}"
             head="${{ github.sha }}"
           else
