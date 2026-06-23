@@ -3,8 +3,12 @@ import XCTest
 final class EndpointPolicyTests: XCTestCase {
     func testNoAdminPathReferencesInIOSSources() throws {
         let fileManager = FileManager.default
-        let repoRoot = try repoRootURL()
-        let iosRoot = repoRoot.appending(path: "apps/ios")
+        // This file lives at ios/FamilyEventsTests/EndpointPolicyTests.swift, so the
+        // iOS root is two directories up. (Standalone repo: iOS sources are at ios/,
+        // not the monorepo-era apps/ios/, and there is no pnpm-workspace.yaml to anchor on.)
+        let iosRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent() // FamilyEventsTests/
+            .deletingLastPathComponent() // ios/
         let searchRoots = [
             iosRoot.appending(path: "FamilyEvents"),
             iosRoot.appending(path: "Packages"),
@@ -12,8 +16,10 @@ final class EndpointPolicyTests: XCTestCase {
 
         var offenders: [String] = []
         for root in searchRoots {
-            let enumerator = fileManager.enumerator(at: root, includingPropertiesForKeys: nil)
-            while let url = enumerator?.nextObject() as? URL {
+            guard let enumerator = fileManager.enumerator(at: root, includingPropertiesForKeys: nil) else {
+                continue
+            }
+            while let url = enumerator.nextObject() as? URL {
                 guard url.pathExtension == "swift" else { continue }
                 // Skip SPM build artifacts
                 if url.pathComponents.contains(".build") { continue }
@@ -24,18 +30,5 @@ final class EndpointPolicyTests: XCTestCase {
             }
         }
         XCTAssertTrue(offenders.isEmpty, "admin-path references found in: \(offenders.joined(separator: ", "))")
-    }
-
-    private func repoRootURL() throws -> URL {
-        // Walk up from this source file until we find a `pnpm-workspace.yaml`.
-        var url = URL(fileURLWithPath: #filePath)
-        while url.pathComponents.count > 1 {
-            url.deleteLastPathComponent()
-            let marker = url.appending(path: "pnpm-workspace.yaml")
-            if FileManager.default.fileExists(atPath: marker.path) {
-                return url
-            }
-        }
-        throw NSError(domain: "EndpointPolicyTests", code: 1, userInfo: [NSLocalizedDescriptionKey: "repo root not found"])
     }
 }
